@@ -1,12 +1,262 @@
-.product-card{
-    max-width: 150px;
+/* ===== KROSS OVER — PRODUCT LIST ===== */
+
+.home {
+  background: #F5F2EA;
 }
 
-mat-card:hover{
-    transform: scale(1.05);
-    cursor: pointer;
+/* ---------- HERO ---------- */
+.hero {
+  position: relative;
+  min-height: 480px;
+  display: flex;
+  overflow: hidden;
 }
 
-mat-card{
-    transition: transform .2s;
+.hero-half {
+  flex: 1;
+  height: 100%;
+}
+
+.hero-half--navy {
+  background: #0B1B3A;
+}
+
+.hero-half--crimson {
+  background: #D6293A;
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+  margin-left: -8%;
+}
+
+
+
+.hero-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  z-index: 2;
+}
+
+.hero-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* Solid NBA-logo-style colors instead of low-contrast outline text:
+   MOVE in red, DIFFERENT in blue, white background chip behind each
+   line so both read clearly no matter which half of the hero they sit on. */
+.hero-title {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 6.5vw, 4.6rem);
+  line-height: 1.05;
+  letter-spacing: 1px;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-title--red,
+.hero-title--blue {
+  background: #FFFFFF;
+  padding: 2px 16px;
+  border-radius: 4px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.hero-title--red {
+  color: #D6293A;
+}
+
+.hero-title--blue {
+  color: #2A5BCC;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.85);
+  max-width: 420px;
+  margin: 0 0 28px;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: #F5F2EA;
+  color: #14171C;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: 4px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.hero-cta:hover {
+  background: #D6293A;
+  color: #F5F2EA;
+  transform: translateY(-2px);
+}
+
+/* ---------- PRODUCT GRID ---------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px 40px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+  letter-spacing: 0.5px;
+  color: #14171C;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.section-rule {
+  flex: 1;
+  height: 4px;
+  background: linear-gradient(90deg, #D6293A 0%, #D6293A 50%, #2A5BCC 50%, #2A5BCC 100%);
+  border-radius: 2px;
+}
+
+/* ---------- CATEGORY FILTERS ---------- */
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.category-btn {
+  background: #FFFFFF;
+  border: 1.5px solid #e5e0d4;
+  color: #14171C;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.category-btn:hover {
+  border-color: #D6293A;
+}
+
+.category-btn.active {
+  background: #0B1B3A;
+  border-color: #0B1B3A;
+  color: #F5F2EA;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.product-card {
+  border-radius: 10px;
+  border: 1px solid #e5e0d4;
+  box-shadow: none;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background-color: #ECE8DD;
+}
+
+.product-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #14171C;
+  margin-bottom: 4px;
+}
+
+.product-price {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  color: #8B8F98;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: #8B8F98;
+  font-size: 0.95rem;
+}
+
+/* ---------- MISSION STRIP ---------- */
+.mission {
+  background: #0B1B3A;
+  padding: 56px 24px;
+}
+
+.mission-text {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #F5F2EA;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .hero {
+    min-height: 420px;
+  }
+
+  .hero-half--crimson {
+    clip-path: polygon(0 70%, 100% 40%, 100% 100%, 0% 100%);
+    margin-left: 0;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .product-image {
+    height: 140px;
+  }
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta,
+  .product-card,
+  .category-btn {
+    transition: none;
+  }
 }

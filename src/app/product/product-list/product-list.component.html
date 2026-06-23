@@ -1,14 +1,60 @@
-<div class="container">
-    <h3>Just for you</h3>
-    <div fxLayout="row wrap" fxLayoutGap="50px grid">
-        <div *ngFor="let product of products">
-            <mat-card class="product-card" appearance="outlined">
-                <img mat-card-image src="/assets/images/{{product.imageUrl}}">
-                <mat-card-content>
-                    <mat-card-title>{{product.name}}</mat-card-title>
-                    <mat-card-subtitle>{{product.price | currency: 'PHP'}}</mat-card-subtitle>
-                </mat-card-content>
-            </mat-card>
-        </div>
+<div class="home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-half hero-half--navy">
     </div>
+    <div class="hero-half hero-half--crimson"></div>
+
+    <div class="hero-content">
+      <img class="hero-logo" src="/assets/images/kross-over-logo.png" alt="Kross Over logo">
+      <h1 class="hero-title">
+        <span class="hero-title--red">MOVE</span>
+        <span class="hero-title--blue">DIFFERENT</span>
+      </h1>
+      <p class="hero-sub">Streetwear built for the handle, the hoop, <br> and everywhere after.</p>
+      <a class="hero-cta" routerLink="/products">Shop the drop</a>
+    </div>
+  </section>
+
+  <!-- PRODUCT GRID -->
+  <div class="container">
+    <div class="section-head">
+      <h3 class="section-title">Just for you</h3>
+      <span class="section-rule"></span>
+    </div>
+
+    <div class="category-filters">
+      <button
+        class="category-btn"
+        *ngFor="let category of categories"
+        [class.active]="selectedCategory === category"
+        (click)="selectCategory(category)">
+        {{category}}
+      </button>
+    </div>
+
+    <div class="product-grid" *ngIf="products.length > 0">
+      <mat-card class="product-card" appearance="outlined" *ngFor="let product of products">
+        <img mat-card-image class="product-image" src="/assets/images/{{product.imageUrl}}" [alt]="product.name">
+        <mat-card-content>
+          <mat-card-title class="product-name">{{product.name}}</mat-card-title>
+          <mat-card-subtitle class="product-price">{{product.price | currency: 'PHP'}}</mat-card-subtitle>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="empty-state" *ngIf="products.length === 0">
+      <p>No products match that search yet. Try a different category or term.</p>
+    </div>
+  </div>
+
+  <!-- MISSION STRIP -->
+  <section class="mission">
+    <p class="mission-text">
+      Krossover is built courtside and worn off it. Every piece carries the crossover —
+      the moment you change direction and the defender doesn't.
+    </p>
+  </section>
+
 </div>

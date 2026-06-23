@@ -1,14 +1,24 @@
-<div class="container">
-    <h3>Just for you</h3>
-    <div fxLayout="row wrap" fxLayoutGap="50px grid">
-        <div *ngFor="let product of products">
-            <mat-card class="product-card" appearance="outlined">
-                <img mat-card-image src="/assets/images/{{product.imageUrl}}">
-                <mat-card-content>
-                    <mat-card-title>{{product.name}}</mat-card-title>
-                    <mat-card-subtitle>{{product.price | currency: 'PHP'}}</mat-card-subtitle>
-                </mat-card-content>
-            </mat-card>
+<div class="container-sm">
+    <h2 class="cart-title">Cart</h2>
+
+    <div class="cart-grid">
+        <div class="cart-item" *ngFor="let item of cartItems">
+            <img class="item-thumb" src="/assets/images/{{item.imageUrl}}" [alt]="item.name">
+            <div class="item-info">
+                <span class="item-name">{{item.name}}</span>
+                <span class="item-price">{{item.price | currency: 'PHP'}}</span>
+            </div>
         </div>
     </div>
+
+    <mat-card class="summary-card">
+        <div class="total-row">
+            <span class="price">Total</span>
+            <span class="price">{{totalPrice | currency: 'PHP'}}</span>
+        </div>
+        <div class="actions-row">
+            <button mat-flat-button (click)="clearCart()">Clear</button>
+            <button mat-raised-button color="accent" (click)="checkout()">Checkout</button>
+        </div>
+    </mat-card>
 </div>
