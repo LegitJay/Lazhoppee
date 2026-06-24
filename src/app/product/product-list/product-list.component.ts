@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Product } from 'src/app/models/product';
 import { ProductService } from '../product.service';
+import { CartService } from '../../cart/cart.service';
 
 @Component({
   selector: 'app-product-list',
@@ -10,17 +11,18 @@ import { ProductService } from '../product.service';
 })
 export class ProductListComponent implements OnInit {
 
-  // All products fetched from the backend, unfiltered.
   allProducts: Product[] = [];
 
-  // The subset currently shown, after category + search filtering.
   products: Product[] = [];
 
-  categories: string[] = ['All', 'Tees', 'Shorts', 'Accessories'];
+  categories: string[] = ['All', 'Shirts', 'Shorts', 'Accessories'];
   selectedCategory: string = 'All';
   searchTerm: string = '';
 
-  constructor(private productService: ProductService, private route: ActivatedRoute) {}
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService,
+    private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -37,6 +39,10 @@ export class ProductListComponent implements OnInit {
   selectCategory(category: string): void {
     this.selectedCategory = category;
     this.applyFilters();
+  }
+
+  addToCart(product: Product): void {
+    this.cartService.addToCart(product).subscribe();
   }
 
   private applyFilters(): void {
