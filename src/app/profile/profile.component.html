@@ -1,0 +1,19 @@
+<div class="profile-shell" *ngIf="user">
+  <div class="profile-card">
+    <p class="profile-eyebrow">Your account</p>
+    <h1 class="profile-title">{{ user.email }}</h1>
+    <p class="profile-role">Role: {{ user.role }}</p>
+
+    <div class="seller-banner" *ngIf="user.role === 'customer'">
+      <p class="seller-banner-title">Have something to sell?</p>
+      <p class="seller-banner-copy">Set up your storefront and start listing products today.</p>
+      <button type="button" class="seller-banner-btn" routerLink="/become-seller">
+        Start Selling
+      </button>
+    </div>
+
+    <button type="button" class="profile-logout" (click)="logout()">
+      Log out
+    </button>
+  </div>
+</div>

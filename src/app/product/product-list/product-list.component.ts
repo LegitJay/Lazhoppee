@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from 'src/app/models/product';
 import { ProductService } from '../product.service';
 import { CartService } from '../../cart/cart.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-product-list',
@@ -22,6 +23,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
+    private authService: AuthService,
+    private router: Router,
     private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -42,6 +45,10 @@ export class ProductListComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth']);
+      return;
+    }
     this.cartService.addToCart(product).subscribe();
   }
 

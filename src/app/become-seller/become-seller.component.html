@@ -1,0 +1,40 @@
+<div class="seller-shell">
+    <div class="seller-card">
+        <p class="seller-eyebrow">Become a Seller</p>
+        <h1 class="seller-title">Set up your store</h1>
+        <p class="seller-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+        <form (ngSubmit)="onSubmit()" #sellerForm="ngForm">
+            <div class="seller-grid">
+
+                <div class="seller-fields">
+                    <label class="seller-field">
+                        <span class="seller-label">Store name</span>
+                        <input type="text" name="storeName" [(ngModel)]="storeName" required
+                            placeholder="e.g. Krossover Threads" />
+                    </label>
+
+                    <label class="seller-field">
+                        <span class="seller-label">Store description</span>
+                        <textarea name="storeDescription" [(ngModel)]="storeDescription"
+                            placeholder="Tell shoppers what you sell"></textarea>
+                    </label>
+                </div>
+
+                <div class="seller-map-col">
+                    <label class="seller-label seller-map-label">Store location</label>
+                    <p class="seller-map-hint">Click on the map to drop a pin at your store's location.</p>
+                    <div id="seller-map" class="seller-map"></div>
+                    <p class="seller-coords" *ngIf="selectedLat !== null">
+                        Pinned at {{ selectedLat | number: '1.4-4' }}, {{ selectedLng | number: '1.4-4' }}
+                    </p>
+                </div>
+
+            </div>
+
+            <button type="submit" class="seller-submit" [disabled]="sellerForm.invalid || isSubmitting">
+                {{ isSubmitting ? 'Submitting...' : 'Create my store' }}
+            </button>
+        </form>
+    </div>
+</div>

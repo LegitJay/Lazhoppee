@@ -9,6 +9,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import { CartModule } from './cart/cart.module';
+import { ProfileComponent } from './profile/profile.component';
+import { BecomeSellerComponent } from './become-seller/become-seller.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +24,9 @@ import { CartModule } from './cart/cart.module';
     MatToolbarModule,
     MatButtonModule,
     CartModule,
-    FormsModule
+    FormsModule,
+    ProfileComponent,
+    BecomeSellerComponent,
   ],
   providers: [],
   bootstrap: [AppComponent]

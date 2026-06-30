@@ -1,7 +1,7 @@
-<header class="site-header">
+<header class="site-header" *ngIf="!isAdminRoute">
     <div class="header-row">
         <a routerLink="/" class="brand">
-            <img class="brand-logo" src="/assets/images/kross-over-logo2.png" alt="Kross Over">
+            <img class="brand-logo" src="/assets/images/KRSSVR LOGO-03.svg" alt="Kross Over">
         </a>
 
         <nav class="nav-links">
@@ -26,6 +26,14 @@
             </svg>
             <span class="cart-badge" *ngIf="cartCount > 0">{{cartCount}}</span>
         </a>
+
+        <ng-container *ngIf="isLoggedIn; else loggedOut">
+            <a routerLink="/profile" routerLinkActive="active" class="nav-link">Profile</a>
+            <button type="button" class="nav-link nav-link--button" (click)="logout()">Logout</button>
+        </ng-container>
+        <ng-template #loggedOut>
+            <a routerLink="/auth" routerLinkActive="active" class="nav-link">Login</a>
+        </ng-template>
     </div>
 </header>
 

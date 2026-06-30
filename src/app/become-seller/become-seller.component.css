@@ -1,0 +1,164 @@
+.seller-shell {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+  background: #f5f2ea;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+}
+
+.seller-card {
+  width: 100%;
+  max-width: 1100px;
+  padding: 48px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e0d4;
+  box-shadow: 0 30px 60px -20px rgba(11, 27, 58, 0.25);
+  box-sizing: border-box;
+}
+
+.seller-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d6293a;
+}
+
+.seller-title {
+  margin: 8px 0 28px;
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  color: #0b1b3a;
+}
+
+.seller-error {
+  margin: 0 0 20px;
+  padding: 10px 12px;
+  background: rgba(214, 41, 58, 0.08);
+  border: 1px solid #d6293a;
+  border-radius: 8px;
+  color: #d6293a;
+  font-size: 13px;
+}
+
+/* Two-column layout: fields on the left, map on the right */
+.seller-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .seller-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.seller-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.seller-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.seller-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b1b3a;
+}
+
+.seller-field input,
+.seller-field textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid #e5e0d4;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: #fff;
+  color: #0b1b3a;
+  outline: none;
+  resize: vertical;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+}
+
+.seller-field textarea {
+  min-height: 140px;
+}
+
+.seller-field input:focus,
+.seller-field textarea:focus {
+  border-color: #d6293a;
+}
+
+.seller-map-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.seller-map-label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.seller-map-hint {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #8b8f98;
+}
+
+.seller-map {
+  width: 100%;
+  height: 460px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e0d4;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 880px) {
+  .seller-map {
+    height: 320px;
+  }
+}
+
+.seller-coords {
+  margin: 0;
+  font-size: 13px;
+  color: #8b8f98;
+}
+
+.seller-submit {
+  margin-top: 28px;
+  padding: 14px 36px;
+  background: #0b1b3a;
+  color: #f5f2ea;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.seller-submit:hover:not(:disabled) {
+  background: #d6293a;
+}
+
+.seller-submit:disabled {
+  background: #e5e0d4;
+  color: #8b8f98;
+  cursor: not-allowed;
+}

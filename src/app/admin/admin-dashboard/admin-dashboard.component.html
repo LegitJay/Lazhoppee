@@ -1,0 +1,34 @@
+<div class="dash-shell">
+  <header class="dash-header">
+    <h1 class="dash-title">Seller Applications</h1>
+    <button class="dash-logout" (click)="logout()">Log out</button>
+  </header>
+
+  <div class="dash-tabs">
+    <button class="dash-tab" [class.active]="filter === 'pending'" (click)="setFilter('pending')">Pending</button>
+    <button class="dash-tab" [class.active]="filter === 'approved'" (click)="setFilter('approved')">Approved</button>
+    <button class="dash-tab" [class.active]="filter === 'rejected'" (click)="setFilter('rejected')">Rejected</button>
+  </div>
+
+  <div class="dash-list" *ngIf="!isLoading; else loading">
+    <div class="app-card" *ngFor="let app of applications">
+      <div class="app-info">
+        <p class="app-store">{{ app.storeName }}</p>
+        <p class="app-email">{{ applicantEmail(app) }}</p>
+        <p class="app-desc" *ngIf="app.storeDescription">{{ app.storeDescription }}</p>
+        <p class="app-date">Submitted {{ app.createdAt | date: 'medium' }}</p>
+      </div>
+
+      <div class="app-actions" *ngIf="app.status === 'pending'">
+        <button class="approve-btn" (click)="approve(app)">Approve</button>
+        <button class="reject-btn" (click)="reject(app)">Reject</button>
+      </div>
+
+      <span class="status-pill" [class]="app.status" *ngIf="app.status !== 'pending'">{{ app.status }}</span>
+    </div>
+
+    <p class="empty-msg" *ngIf="applications.length === 0">No {{ filter }} applications.</p>
+  </div>
+
+  <ng-template #loading><p class="empty-msg">Loading...</p></ng-template>
+</div>

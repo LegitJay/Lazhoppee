@@ -1,0 +1,101 @@
+.profile-shell {
+  display: flex;
+  justify-content: center;
+  padding: 64px 24px;
+  background: #f5f2ea;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e0d4;
+  box-shadow: 0 30px 60px -20px rgba(11, 27, 58, 0.25);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.profile-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 700;
+  color: #d6293a;
+  margin-bottom: 10px;
+}
+
+.profile-title {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 26px;
+  color: #0b1b3a;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.profile-role {
+  text-transform: capitalize;
+  color: #8b8f98;
+  margin-bottom: 28px;
+}
+
+.seller-banner {
+  margin-bottom: 28px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #0b1b3a;
+  text-align: left;
+}
+
+.seller-banner-title {
+  margin: 0 0 4px;
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: #f5f2ea;
+}
+
+.seller-banner-copy {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: rgba(245, 242, 234, 0.75);
+  line-height: 1.5;
+}
+
+.seller-banner-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: none;
+  background: #d6293a;
+  color: #f5f2ea;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.seller-banner-btn:hover {
+  background: #b81f2e;
+}
+
+.profile-logout {
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: none;
+  background: #d6293a;
+  color: #f5f2ea;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-logout:hover {
+  background: #b81f2e;
+}
