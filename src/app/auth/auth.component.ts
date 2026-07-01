@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
+import { CartService } from '../cart/cart.service';
 
 @Component({
   selector: 'app-auth',
@@ -23,7 +24,11 @@ export class AuthComponent {
   isSubmitting = false;
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
   switchTo(mode: 'login' | 'register') {
     this.mode = mode;
@@ -35,9 +40,17 @@ export class AuthComponent {
     this.isSubmitting = true;
 
     this.authService.login(this.loginData.email, this.loginData.password).subscribe({
-      next: () => {
+      next: (res) => {
         this.isSubmitting = false;
-        this.router.navigate(['/products']);
+        // Fetch this user's cart immediately so the badge is correct
+        // and any previous session's in-memory state is replaced.
+        this.cartService.refreshCartCount();
+
+        if (res.user.role === 'admin') {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/products']);
+        }
       },
       error: (err) => {
         this.isSubmitting = false;
@@ -56,17 +69,17 @@ export class AuthComponent {
 
     this.isSubmitting = true;
 
-    this.authService
-      .register(this.registerData.email, this.registerData.password)
-      .subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.router.navigate(['/products']);
-        },
-        error: (err) => {
-          this.isSubmitting = false;
-          this.errorMessage = err?.error?.message || 'Registration failed. Please try again.';
-        },
-      });
+    this.authService.register(this.registerData.email, this.registerData.password).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        // New account — cart is empty, but reset ensures no stale state
+        this.cartService.reset();
+        this.router.navigate(['/products']);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.errorMessage = err?.error?.message || 'Registration failed. Please try again.';
+      },
+    });
   }
 }

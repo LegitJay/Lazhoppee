@@ -11,6 +11,7 @@ mongoose.connect(process.env.MONGODB_URI).then(async () => {
   let user = await User.findOne({ email: ADMIN_EMAIL });
   if (user) {
     user.role = 'admin';
+    user.password = ADMIN_PASSWORD;
     await user.save();
     console.log('Existing user upgraded to admin:', ADMIN_EMAIL);
   } else {

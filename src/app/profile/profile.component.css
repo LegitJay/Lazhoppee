@@ -9,7 +9,7 @@
 
 .profile-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   padding: 40px 32px;
   border-radius: 14px;
   background: #ffffff;
@@ -29,7 +29,7 @@
 }
 
 .profile-title {
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-family: "Anton", "Arial Narrow", sans-serif;
   font-weight: 400;
   font-size: 26px;
   color: #0b1b3a;
@@ -43,6 +43,7 @@
   margin-bottom: 28px;
 }
 
+/* ── Start Selling / Store Live banner ── */
 .seller-banner {
   margin-bottom: 28px;
   padding: 20px;
@@ -53,7 +54,7 @@
 
 .seller-banner-title {
   margin: 0 0 4px;
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-family: "Anton", "Arial Narrow", sans-serif;
   font-weight: 400;
   font-size: 18px;
   color: #f5f2ea;
@@ -85,6 +86,152 @@
   background: #b81f2e;
 }
 
+/* ── Pending review banner ── */
+.pending-banner {
+  margin-bottom: 28px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f5f2ea;
+  border: 1.5px solid #e5e0d4;
+  text-align: left;
+}
+
+.pending-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pending-icon {
+  font-size: 18px;
+}
+
+.pending-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 15px;
+  color: #0b1b3a;
+}
+
+.pending-copy {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: #8b8f98;
+  line-height: 1.6;
+}
+
+.pending-submitted {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #8b8f98;
+}
+
+/* ── Progress steps ── */
+.progress-track {
+  padding: 8px 0;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.step-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e5e0d4;
+  border: 2px solid #e5e0d4;
+  transition: background 0.3s ease;
+}
+
+.progress-step.done .step-dot {
+  background: #0b1b3a;
+  border-color: #0b1b3a;
+}
+
+.progress-step.active .step-dot {
+  background: #d6293a;
+  border-color: #d6293a;
+  box-shadow: 0 0 0 4px rgba(214, 41, 58, 0.15);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(214, 41, 58, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(214, 41, 58, 0.05);
+  }
+}
+
+.step-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b8f98;
+  white-space: nowrap;
+}
+
+.progress-step.done .step-label,
+.progress-step.active .step-label {
+  color: #0b1b3a;
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  background: #e5e0d4;
+  margin-bottom: 18px;
+  transition: background 0.3s ease;
+}
+
+.progress-line.active {
+  background: linear-gradient(to right, #0b1b3a, #d6293a);
+}
+
+/* ── Rejected banner ── */
+.rejected-banner {
+  margin-bottom: 28px;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(214, 41, 58, 0.05);
+  border: 1.5px solid #d6293a;
+  text-align: left;
+}
+
+.rejected-title {
+  margin: 0 0 6px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #d6293a;
+}
+
+.rejected-reason {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #0b1b3a;
+}
+
+.rejected-copy {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #8b8f98;
+  line-height: 1.5;
+}
+
+/* ── Logout ── */
 .profile-logout {
   padding: 12px 28px;
   border-radius: 999px;
@@ -98,4 +245,10 @@
 
 .profile-logout:hover {
   background: #b81f2e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-step.active .step-dot {
+    animation: none;
+  }
 }

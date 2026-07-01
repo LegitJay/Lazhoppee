@@ -25,14 +25,20 @@ export class BecomeSellerComponent implements OnInit, AfterViewInit {
   private map!: L.Map;
   private marker: L.Marker | null = null;
 
-  // Default view: Philippines, since that's the storefront's primary market
-  private defaultLat = 12.8797;
-  private defaultLng = 121.7740;
-  private defaultZoom = 6;
+  // Default view: Philippines
+  private readonly defaultLat = 12.8797;
+  private readonly defaultLng = 121.7740;
+  private readonly defaultZoom = 6;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // If already pendingSeller or storeOwner, no need to be here
+    const user = this.authService.getUser();
+    if (user && (user.role === 'pendingSeller' || user.role === 'storeOwner')) {
+      this.router.navigate(['/profile']);
+    }
+  }
 
   ngAfterViewInit(): void {
     this.map = L.map('seller-map').setView([this.defaultLat, this.defaultLng], this.defaultZoom);
@@ -42,19 +48,18 @@ export class BecomeSellerComponent implements OnInit, AfterViewInit {
       maxZoom: 19,
     }).addTo(this.map);
 
+    setTimeout(() => this.map.invalidateSize(), 0);
+
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       this.setLocation(e.latlng.lat, e.latlng.lng);
     });
 
-    // Try to center on the user's current location for convenience
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           this.map.setView([pos.coords.latitude, pos.coords.longitude], 13);
         },
-        () => {
-          // Permission denied or unavailable — keep default view, no error needed
-        }
+        () => { } // silently fall back to default Philippines view
       );
     }
   }
@@ -93,6 +98,8 @@ export class BecomeSellerComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next: () => {
+          // becomeSeller() calls setSession() internally, so the token/user in
+          // localStorage already reflects the new pendingSeller role at this point.
           this.isSubmitting = false;
           this.router.navigate(['/profile']);
         },

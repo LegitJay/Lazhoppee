@@ -6,6 +6,8 @@
 
         <nav class="nav-links">
             <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+            <a routerLink="/seller/dashboard" routerLinkActive="active" class="nav-link"
+               *ngIf="isStoreOwner">My Store</a>
         </nav>
 
         <div class="header-search">

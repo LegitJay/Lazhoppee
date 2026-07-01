@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
-  id: Number,
-  name: String,
-  price: Number,
-  imageUrl: String,
-  category: String,
-});
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  imageUrl: { type: String, default: '' },
+  category: { type: String, default: 'Uncategorized' },
+  stock: { type: Number, default: 0 },
+  sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+}, { timestamps: true });
 
-module.exports = mongoose.model("Product", productSchema, "products"); // 3rd arg pins exact collection name
+module.exports = mongoose.model("Product", productSchema, "products");

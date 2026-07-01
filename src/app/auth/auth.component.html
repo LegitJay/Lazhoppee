@@ -4,7 +4,7 @@
         <!-- LOGIN: fixed on the left half, never moves -->
         <div class="form-container sign-in-container">
             <div class="auth-forms">
-                <form class="auth-form" (ngSubmit)="onLoginSubmit()" #loginForm="ngForm">
+                <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm" novalidate>
                     <p class="auth-eyebrow">Welcome back</p>
                     <h1 class="auth-title">Log in</h1>
                     <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -30,7 +30,7 @@
 
                     <a class="auth-forgot" href="#">Forgot your password?</a>
 
-                    <button type="submit" class="auth-submit" [disabled]="loginForm.invalid">
+                    <button type="submit" class="auth-submit" [disabled]="isSubmitting">
                         Log in
                     </button>
 
@@ -45,7 +45,7 @@
         <!-- REGISTER: fixed on the right half, never moves -->
         <div class="form-container sign-up-container">
             <div class="auth-forms">
-                <form class="auth-form" (ngSubmit)="onRegisterSubmit()" #registerForm="ngForm">
+                <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm" novalidate>
                     <p class="auth-eyebrow">Join Krossover</p>
                     <h1 class="auth-title">Create your account</h1>
                     <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -76,7 +76,7 @@
                             required placeholder="Type it again" autocomplete="new-password" />
                     </label>
 
-                    <button type="submit" class="auth-submit" [disabled]="registerForm.invalid">
+                    <button type="submit" class="auth-submit" [disabled]="isSubmitting">
                         Create account
                     </button>
 

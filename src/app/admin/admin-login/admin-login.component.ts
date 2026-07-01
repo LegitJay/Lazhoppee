@@ -23,12 +23,12 @@ export class AdminLoginComponent {
     this.errorMessage = '';
     this.isSubmitting = true;
 
-    this.authService.login(this.email, this.password).subscribe({
+    this.authService.adminLogin(this.email, this.password).subscribe({
       next: (res) => {
         this.isSubmitting = false;
         if (res.user.role !== 'admin') {
           this.errorMessage = 'This account does not have admin access.';
-          this.authService.logout();
+          this.authService.adminLogout();
           return;
         }
         this.router.navigate(['/admin/dashboard']);

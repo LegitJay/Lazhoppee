@@ -1,0 +1,102 @@
+<div class="seller-dash">
+  <div class="seller-dash-header">
+    <h1 class="seller-dash-title">My Store</h1>
+    <button class="add-btn" (click)="openAddForm()">+ Add Product</button>
+  </div>
+
+  <!-- ADD / EDIT FORM MODAL -->
+  <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()"></div>
+  <div class="modal" *ngIf="showForm">
+    <h2 class="modal-title">{{ editingProduct ? 'Edit Product' : 'New Listing' }}</h2>
+    <p class="modal-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <label class="form-field">
+      <span>Product name</span>
+      <input type="text" [(ngModel)]="form.name" placeholder="e.g. Classic Tee" />
+    </label>
+    <label class="form-field">
+      <span>Price (PHP)</span>
+      <input type="number" [(ngModel)]="form.price" min="0" />
+    </label>
+    <label class="form-field">
+      <span>Category</span>
+      <select [(ngModel)]="form.category">
+        <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+      </select>
+    </label>
+    <label class="form-field">
+      <span>Stock</span>
+      <input type="number" [(ngModel)]="form.stock" min="0" />
+    </label>
+
+    <!-- NEW IMAGE UPLOAD SECTION -->
+    <div class="form-field">
+      <span>Product Image</span>
+      <input 
+        type="file" 
+        accept="image/*" 
+        #fileInput 
+        (change)="onFileSelected($event)" 
+        style="display: none;" 
+      />
+      <div class="image-upload-container">
+        <!-- Preview Image -->
+        <img 
+          *ngIf="imagePreview" 
+          [src]="imagePreview" 
+          class="image-preview" 
+          alt="Preview"
+        >
+        <div *ngIf="!imagePreview" class="image-placeholder">
+          No image selected
+        </div>
+        <button type="button" class="upload-btn" (click)="triggerFileUpload()">
+          {{ imagePreview ? 'Change Image' : 'Upload Image' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeForm()">Cancel</button>
+      <button class="save-btn" (click)="onSubmit()">{{ editingProduct ? 'Save Changes' : 'List Product' }}</button>
+    </div>
+  </div>
+
+  <!-- PRODUCT TABLE -->
+  <div *ngIf="!isLoading; else loading">
+    <table class="product-table" *ngIf="products.length > 0">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of products" class="product-row">
+          <td class="product-name-cell">
+            <!-- Removed the '/' concatenation here assuming your DB now returns the full URL after upload -->
+            <img [src]="p.imageUrl" [alt]="p.name" class="product-thumb" *ngIf="p.imageUrl">
+            <span>{{ p.name }}</span>
+          </td>
+          <td>{{ p.category }}</td>
+          <td>{{ p.price | currency: 'PHP ':'symbol':'1.2-2' }}</td>
+          <td [class.low-stock]="p.stock <= 5">{{ p.stock }}</td>
+          <td class="action-cell">
+            <button class="edit-btn" (click)="openEditForm(p)">Edit</button>
+            <button class="delete-btn" (click)="deleteProduct(p)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="products.length === 0">
+      <p>No products listed yet.</p>
+      <button class="add-btn" (click)="openAddForm()">List your first product</button>
+    </div>
+  </div>
+
+  <ng-template #loading><p class="empty-state">Loading your products...</p></ng-template>
+</div>
