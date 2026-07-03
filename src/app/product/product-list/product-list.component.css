@@ -16,6 +16,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  left: -1.25%;
   z-index: 0;
 }
 
@@ -28,21 +29,21 @@
   background: #0b1b3a;
   z-index: 1;
   clip-path: polygon(0 0, 40% 0, 25% 100%, 0% 100%);
-  animation: navy-sweep 6s ease-in-out infinite alternate;
+  animation: navy-sweep 10s ease-in-out infinite alternate;
 }
 .hero-half--crimson {
   background: #d6293a;
   z-index: 1;
   clip-path: polygon(70% 0, 100% 0, 100% 100%, 85% 100%);
-  animation: crimson-sweep 6s ease-in-out infinite alternate;
+  animation: crimson-sweep 10s ease-in-out infinite alternate;
 }
 @keyframes navy-sweep {
-  from { clip-path: polygon(0 0, 30% 0, 15% 100%, 0% 100%); }
-  to   { clip-path: polygon(0 0, 55% 0, 40% 100%, 0% 100%); }
+  from { clip-path: polygon(0 0, 20% 0, 15% 100%, 0% 100%); }
+  to   { clip-path: polygon(0 0, 65% 0, 50% 100%, 0% 100%); }
 }
 @keyframes crimson-sweep {
-  from { clip-path: polygon(70% 0, 100% 0, 100% 100%, 85% 100%); }
-  to   { clip-path: polygon(45% 0, 100% 0, 100% 100%, 60% 100%); }
+  from { clip-path: polygon(80% 0, 100% 0, 100% 100%, 85% 100%); }
+  to   { clip-path: polygon(35% 0, 100% 0, 100% 100%, 50% 100%); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-half--navy,
