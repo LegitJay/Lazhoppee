@@ -16,7 +16,7 @@ export class AuthComponent {
   mode: 'login' | 'register' = 'login';
 
   loginData = { email: '', password: '' };
-  registerData = { email: '', password: '', confirmPassword: '' };
+  registerData = { username: '', email: '', password: '', confirmPassword: '' };
 
   showLoginPassword = false;
   showRegisterPassword = false;
@@ -28,7 +28,7 @@ export class AuthComponent {
     private authService: AuthService,
     private cartService: CartService,
     private router: Router
-  ) {}
+  ) { }
 
   switchTo(mode: 'login' | 'register') {
     this.mode = mode;
@@ -39,11 +39,13 @@ export class AuthComponent {
     this.errorMessage = '';
     this.isSubmitting = true;
 
-    this.authService.login(this.loginData.email, this.loginData.password).subscribe({
+    this.authService.login(this.loginData).subscribe({
       next: (res) => {
+        if (res.user.role === 'pendingSeller') {
+          this.router.navigate(['/become-seller']);
+      }
         this.isSubmitting = false;
         // Fetch this user's cart immediately so the badge is correct
-        // and any previous session's in-memory state is replaced.
         this.cartService.refreshCartCount();
 
         if (res.user.role === 'admin') {
@@ -61,18 +63,19 @@ export class AuthComponent {
 
   onRegisterSubmit() {
     this.errorMessage = '';
-
     if (this.registerData.password !== this.registerData.confirmPassword) {
       this.errorMessage = 'Passwords do not match.';
       return;
     }
-
     this.isSubmitting = true;
 
-    this.authService.register(this.registerData.email, this.registerData.password).subscribe({
+      this.authService.register({
+      username: this.registerData.username,
+      email: this.registerData.email,
+      password: this.registerData.password,
+    }).subscribe({
       next: () => {
         this.isSubmitting = false;
-        // New account — cart is empty, but reset ensures no stale state
         this.cartService.reset();
         this.router.navigate(['/products']);
       },

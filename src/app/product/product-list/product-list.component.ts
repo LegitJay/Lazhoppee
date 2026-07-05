@@ -66,4 +66,11 @@ export class ProductListComponent implements OnInit {
 
     this.products = result;
   }
+  getImageUrl(imageUrl: string): string {
+    if (!imageUrl) return '';
+    // Seller-uploaded images start with /uploads/ — serve from backend
+    if (imageUrl.startsWith('/uploads/')) return 'http://localhost:3002' + imageUrl;
+    // Sample/seed products use assets/images/ — serve from Angular
+    return '/' + imageUrl;
+  }
 }

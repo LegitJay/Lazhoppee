@@ -5,11 +5,12 @@ import { CartListComponent } from './cart/cart-list/cart-list.component';
 import { AuthComponent } from './auth/auth.component';
 import { ProfileComponent } from './profile/profile.component';
 import { BecomeSellerComponent } from './become-seller/become-seller.component';
-import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './admin/admin.guard';
-import { sellerGuard } from './seller-dashboard/seller.guard';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { StoreProfileComponent } from './store/store-profile.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: '/products', pathMatch: 'full' },
@@ -18,8 +19,9 @@ const routes: Routes = [
   { path: 'auth', component: AuthComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'become-seller', component: BecomeSellerComponent, canActivate: [authGuard] },
-  { path: 'seller/dashboard', component: SellerDashboardComponent, canActivate: [sellerGuard] },
   { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'product/:id', component: ProductDetailComponent },
+  { path: 'store/:sellerId', component: StoreProfileComponent }
 ];
 
 @NgModule({

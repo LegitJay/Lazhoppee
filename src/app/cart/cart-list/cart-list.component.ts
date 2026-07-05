@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from 'src/app/models/product';
-import { CartService } from '../cart.service';
+import { CartService, CartItem } from '../cart.service';
 
 @Component({
   selector: 'app-cart-list',
@@ -9,16 +8,16 @@ import { CartService } from '../cart.service';
 })
 export class CartListComponent implements OnInit {
 
-  cartItems: (Product & { quantity: number })[] = [];
+  cartItems: CartItem[] = [];
   totalPrice: number = 0;
 
-  constructor(private cartService: CartService) { }
+  constructor(private cartService: CartService) {}
 
   ngOnInit(): void { this.loadCart(); }
 
   private loadCart(): void {
     this.cartService.getCartItems().subscribe(data => {
-      this.cartItems = data as (Product & { quantity: number })[];
+      this.cartItems = data;
       this.totalPrice = this.getTotalPrice();
     });
   }
@@ -27,16 +26,18 @@ export class CartListComponent implements OnInit {
     return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  increase(item: Product & { quantity: number }): void {
-    this.cartService.updateQuantity(item.id, item.quantity + 1).subscribe(() => this.loadCart());
+  increase(item: CartItem): void {
+    this.cartService.updateQuantity(item.productId, item.quantity + 1)
+      .subscribe(() => this.loadCart());
   }
 
-  decrease(item: Product & { quantity: number }): void {
-    this.cartService.updateQuantity(item.id, item.quantity - 1).subscribe(() => this.loadCart());
+  decrease(item: CartItem): void {
+    this.cartService.updateQuantity(item.productId, item.quantity - 1)
+      .subscribe(() => this.loadCart());
   }
 
-  removeItem(item: Product & { quantity: number }): void {
-    this.cartService.removeItem(item.id).subscribe(() => this.loadCart());
+  removeItem(item: CartItem): void {
+    this.cartService.removeItem(item.productId).subscribe(() => this.loadCart());
   }
 
   clearCart(): void {
@@ -45,5 +46,11 @@ export class CartListComponent implements OnInit {
 
   checkout(): void {
     this.cartService.checkout(this.cartItems).subscribe(() => { this.cartItems = []; this.totalPrice = 0; });
+  }
+
+  getImageUrl(imageUrl: string): string {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('/uploads/')) return 'http://localhost:3002' + imageUrl;
+    return '/' + imageUrl;
   }
 }

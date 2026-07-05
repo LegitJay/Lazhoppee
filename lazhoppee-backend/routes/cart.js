@@ -8,25 +8,33 @@ router.get("/", async (req, res) => {
   try {
     res.json(await CartItem.find({ userId: req.user.id }));
   } catch (err) {
-    console.error("GET /cart error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 router.post("/", async (req, res) => {
   try {
-    console.log("POST /cart body:", req.body);
-    console.log("POST /cart user:", req.user);
+    const { _id, __v, id, ...rest } = req.body;
+    // Use _id for seller products (ObjectId string), fall back to numeric id for seed products
+    const productId = String(_id || id);
 
-    const { _id, __v, ...productData } = req.body;
-
-    const existing = await CartItem.findOne({ userId: req.user.id, id: productData.id });
+    const existing = await CartItem.findOne({ userId: req.user.id, productId });
     if (existing) {
       existing.quantity += 1;
       await existing.save();
       return res.json(existing);
     }
-    const created = await CartItem.create({ ...productData, userId: req.user.id, quantity: 1 });
+
+    const created = await CartItem.create({
+      userId: req.user.id,
+      productId,
+      name: rest.name,
+      price: rest.price,
+      imageUrl: rest.imageUrl || '',
+      category: rest.category || '',
+      sellerId: rest.sellerId || null,
+      quantity: 1,
+    });
     res.json(created);
   } catch (err) {
     console.error("POST /cart error:", err);
@@ -34,29 +42,24 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:productId", async (req, res) => {
   try {
-    const item = await CartItem.findOne({ userId: req.user.id, id: req.params.id });
+    const item = await CartItem.findOne({ userId: req.user.id, productId: req.params.productId });
     if (!item) return res.status(404).json({ error: "Not found" });
     item.quantity = req.body.quantity;
-    if (item.quantity <= 0) {
-      await item.deleteOne();
-      return res.status(204).end();
-    }
+    if (item.quantity <= 0) { await item.deleteOne(); return res.status(204).end(); }
     await item.save();
     res.json(item);
   } catch (err) {
-    console.error("PATCH /cart error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:productId", async (req, res) => {
   try {
-    await CartItem.deleteOne({ userId: req.user.id, id: req.params.id });
+    await CartItem.deleteOne({ userId: req.user.id, productId: req.params.productId });
     res.status(204).end();
   } catch (err) {
-    console.error("DELETE /cart/:id error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -66,7 +69,6 @@ router.delete("/", async (req, res) => {
     await CartItem.deleteMany({ userId: req.user.id });
     res.status(204).end();
   } catch (err) {
-    console.error("DELETE /cart error:", err);
     res.status(500).json({ error: err.message });
   }
 });

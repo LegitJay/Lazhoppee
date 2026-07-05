@@ -1,3 +1,4 @@
+<!-- c:\Angular Projects\Lazhoppee\src\app\become-seller\become-seller.component.html (FIXED) -->
 <div class="seller-shell">
     <div class="seller-card">
         <p class="seller-eyebrow">Become a Seller</p>
@@ -19,6 +20,26 @@
                         <textarea name="storeDescription" [(ngModel)]="storeDescription"
                             placeholder="Tell shoppers what you sell"></textarea>
                     </label>
+
+                    <!-- NEW FIELDS: ADDRESS, CONTACT, EMAIL -->
+                    <label class="seller-field">
+                        <span class="seller-label">Full Physical Address *</span>
+                        <input type="text" name="storeAddress" [(ngModel)]="storeAddress" required
+                            placeholder="123 Main Street, City, Province" />
+                    </label>
+
+                    <div class="seller-fields-row">
+                        <label class="seller-field half">
+                            <span class="seller-label">Contact Number *</span>
+                            <input type="tel" name="storeContact" [(ngModel)]="storeContact" required
+                                placeholder="+63 912 345 6789" />
+                        </label>
+                        <label class="seller-field half">
+                            <span class="seller-label">Store Email *</span>
+                            <input type="email" name="storeEmail" [(ngModel)]="storeEmail" required
+                                placeholder="contact@yourstore.com" />
+                        </label>
+                    </div>
                 </div>
 
                 <div class="seller-map-col">

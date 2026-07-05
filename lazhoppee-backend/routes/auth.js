@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { requireAuth } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
@@ -18,39 +19,42 @@ function signToken(user) {
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { username, email, password, role } = req.body;
 
-    if (!email || !password) {
+    if (!username || !email || !password) {
       return res
         .status(400)
-        .json({ message: "Email and password are required." });
+        .json({ message: "Username, email, and password are required." });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) {
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
       return res
         .status(409)
         .json({ message: "An account with that email already exists." });
     }
 
-    // Public registration should never let someone hand themselves the
-    // admin role. Only allow "customer" or "storeOwner" through this route.
-    const safeRole = role === "storeOwner" ? "storeOwner" : "customer";
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
+      return res
+        .status(409)
+        .json({ message: "That username is already taken." });
+    }
 
-    const user = new User({ email, password, role: safeRole });
+    const safeRole = "customer";
+
+    const user = new User({ username, email, password, role: safeRole });
     await user.save();
 
     const token = signToken(user);
 
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, role: user.role },
+      user: { id: user._id, username: user.username, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error("Register error:", err);
-    res
-      .status(500)
-      .json({ message: "Something went wrong while registering." });
+    res.status(500).json({ message: "Something went wrong while registering." });
   }
 });
 
@@ -79,11 +83,87 @@ router.post("/login", async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, email: user.email, role: user.role },
+      user: { id: user._id, username: user.username, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Something went wrong while logging in." });
+  }
+});
+
+// GET /auth/me
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profileImage: user.profileImage,
+      createdAt: user.createdAt,
+    });
+  } catch (err) {
+    console.error("GetMe error:", err);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+// PUT /auth/update-profile
+router.put("/update-profile", requireAuth, async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    if (username) user.username = username;
+    if (email) user.email = email;
+    await user.save();
+
+    res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profileImage: user.profileImage,
+    });
+  } catch (err) {
+    console.error("UpdateProfile error:", err);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+// POST /auth/upload-profile-image
+router.post("/upload-profile-image", requireAuth, async (req, res) => {
+  try {
+    const { image } = req.body; // expects a base64 data URL string
+    if (!image) return res.status(400).json({ message: "No image provided." });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    user.profileImage = image;
+    await user.save();
+
+    res.json({ imageUrl: user.profileImage });
+  } catch (err) {
+    console.error("UploadProfileImage error:", err);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+// GET /auth/users/:id  — public seller/user lookup (no sensitive fields)
+router.get("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select(
+      "username email role profileImage createdAt storeDetails"
+    );
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.json(user);
+  } catch (err) {
+    console.error("GetUserById error:", err);
+    res.status(400).json({ message: "Invalid user ID." });
   }
 });
 

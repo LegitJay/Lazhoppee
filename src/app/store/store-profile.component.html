@@ -1,0 +1,106 @@
+<div class="store-profile-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading store profile...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+    <button class="back-btn" (click)="goBack()">Go Back to Home</button>
+  </div>
+
+  <!-- Store Profile Content -->
+  <div *ngIf="!loading && seller" class="profile-content">
+    <!-- Back Button -->
+    <div class="top-nav-row">
+      <button class="back-btn" (click)="goBack()">
+        ← Back
+      </button>
+    </div>
+
+    <!-- Store Header/Banner -->
+    <div class="store-banner">
+      <div class="store-header">
+        <img
+          [src]="getImageUrl(seller.profileImage)"
+          alt="{{ seller.username }}"
+          class="store-avatar"
+        >
+        <div class="store-info">
+          <h1 class="store-title">
+            {{ seller.storeDetails?.storeName || seller.username + "'s Store" }}
+          </h1>
+          <p *ngIf="seller.storeDetails?.storeAddress" class="store-location">
+            📍 {{ seller.storeDetails.storeAddress }}
+          </p>
+          <p class="store-member-since">Member since {{ (seller.createdAt | date) || 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Store Details Section -->
+    <div class="store-details-section">
+      <h2>About This Store</h2>
+      <p *ngIf="seller.storeDetails?.storeDescription" class="store-description">
+        {{ seller.storeDetails.storeDescription }}
+      </p>
+      <p *ngIf="!seller.storeDetails?.storeDescription" class="store-description">
+        A trusted seller on our platform offering quality products.
+      </p>
+
+      <!-- Contact Info -->
+      <div class="store-contact-info" *ngIf="seller.storeDetails?.storeContact || seller.storeDetails?.storeEmail">
+        <p *ngIf="seller.storeDetails?.storeContact" class="store-contact">
+          📞 {{ seller.storeDetails.storeContact }}
+        </p>
+        <p *ngIf="seller.storeDetails?.storeEmail" class="store-email">
+          ✉️ {{ seller.storeDetails.storeEmail }}
+        </p>
+      </div>
+
+      <!-- Real Leaflet Map -->
+      <div *ngIf="seller.storeDetails?.location?.lat && seller.storeDetails?.location?.lng" class="map-container">
+        <h3>Store Location</h3>
+        <div id="store-map" class="store-map"></div>
+      </div>
+    </div>
+
+    <!-- Seller's Products Section -->
+    <div class="seller-products-section">
+      <h2>All Products from This Store ({{ sellerProducts.length }})</h2>
+
+      <!-- Loading products -->
+      <div *ngIf="productsLoading" class="products-loading">
+        <div class="spinner small-spinner"></div>
+        <p>Loading products...</p>
+      </div>
+
+      <!-- No products -->
+      <div *ngIf="!productsLoading && sellerProducts.length === 0" class="no-products">
+        <p>This store hasn't listed any products yet.</p>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="!productsLoading && sellerProducts.length > 0" class="products-grid">
+        <div
+          *ngFor="let product of sellerProducts"
+          class="product-card"
+          [routerLink]="['/product', product._id || product.id]"
+        >
+          <img
+            [src]="getImageUrl(product.imageUrl)"
+            alt="{{ product.name }}"
+            class="product-image"
+          >
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-price">${{ product.price }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

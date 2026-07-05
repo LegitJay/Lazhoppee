@@ -15,6 +15,9 @@ import { AuthService } from '../auth/auth.service';
 export class BecomeSellerComponent implements OnInit, AfterViewInit {
   storeName = '';
   storeDescription = '';
+  storeAddress = '';
+  storeContact = '';
+  storeEmail = '';
 
   selectedLat: number | null = null;
   selectedLng: number | null = null;
@@ -89,17 +92,35 @@ export class BecomeSellerComponent implements OnInit, AfterViewInit {
     }
 
     this.isSubmitting = true;
+    const user = this.authService.getUser();
+    
+    // Save application to localStorage under CURRENT USER'S ID (fixes cross-user data leakage)
+    if (user?.id) {
+      const newApplication = {
+        storeName: this.storeName,
+        storeDescription: this.storeDescription,
+        location: { lat: this.selectedLat, lng: this.selectedLng },
+        storeAddress: this.storeAddress,
+        storeContact: this.storeContact,
+        storeEmail: this.storeEmail,
+      };
+      // Save to shared object where each user's app is keyed by their ID
+      const allApps = JSON.parse(localStorage.getItem('sellerApplications') || '{}');
+      allApps[user.id] = newApplication;
+      localStorage.setItem('sellerApplications', JSON.stringify(allApps));
+    }
 
     this.authService
       .becomeSeller({
         storeName: this.storeName,
         storeDescription: this.storeDescription,
         location: { lat: this.selectedLat, lng: this.selectedLng },
+        storeAddress: this.storeAddress,
+        storeContact: this.storeContact,
+        storeEmail: this.storeEmail,
       })
       .subscribe({
         next: () => {
-          // becomeSeller() calls setSession() internally, so the token/user in
-          // localStorage already reflects the new pendingSeller role at this point.
           this.isSubmitting = false;
           this.router.navigate(['/profile']);
         },

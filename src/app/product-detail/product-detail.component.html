@@ -1,0 +1,114 @@
+<div class="product-detail-container" *ngIf="!loading && product">
+  <!-- Back to products button (icon only) -->
+  <div class="top-nav-row">
+    <button class="back-btn" (click)="router.navigate(['/'])" aria-label="Back to all products">←</button>
+  </div>
+
+  <div class="product-grid">
+    <!-- Image section - square preview -->
+    <div class="image-section">
+      <div class="main-image-container">
+        <img
+          [src]="getImageUrl(product.imageUrl)"
+          alt="{{ product.name }}"
+          class="main-product-image"
+        >
+      </div>
+    </div>
+
+    <!-- Product details section -->
+    <div class="details-section">
+      <div class="product-breadcrumb">
+        <span>{{ product.category }}</span>
+      </div>
+
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="product-rating">
+        <span class="stars">★★★★★</span>
+        <span class="review-count">(0 reviews)</span>
+      </div>
+
+      <div class="price-section">
+        <span class="current-price">₱{{ product.price.toFixed(2) }}</span>
+      </div>
+
+      <div class="stock-status" [class.in-stock]="product.stock && product.stock > 0" [class.out-of-stock]="!product.stock || product.stock === 0">
+        <span *ngIf="product.stock && product.stock > 0">In Stock ({{ product.stock }} available)</span>
+        <span *ngIf="!product.stock || product.stock === 0">Out of Stock</span>
+      </div>
+
+      <!-- Size selector (placeholder - not yet wired to product data) -->
+      <div class="size-section" *ngIf="product.stock && product.stock > 0">
+        <label class="size-label">Size</label>
+        <div class="size-options">
+          <button class="size-chip">XS</button>
+          <button class="size-chip">S</button>
+          <button class="size-chip">M</button>
+          <button class="size-chip">L</button>
+          <button class="size-chip">XL</button>
+          <button class="size-chip">XXL</button>
+        </div>
+      </div>
+
+      <!-- Quantity selector -->
+      <div class="quantity-section" *ngIf="product.stock && product.stock > 0">
+        <label>Quantity:</label>
+        <div class="quantity-control">
+          <button (click)="decreaseQuantity()" [disabled]="quantity === 1">-</button>
+          <span>{{ quantity }}</span>
+          <button (click)="increaseQuantity()" [disabled]="product.stock && quantity >= product.stock">+</button>
+        </div>
+      </div>
+
+      <!-- Seller/Store Owner Profile Card (AMAZON-STYLE) -->
+      <div class="seller-card" *ngIf="!sellerLoading && seller">
+        <div class="seller-card-header">
+          <img 
+            [src]="getImageUrl(seller.profileImage || '/assets/images/default-avatar.png')" 
+            alt="{{ seller.username }}" 
+            class="seller-avatar"
+            (click)="viewSellerProfile()"
+          >
+          <div class="seller-info">
+            <h3 (click)="viewSellerProfile()" class="seller-name">Visit {{ seller.username }}'s Store</h3>
+            <p *ngIf="seller.storeDetails?.storeName" class="store-name">{{ seller.storeDetails.storeName }}</p>
+            <p *ngIf="seller.storeDetails?.storeAddress" class="store-location">📍 {{ seller.storeDetails.storeAddress }}</p>
+          </div>
+        </div>
+        <button class="view-store-btn" (click)="viewSellerProfile()">View All Products from this Store</button>
+      </div>
+
+      <!-- Action buttons (Add to Cart + Buy Now) -->
+      <div class="action-buttons" *ngIf="product.stock && product.stock > 0">
+        <button 
+          class="add-to-cart-btn" 
+          (click)="addToCart()" 
+          [disabled]="isAddingToCart"
+        >
+          {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+        </button>
+        <button class="buy-now-btn" (click)="buyNow()" [disabled]="isAddingToCart">
+          Buy Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Reviews section (placeholder) -->
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h2 class="reviews-title">Reviews</h2>
+      <button class="write-review-btn">Write a Review</button>
+    </div>
+    <div class="reviews-empty-state">
+      No reviews yet — be the first to review this product.
+    </div>
+  </div>
+
+<!-- Loading state -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading product details...</p>
+</div>

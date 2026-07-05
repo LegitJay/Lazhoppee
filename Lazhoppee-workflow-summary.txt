@@ -1,0 +1,81 @@
+Lazhoppee Project Summary
+
+Overall architecture:
+- Angular frontend in src/
+- Node/Express backend in lazhoppee-backend/
+- Frontend and backend are separated but share the same repository.
+
+Frontend structure:
+- src/app/
+  - admin/: Admin dashboard and admin login.
+  - auth/: Authentication component, guard, and service.
+  - become-seller/: Seller application flow.
+  - cart/: Shopping cart module and cart list component.
+  - models/: Data models such as Product.
+  - product/: Product listing component and product service.
+  - profile/: User profile page.
+  - seller-dashboard/: Seller management interface.
+- Global app shell files:
+  - src/app/app.component.ts, app.component.html, app.component.css
+  - src/app/app-routing.module.ts
+  - src/app/app.module.ts
+
+Key frontend workflow:
+- ProductListComponent loads products from ProductService.
+- It stores allProducts and products separately.
+- It supports category filtering with categories = [All, Shirts, Shorts, Accessories].
+- It supports search filtering using searchTerm and query parameter q.
+- When category changes or query params change, applyFilters() updates products.
+- addToCart(product) checks if the user is logged in via AuthService.isLoggedIn().
+  - If not logged in, the user is redirected to /auth.
+  - If logged in, CartService.addToCart(product).subscribe() is called.
+
+Authentication and cart flow:
+- Users must be authenticated to add items to the cart.
+- Auth guard exists for route protection.
+- Admin guard exists to protect admin pages.
+- auth.interceptor.ts likely adds auth token headers to requests.
+
+Backend structure:
+- lazhoppee-backend/
+  - server.js: Main server entry point.
+  - Createadmin.js: Admin creation helper.
+  - .env: Environment variables.
+  - middleware/: Auth middleware for protected backend endpoints.
+  - models/: CartItem, Product, SellerApplication, User models.
+  - routes/: auth.js, cart.js, checkout.js, products.js, seller.js.
+
+Branding and styles:
+- src/styles.css:
+  - Global styles and Angular Material theme import.
+  - Body background color: rgb(244, 244, 244).
+  - Layout helper classes: .container, .container-sm, .text-center, .text-right.
+- src/app/app.component.css:
+  - Header branding styles using dark navy #0b1b3a and accent red #d6293a.
+  - .brand and .brand-logo for logo styling.
+  - Navigation link colors and hover states.
+  - Search input styles and cart badge styling.
+
+Important files:
+- Frontend:
+  - src/app/auth/auth.component.html
+  - src/app/product/product-list/product-list.component.ts
+  - src/app/app.component.css
+  - src/styles.css
+- Backend:
+  - lazhoppee-backend/server.js
+  - lazhoppee-backend/routes/products.js
+  - lazhoppee-backend/routes/cart.js
+  - lazhoppee-backend/routes/auth.js
+
+High-level workflow:
+1. User visits the frontend page and sees the header and product list.
+2. ProductListComponent fetches product data from the backend via ProductService.
+3. User filters products by category or search term.
+4. User clicks add to cart.
+   - If not logged in, redirect to auth page.
+   - If logged in, add the product to the cart via backend.
+5. Backend handles auth, product listing, cart actions, checkout, and seller actions.
+6. Admin and seller pages are protected by frontend guards and backend auth middleware.
+
+This text file summarizes the main architecture, front-end and back-end flow, authentication/cart logic, and branding style rules for Lazhoppee.

@@ -7,7 +7,7 @@
         <div class="cart-items">
             <div class="cart-row" *ngFor="let item of cartItems; let i = index"
                 [style.animation-delay]="(i * 0.05) + 's'">
-                <img [src]="'/' + item.imageUrl" [alt]="item.name" class="row-thumb">
+                <img [src]="getImageUrl(item.imageUrl)" [alt]="item.name" class="row-thumb">
 
                 <div class="row-info">
                     <span class="row-name">{{ item.name }}</span>

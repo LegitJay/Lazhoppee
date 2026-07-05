@@ -2,34 +2,46 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SellerProductService, SellerProduct } from './seller-product.service';
+import { AuthService } from '../auth/auth.service';
+import { OrderListComponent } from './order-list/order-list.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
+const BACKEND = 'http://localhost:3002';
 
 @Component({
   selector: 'app-seller-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, OrderListComponent],
   templateUrl: './seller-dashboard.component.html',
   styleUrls: ['./seller-dashboard.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SellerDashboardComponent implements OnInit {
+  activeTab: 'products' | 'orders' = 'products';
+
   products: SellerProduct[] = [];
   isLoading = false;
   showForm = false;
   editingProduct: SellerProduct | null = null;
   errorMessage = '';
 
-  // Fixed 'Tees' to 'Shirts' to match your categories array
-  categories = ['Shirts', 'Shorts', 'Accessories'];
-  form = { name: '', price: 0, category: 'Shirts', stock: 0 };
+  get lowStockCount(): number {
+    return this.products.filter((p) => (p.stock ?? 0) <= 5).length;
+  }
 
-  // Holds the actual file selected by the user
-  selectedFile: File | null = null; 
-  // Holds a temporary URL to show a preview of the image before uploading
-  imagePreview: string | null = null; 
+  suggestedCategories = [
+    'Shirts' ,'Jerseys', 'Shorts', 'Shoes', 'Basketballs', 'Socks',
+    'Hoodies & Jackets', 'Headwear', 'Bags', 'Accessories', 'Equipment'
+  ];
 
-  // ViewChild to programmatically trigger the hidden file input
+  form = { name: '', price: 0, category: '', stock: 0, description: '' };
+
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  constructor(private sellerProductService: SellerProductService) {}
+  constructor(private sellerProductService: SellerProductService, private authService: AuthService) {}
 
   ngOnInit(): void { this.loadProducts(); }
 
@@ -41,9 +53,16 @@ export class SellerDashboardComponent implements OnInit {
     });
   }
 
+  // Builds the full URL for displaying a product image from the backend
+  imageUrl(product: SellerProduct): string {
+    if (!product.imageUrl) return '';
+    // imageUrl stored as /uploads/filename — prefix with backend origin
+    return `${BACKEND}${product.imageUrl}`;
+  }
+
   openAddForm(): void {
     this.editingProduct = null;
-    this.form = { name: '', price: 0, category: 'Shirts', stock: 0 };
+    this.form = { name: '', price: 0, category: '', stock: 0, description: '' };
     this.resetImageState();
     this.showForm = true;
     this.errorMessage = '';
@@ -51,77 +70,64 @@ export class SellerDashboardComponent implements OnInit {
 
   openEditForm(product: SellerProduct): void {
     this.editingProduct = product;
-    this.form = { 
-      name: product.name, 
-      price: product.price, 
-      category: product.category, 
-      stock: product.stock
+    this.form = {
+      name: product.name,
+      price: product.price,
+      category: product.category,
+      stock: product.stock,
+      description: (product as any).description || ''
     };
-    
-    // If editing an existing product, show its current image as the preview
-    this.imagePreview = product.imageUrl ? '/' + product.imageUrl : null;
-    this.selectedFile = null; // No new file selected yet
+    this.imagePreview = product.imageUrl ? `${BACKEND}${product.imageUrl}` : null;
+    this.selectedFile = null;
     this.showForm = true;
     this.errorMessage = '';
   }
 
-  closeForm(): void { 
-    this.showForm = false; 
-    this.editingProduct = null; 
+  closeForm(): void {
+    this.showForm = false;
+    this.editingProduct = null;
     this.resetImageState();
   }
 
-  // Triggered when user clicks the "Upload Image" button
-  triggerFileUpload(): void {
-    this.fileInput.nativeElement.click();
-  }
+  triggerFileUpload(): void { this.fileInput.nativeElement.click(); }
 
-  // Triggered when a file is actually selected from the device
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
-    if (file) {
-      // Basic validation: ensure it's an image
-      if (!file.type.startsWith('image/')) {
-        this.errorMessage = 'Please select a valid image file.';
-        return;
-      }
-      this.selectedFile = file;
-      
-      // Generate a local URL to show the user a preview immediately
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Please select a valid image file.';
+      return;
     }
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => { this.imagePreview = e.target?.result as string; };
+    reader.readAsDataURL(file);
   }
 
-  // Helper to clear image data
   private resetImageState(): void {
     this.selectedFile = null;
     this.imagePreview = null;
-    if (this.fileInput) {
-      this.fileInput.nativeElement.value = ''; // Reset input field
-    }
+    if (this.fileInput) this.fileInput.nativeElement.value = '';
   }
 
   onSubmit(): void {
-    if (!this.form.name || !this.form.price) {
-      this.errorMessage = 'Name and price are required.';
-      return;
+    if (!this.form.name || this.form.price <= 0) {
+      this.errorMessage = 'Name and price are required.'; return;
+    }
+    if (!this.form.category.trim()) {
+      this.errorMessage = 'Please enter a category.'; return;
+    }
+    if (!this.editingProduct && !this.selectedFile) {
+      this.errorMessage = 'Please upload a product image.'; return;
     }
 
-    // Convert standard form object to FormData so we can send files
     const formData = new FormData();
     formData.append('name', this.form.name);
-    formData.append('price', this.form.price.toString());
+    formData.append('price', String(this.form.price));
     formData.append('category', this.form.category);
-    formData.append('stock', this.form.stock.toString());
-
-    // Append the image if a new one was selected
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile, this.selectedFile.name);
-    }
+    formData.append('stock', String(this.form.stock));
+    formData.append('description', this.form.description);
+    if (this.selectedFile) formData.append('image', this.selectedFile);
 
     const action = this.editingProduct
       ? this.sellerProductService.updateProduct(this.editingProduct._id, formData)

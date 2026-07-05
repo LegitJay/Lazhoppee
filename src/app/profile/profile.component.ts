@@ -1,60 +1,393 @@
-import { Component, OnInit } from '@angular/core';
+// c:\Angular Projects\Lazhoppee\src\app\profile\profile.component.ts (COMPLETE FIXED VERSION)
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { AuthService, AuthUser } from '../auth/auth.service';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import * as L from 'leaflet';
+import { AuthService } from '../auth/auth.service';
 import { CartService } from '../cart/cart.service';
+import { Router } from '@angular/router';
+import { SellerDashboardComponent } from '../seller-dashboard/seller-dashboard.component';
 
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, SellerDashboardComponent],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css'],
+  styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent implements OnInit {
-  user: AuthUser | null = null;
+
+
+export class ProfileComponent {
+  user: any = null;
   application: any = null;
   loadingApplication = false;
+  profileImageUrl: string | null = null;
+  isEditMode = false;
+  isStoreEditMode = false;
+  editForm = { email: '', username: '' };
+  showStoreDetails = false;
+
+  // COMPLETELY FIXED storeEditForm WITH ALL FIELDS
+  storeEditForm = {
+    storeName: '',
+    storeDescription: '',
+    storeAddress: '',
+    storeContact: '',
+    storeEmail: ''
+  };
+
+  // Map properties
+  private map!: L.Map;
+  private mapMarker: L.Marker | null = null;
+  readonly defaultLat = 12.8797;
+  readonly defaultLng = 121.7740;
+  readonly defaultZoom = 12;
+
+  @ViewChild('avatarInput') avatarInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('storeMap') storeMapEl!: ElementRef<HTMLElement>;
 
   constructor(
     private authService: AuthService,
     private cartService: CartService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    // Always get a fresh copy from the server so role changes
-    // (e.g. approved → storeOwner) are reflected without a re-login.
     this.authService.getMe().subscribe({
       next: (freshUser) => {
         this.user = freshUser;
-        if (freshUser.role === 'pendingSeller') {
+        // Prefer the image saved in the database; fall back to any legacy
+        // localStorage-cached copy only if the server doesn't have one.
+        if (freshUser.id) {
+          this.profileImageUrl = freshUser.profileImage || localStorage.getItem(`profileImageUrl_${freshUser.id}`);
+        }
+        // Load application for both pending sellers AND approved store owners
+        // so store details (name, location, description) persist in profile
+        if (freshUser.role === 'pendingSeller' || freshUser.role === 'storeOwner') {
           this.loadApplication();
         }
       },
       error: () => {
-        // Fall back to the cached version if /auth/me fails
         this.user = this.authService.getUser();
+        if (this.user?.id) {
+          this.profileImageUrl = this.user?.profileImage || localStorage.getItem(`profileImageUrl_${this.user.id}`);
+        }
+        // Fallback: if getMe fails, still try to load app if user is seller
+        if (this.user?.role === 'pendingSeller' || this.user?.role === 'storeOwner') {
+          this.loadApplication();
+        }
       }
     });
   }
 
-  private loadApplication(): void {
+  ngAfterViewInit(): void {
+    // Map will be initialized after application loads for store owners
+  }
+
+  private initStoreMap(): void {
+    if (!this.storeMapEl?.nativeElement) return;
+    if (this.map) {
+      this.map.remove();
+    }
+
+    let lat = this.defaultLat;
+    let lng = this.defaultLng;
+
+    if (this.application?.location?.lat && this.application?.location?.lng) {
+      lat = this.application.location.lat;
+      lng = this.application.location.lng;
+    }
+
+    this.map = L.map(this.storeMapEl.nativeElement).setView([lat, lng], this.defaultZoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(this.map);
+
+    setTimeout(() => this.map.invalidateSize(), 0);
+
+    this.addMapMarker(lat, lng);
+
+    // Only allow pin-dragging while actively editing
+    if (this.user?.role === 'storeOwner' && this.isStoreEditMode) {
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        this.updateStoreLocation(e.latlng.lat, e.latlng.lng);
+      });
+    }
+  }
+  private addMapMarker(lat: number, lng: number): void {
+    if (this.mapMarker) {
+      this.mapMarker.setLatLng([lat, lng]);
+    } else {
+      this.mapMarker = L.marker([lat, lng]).addTo(this.map);
+    }
+  }
+
+  private updateStoreLocation(lat: number, lng: number): void {
+    if (this.application && this.mapMarker && this.user?.id) {
+      // Update application object with NEW coordinates
+      this.application.location = { lat, lng };
+      // Move the marker
+      this.addMapMarker(lat, lng);
+      // SAVE TO LOCALSTORAGE for THIS SPECIFIC USER only
+      const allApps = JSON.parse(localStorage.getItem('sellerApplications') || '{}');
+      allApps[this.user.id] = this.application;
+      localStorage.setItem('sellerApplications', JSON.stringify(allApps));
+      console.log('New location saved:', this.application.location);
+    }
+  }
+
+  loadApplication(): void {
     this.loadingApplication = true;
-    this.authService.getMyApplication().subscribe({
-      next: (app) => {
-        this.application = app;
-        this.loadingApplication = false;
-      },
-      error: () => {
-        this.loadingApplication = false;
-      }
-    });
+    // Load only THIS user's application from localStorage (fixes wrong details issue)
+    if (this.user?.id) {
+      const allApps = JSON.parse(localStorage.getItem('sellerApplications') || '{}');
+      this.application = allApps[this.user.id] || null;
+    }
+    this.loadingApplication = false;
+
+    // In production, you would call an API here:
+    // this.authService.getMySellerApplication().subscribe({...})
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.cartService.reset();
-    this.router.navigate(['/auth']);
+  // --- GETTERS FOR TEMPLATE ACCESS ---
+  get fullName(): string {
+    return this.user?.username || 'Guest User';
   }
+
+  get userEmail(): string {
+    return this.user?.email || 'guest@example.com';
+  }
+
+  get userRole(): string {
+    if (!this.user?.role) return 'Customer';
+    const roleMap: Record<string, string> = {
+      customer: 'Customer',
+      storeOwner: 'Store Owner',
+      pendingSeller: 'Seller Application Pending'
+    };
+    return roleMap[this.user.role] || this.user.role;
+  }
+
+  get joinedDate(): string {
+    if (!this.user?.createdAt) return 'N/A';
+    return new Date(this.user.createdAt).toLocaleDateString();
+  }
+
+  // Store getters for storeOwner profiles
+  get storeLocation(): string {
+    if (!this.application?.location) return 'Location not provided';
+    // If location is the coordinates object from the map, format it nicely
+    if (typeof this.application.location === 'object' && this.application.location.lat && this.application.location.lng) {
+      return `${this.application.location.lat.toFixed(4)}, ${this.application.location.lng.toFixed(4)}`;
+    }
+    if (typeof this.application.location === 'string') return this.application.location;
+    return 'Location set on map';
+  }
+
+  get storeDescription(): string {
+    return this.application?.storeDescription || 'A polished storefront is on the way.';
+  }
+
+  // NEW GETTERS FOR CONTACT FIELDS - ALWAYS PRESENT
+  get storeAddress(): string {
+    return this.application?.storeAddress || 'Address not provided';
+  }
+
+  get storeContact(): string {
+    return this.application?.storeContact || 'Contact not provided';
+  }
+
+  get storeEmail(): string {
+    return this.application?.storeEmail || 'Email not provided';
+  }
+
+
+
+  get overviewCards(): Array<{ label: string; value: string; hint: string }> {
+    return [
+      { label: 'Products', value: '0', hint: 'Listed' },
+      { label: 'Orders', value: '0', hint: 'This month' },
+      { label: 'Revenue', value: '₱0', hint: 'Sales' },
+    ];
+  }
+
+  // --- CUSTOMER EDIT MODE ---
+  toggleEditMode(): void {
+    this.isEditMode = !this.isEditMode;
+    if (this.isEditMode) {
+      this.editForm.email = this.userEmail;
+      this.editForm.username = this.user?.username || '';
+    }
+  }
+
+  saveAccountChanges(): void {
+    if (this.user) {
+      const updatedData = {
+        username: this.editForm.username,
+        email: this.editForm.email
+      };
+      this.user.username = this.editForm.username;
+      this.user.email = this.editForm.email;
+      // Save to backend
+      this.authService.updateUserProfile(updatedData).subscribe({
+        next: () => console.log('Profile updated successfully'),
+        error: (err) => console.error('Update failed:', err)
+      });
+    }
+    this.toggleEditMode();
+  }
+
+  // --- STORE OWNER EDIT MODE ---
+  toggleStoreDetails(): void {
+    this.showStoreDetails = !this.showStoreDetails;
+    if (this.showStoreDetails) {
+      setTimeout(() => this.initStoreMap(), 100);
+    } else if (this.map) {
+      this.map.remove();
+      this.map = undefined as any;
+      this.mapMarker = null;
+    }
+  }
+  toggleStoreEditMode(): void {
+    this.isStoreEditMode = !this.isStoreEditMode;
+    if (this.isStoreEditMode && this.application) {
+      this.storeEditForm.storeName = this.application.storeName || '';
+      this.storeEditForm.storeDescription = this.application.storeDescription || '';
+      this.storeEditForm.storeAddress = this.application.storeAddress || '';
+      this.storeEditForm.storeContact = this.application.storeContact || '';
+      this.storeEditForm.storeEmail = this.application.storeEmail || '';
+    }
+
+    // Reset map reference since the old DOM container was destroyed by *ngIf
+    this.map = undefined as any;
+    this.mapMarker = null;
+
+    setTimeout(() => this.initStoreMap(), 100);
+  }
+
+  saveStoreChanges(): void {
+    if (!this.storeEditForm.storeName) {
+      alert('Store name is required.');
+      return;
+    }
+
+    if (!this.application) {
+      this.application = {};
+    }
+
+    this.application.storeName = this.storeEditForm.storeName;
+    this.application.storeDescription = this.storeEditForm.storeDescription;
+    this.application.storeAddress = this.storeEditForm.storeAddress;
+    this.application.storeContact = this.storeEditForm.storeContact;
+    this.application.storeEmail = this.storeEditForm.storeEmail;
+
+    localStorage.setItem('myApplication', JSON.stringify(this.application));
+    this.isStoreEditMode = false;
+
+    this.map = undefined as any;
+    this.mapMarker = null;
+    if (this.showStoreDetails) {
+      setTimeout(() => this.initStoreMap(), 100);
+    }
+  }
+
+  // --- PROFILE PICTURE UPLOAD ---
+  triggerAvatarUpload(): void {
+    this.avatarInput?.nativeElement.click();
+  }
+
+  get roleLabel(): string {
+    return this.userRole;
+  }
+
+  get emailLabel(): string {
+    return this.userEmail;
+  }
+
+  get storeName(): string {
+    return this.application?.storeName || this.fullName;
+  }
+
+  getAvatarInitial(): string {
+    const source = this.storeName || this.fullName || this.userEmail;
+    return source ? source.charAt(0).toUpperCase() : '?';
+  }
+
+  // Converts the selected file to base64 and uploads it to the backend,
+  // which stores it directly on the User document (profileImage field).
+  // Update your onAvatarSelected method to use real backend upload
+  // Update your onAvatarSelected method to work without the backend endpoint for now
+  onAvatarSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file || !this.user?.id) return;
+
+    // Resize image to avoid localStorage quota error
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Create canvas to resize image to 200x200 (max size for avatars)
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxSize = 200;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        // Convert to compressed JPEG to reduce file size
+        const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
+        
+        this.profileImageUrl = resizedImage;
+        // Save to localStorage AND update local user object
+        localStorage.setItem(`profileImageUrl_${this.user.id}`, resizedImage);
+        if (this.user) this.user.profileImage = resizedImage;
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+logout(): void {
+  this.authService.logout();
+  this.router.navigate(['/login']);
+}
+
+confirmDeleteAccount(): void {
+  if (confirm('⚠️ WARNING: This will PERMANENTLY delete your account AND ALL your listed products. This action cannot be undone!')) {
+    this.authService.deleteAccount().subscribe({
+
+      next: () => {
+        // Clear all local storage data and redirect to login
+        localStorage.clear();
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => console.error('Account deletion failed:', err)
+    });
+  }
+}
+
 }

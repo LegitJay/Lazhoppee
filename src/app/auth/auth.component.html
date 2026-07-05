@@ -4,7 +4,8 @@
         <!-- LOGIN: fixed on the left half, never moves -->
         <div class="form-container sign-in-container">
             <div class="auth-forms">
-                <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm" novalidate>
+                <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm"
+                    novalidate>
                     <p class="auth-eyebrow">Welcome back</p>
                     <h1 class="auth-title">Log in</h1>
                     <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -45,10 +46,16 @@
         <!-- REGISTER: fixed on the right half, never moves -->
         <div class="form-container sign-up-container">
             <div class="auth-forms">
-                <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm" novalidate>
+                <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm"
+                    novalidate>
                     <p class="auth-eyebrow">Join Krossover</p>
                     <h1 class="auth-title">Create your account</h1>
                     <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+                    <label class="auth-field">
+                        <span class="auth-label">Display Name / Username</span>
+                        <input type="text" name="registerUsername" [(ngModel)]="registerData.username" required placeholder="your username" autocomplete="username" />
+                    </label>
 
                     <label class="auth-field">
                         <span class="auth-label">Email</span>
@@ -60,7 +67,7 @@
                         <span class="auth-label">Password</span>
                         <div class="auth-password-wrap">
                             <input [type]="showRegisterPassword ? 'text' : 'password'" name="registerPassword"
-                                [(ngModel)]="registerData.password" required minlength="8"
+                                [(ngModel)]="registerData.password" required minlength="3"
                                 placeholder="At least 8 characters" autocomplete="new-password" />
                             <button type="button" class="auth-password-toggle"
                                 (click)="showRegisterPassword = !showRegisterPassword"
@@ -75,7 +82,7 @@
                         <input type="password" name="confirmPassword" [(ngModel)]="registerData.confirmPassword"
                             required placeholder="Type it again" autocomplete="new-password" />
                     </label>
-
+                    
                     <button type="submit" class="auth-submit" [disabled]="isSubmitting">
                         Create account
                     </button>

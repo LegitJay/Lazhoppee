@@ -6,6 +6,9 @@ export interface AuthUser {
   id: string;
   email: string;
   role: 'customer' | 'pendingSeller' | 'storeOwner' | 'admin';
+  username?: string;
+  profileImage?: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -17,6 +20,9 @@ export interface BecomeSellerRequest {
   storeName: string;
   storeDescription: string;
   location: { lat: number; lng: number };
+  storeAddress: string;
+  storeContact: string;
+  storeEmail: string;
 }
 
 export interface SellerApplication {
@@ -25,6 +31,9 @@ export interface SellerApplication {
   storeName: string;
   storeDescription: string;
   location: { lat: number; lng: number };
+  storeAddress: string;
+  storeContact: string;
+  storeEmail: string;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
   createdAt: string;
@@ -46,15 +55,15 @@ export class AuthService {
 
   // ---------- Customer / storeOwner session (unchanged keys: token / user) ----------
 
-  register(email: string, password: string, role?: 'customer' | 'storeOwner'): Observable<AuthResponse> {
+  register(payload: { username: string; email: string; password: string; role?: 'customer' | 'storeOwner' }): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.baseUrl}/register`, { email, password, role })
+      .post<AuthResponse>(`${this.baseUrl}/register`, payload)
       .pipe(tap((res) => this.setSession(res)));
   }
 
-  login(email: string, password: string): Observable<AuthResponse> {
+  login(payload: { email: string; password: string }): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.baseUrl}/login`, { email, password })
+      .post<AuthResponse>(`${this.baseUrl}/login`, payload)
       .pipe(tap((res) => this.setSession(res)));
   }
 
@@ -92,6 +101,11 @@ export class AuthService {
     return this.http.get<AuthUser>(`${this.baseUrl}/me`, { headers: this.authHeader() }).pipe(
       tap((user) => localStorage.setItem('user', JSON.stringify(user)))
     );
+  }
+
+  // NEW: Fetch any store owner/seller by their ID to display on product pages
+  getSellerById(sellerId: string): Observable<AuthUser & { storeDetails?: any }> {
+    return this.http.get<AuthUser & { storeDetails?: any }>(`${this.baseUrl}/users/${sellerId}`, { headers: this.authHeader() });
   }
 
   private authHeader() {
@@ -152,5 +166,25 @@ export class AuthService {
 
   rejectApplication(id: string, reason?: string): Observable<SellerApplication> {
     return this.http.patch<SellerApplication>(`${this.sellerUrl}/applications/${id}/reject`, { reason }, { headers: this.adminAuthHeader() });
+  }
+
+  // In auth.service.ts - add this method
+  // Add this to your AuthService class
+  uploadProfileImage(formData: FormData): Observable<any> {
+    return this.http.post(`${this.baseUrl}/users/upload-profile-image`, formData);
+  }
+
+  updateUserProfile(data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/update-profile`, data, {
+      headers: this.authHeader()
+    });
+  }
+
+  // Delete account and cascade delete all associated products (cascade deletion)
+  deleteAccount(): Observable<any> {
+    const user = this.getUser();
+    return this.http.delete(`${this.baseUrl}/users/${user?.id}`, {
+      headers: this.authHeader()
+    });
   }
 }

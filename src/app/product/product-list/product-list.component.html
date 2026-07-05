@@ -34,11 +34,13 @@
     <div class="product-grid" *ngIf="products.length > 0">
       <mat-card class="product-card" appearance="outlined" *ngFor="let product of products; let i = index"
         [style.animation-delay]="(i * 0.05) + 's'">
-        <img mat-card-image class="product-image" [src]="'/' + product.imageUrl" [alt]="product.name">
-        <mat-card-content>
-          <mat-card-title class="product-name">{{product.name}}</mat-card-title>
-          <mat-card-subtitle class="product-price">{{product.price | currency: 'PHP'}}</mat-card-subtitle>
-        </mat-card-content>
+        <a [routerLink]="['/product', product._id]" class="product-link">
+          <img mat-card-image class="product-image" [src]="getImageUrl(product.imageUrl)" [alt]="product.name">
+          <mat-card-content>
+            <mat-card-title class="product-name">{{product.name}}</mat-card-title>
+            <mat-card-subtitle class="product-price">{{product.price | currency: 'PHP'}}</mat-card-subtitle>
+          </mat-card-content>
+        </a>
         <mat-card-actions>
           <button mat-raised-button color="primary" (click)="addToCart(product)">Add to Cart</button>
         </mat-card-actions>

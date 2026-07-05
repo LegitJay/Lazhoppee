@@ -1,22 +1,26 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const sellerApplicationSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    storeName: { type: String, required: true },
-    storeDescription: { type: String },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, },
+    storeName: { type: String, required: true, trim: true, },
+    storeDescription: { type: String, default: "", trim: true, },
     location: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true },
+      lat: { type: Number, required: true, },
+
+      lng: { type: Number, required: true, }
     },
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
-    },
-    rejectionReason: { type: String },
+    status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", },
+    rejectionReason: { type: String, default: "", },
+    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, },
+    reviewedAt: { type: Date, default: null, },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('SellerApplication', sellerApplicationSchema);
+module.exports = mongoose.model(
+  "SellerApplication",
+  sellerApplicationSchema
+);

@@ -1,3 +1,20 @@
+/* Add this to your become-seller.component.css */
+.seller-fields-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.seller-fields-row .half {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .seller-fields-row {
+    flex-direction: column;
+  }
+}
+
 .seller-shell {
   display: flex;
   justify-content: center;

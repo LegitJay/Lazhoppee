@@ -16,7 +16,7 @@ export interface SellerProduct {
 export class SellerProductService {
   private url = 'http://localhost:3002/seller/products';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   private headers() {
     return { Authorization: `Bearer ${this.authService.getToken()}` };
@@ -26,12 +26,16 @@ export class SellerProductService {
     return this.http.get<SellerProduct[]>(this.url, { headers: this.headers() });
   }
 
-  createProduct(data: Partial<SellerProduct>): Observable<SellerProduct> {
-    return this.http.post<SellerProduct>(this.url, data, { headers: this.headers() });
+  createProduct(data: FormData): Observable<SellerProduct> {
+    return this.http.post<SellerProduct>(this.url, data, {
+      headers: this.headers()
+    });
   }
 
-  updateProduct(id: string, data: Partial<SellerProduct>): Observable<SellerProduct> {
-    return this.http.patch<SellerProduct>(`${this.url}/${id}`, data, { headers: this.headers() });
+  updateProduct(id: string, data: FormData): Observable<SellerProduct> {
+    return this.http.patch<SellerProduct>(`${this.url}/${id}`, data, {
+      headers: this.headers()
+    });
   }
 
   deleteProduct(id: string): Observable<void> {

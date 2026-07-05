@@ -3,20 +3,24 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true },
     role: {
-      type: String,
-      required: true,
+      type: String, required: true,
       enum: ["customer", "pendingSeller", "storeOwner", "admin"],
       default: "customer",
     },
+    username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    profileImage: { type: String, default: null }, // base64 data URL
+    // Store details for storeOwner role users
+    storeDetails: {
+      storeName: String,
+      storeDescription: String,
+      storeAddress: String,
+      storeContact: String,
+      storeEmail: String,
+      location: { lat: Number, lng: Number }
+    }
   },
   { timestamps: true },
 );

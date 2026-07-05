@@ -1,79 +1,256 @@
+<!-- c:\Angular Projects\Lazhoppee\src\app\profile\profile.component.html -->
 <div class="profile-shell" *ngIf="user">
-  <div class="profile-card">
-    <p class="profile-eyebrow">Your account</p>
-    <h1 class="profile-title">{{ user.email }}</h1>
-    <p class="profile-role">{{ user.role === 'storeOwner' ? 'Store Owner' :
-                              user.role === 'pendingSeller' ? 'Pending Approval' :
-                              user.role === 'admin' ? 'Admin' : 'Customer' }}</p>
+  <div class="profile-page">
 
-    <!-- ── CUSTOMER: invite to become a seller ── -->
-    <div class="seller-banner" *ngIf="user.role === 'customer'">
-      <p class="seller-banner-title">Have something to sell?</p>
-      <p class="seller-banner-copy">Set up your storefront and start listing products today.</p>
-      <button type="button" class="seller-banner-btn" routerLink="/become-seller">
-        Start Selling
-      </button>
-    </div>
-
-    <!-- ── PENDING SELLER: progress bar ── -->
-    <div class="pending-banner" *ngIf="user.role === 'pendingSeller'">
-      <div class="pending-header">
-        <span class="pending-icon">⏳</span>
-        <p class="pending-title">Application under review</p>
+    <!-- Profile Header -->
+    <section class="profile-header">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar">
+          <img *ngIf="profileImageUrl" [src]="profileImageUrl" alt="Profile picture" />
+          <span *ngIf="!profileImageUrl">{{ getAvatarInitial() }}</span>
+        </div>
+        <button type="button" class="avatar-edit-btn" (click)="triggerAvatarUpload()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+        <input #avatarInput type="file" accept="image/*" hidden (change)="onAvatarSelected($event)" />
       </div>
-      <p class="pending-copy">
-        Our team is reviewing your seller application for
-        <strong>{{ application?.storeName || 'your store' }}</strong>.
-        We'll update your account as soon as a decision is made.
-      </p>
 
-      <div class="progress-track">
-        <div class="progress-steps">
-          <div class="progress-step done">
-            <div class="step-dot"></div>
-            <span class="step-label">Applied</span>
-          </div>
-          <div class="progress-line active"></div>
-          <div class="progress-step active">
-            <div class="step-dot"></div>
-            <span class="step-label">In Review</span>
-          </div>
-          <div class="progress-line"></div>
-          <div class="progress-step">
-            <div class="step-dot"></div>
-            <span class="step-label">Decision</span>
-          </div>
+      <div class="profile-info">
+        <span class="profile-role-badge">{{ roleLabel }}</span>
+        <h1 class="profile-name">{{ storeName }}</h1>
+        <p class="profile-email">{{ emailLabel }}</p>
+      </div>
+
+      <div class="profile-header-actions">
+        <button type="button" class="details-toggle-btn" (click)="toggleStoreDetails()"
+          *ngIf="user.role === 'storeOwner'">
+          {{ showStoreDetails ? 'Hide details' : 'Store details' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Store contact details — toggled from the header button -->
+    <section class="store-details-panel" *ngIf="showStoreDetails && user.role === 'storeOwner'">
+      <div class="info-grid">
+        <div class="info-item">
+          <span>Address</span>
+          <strong>{{ storeAddress }}</strong>
+        </div>
+        <div class="info-item">
+          <span>Contact</span>
+          <strong>{{ storeContact }}</strong>
+        </div>
+        <div class="info-item">
+          <span>Email</span>
+          <strong>{{ storeEmail }}</strong>
+        </div>
+        <div class="info-item">
+          <span>Member since</span>
+          <strong>{{ joinedDate }}</strong>
         </div>
       </div>
+      <div class="store-map-wrapper">
+        <h3>Location</h3>
+        <div id="store-map" #storeMap class="store-map-container public-map"></div>
+      </div>
+    </section>
 
-      <p class="pending-submitted" *ngIf="application?.createdAt">
-        Submitted {{ application.createdAt | date: 'MMMM d, y' }}
-      </p>
+    <!-- Status Banners -->
+    <div class="banners-container" *ngIf="user.role === 'customer' || user.role === 'pendingSeller'">
+      <div class="status-banner pending-banner" *ngIf="user.role === 'pendingSeller'">
+        <div class="banner-content">
+          <div>
+            <h3>Application under review</h3>
+            <p>We're reviewing your store application. You'll be notified once approved.</p>
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+        <span class="submitted-date" *ngIf="application?.createdAt">Submitted {{ joinedDate }}</span>
+      </div>
+
+      <div class="status-banner rejected-banner" *ngIf="application?.status === 'rejected'">
+        <div class="banner-content">
+          <h3>Application not approved</h3>
+          <p *ngIf="application?.rejectionReason">{{ application.rejectionReason }}</p>
+          <p>Update your details and reapply anytime.</p>
+        </div>
+        <button routerLink="/become-seller" class="banner-btn">Reapply</button>
+      </div>
     </div>
 
-    <!-- ── REJECTED: show reason + let them reapply ── -->
-    <div class="rejected-banner" *ngIf="user.role === 'customer' && application?.status === 'rejected'">
-      <p class="rejected-title">Application not approved</p>
-      <p class="rejected-reason" *ngIf="application?.rejectionReason">
-        Reason: {{ application.rejectionReason }}
-      </p>
-      <p class="rejected-copy">You can update your details and reapply at any time.</p>
-      <button type="button" class="seller-banner-btn" routerLink="/become-seller">
-        Reapply
-      </button>
+    <!-- Store Owner Dashboard: two-column grid, main + sidebar -->
+    <div class="dashboard-layout" *ngIf="user.role === 'storeOwner'">
+
+      <section class="dashboard-section">
+        <app-seller-dashboard></app-seller-dashboard>
+      </section>
+
+      <aside class="dashboard-sidebar">
+        <section class="stats-section">
+          <div class="stat-card" *ngFor="let card of overviewCards">
+            <strong class="stat-value">{{ card.value }}</strong>
+            <span class="stat-label">{{ card.label }}</span>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <div class="section-header">
+            <h2>Store details</h2>
+            <button type="button" class="edit-store-btn" (click)="toggleStoreEditMode()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit
+            </button>
+          </div>
+
+          <form *ngIf="isStoreEditMode" (ngSubmit)="saveStoreChanges()" class="store-edit-form">
+            <div class="form-group">
+              <label>Store name</label>
+              <input type="text" [(ngModel)]="storeEditForm.storeName" name="storeName" required>
+            </div>
+            <div class="form-group">
+              <label>Store description</label>
+              <textarea [(ngModel)]="storeEditForm.storeDescription" name="storeDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Physical address</label>
+              <input type="text" [(ngModel)]="storeEditForm.storeAddress" name="storeAddress">
+            </div>
+            <div class="form-group">
+              <label>Contact number</label>
+              <input type="tel" [(ngModel)]="storeEditForm.storeContact" name="storeContact">
+            </div>
+            <div class="form-group">
+              <label>Store email</label>
+              <input type="email" [(ngModel)]="storeEditForm.storeEmail" name="storeEmail">
+            </div>
+            <div class="form-group">
+              <label>Location (click map to update pin)</label>
+              <div id="store-map" #storeMap class="store-map-container"></div>
+              <small>Current coordinates: {{ storeLocation }}</small>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" (click)="toggleStoreEditMode()">Cancel</button>
+              <button type="submit" class="save-btn">Save changes</button>
+            </div>
+          </form>
+
+          <div *ngIf="!isStoreEditMode">
+            <p class="store-summary-description">{{ storeDescription }}</p>
+          </div>
+        </section>
+        <!-- Account deletion for store owners -->
+        <section class="account-actions-card">
+          <h3>Delete Account</h3>
+          <div class="action-buttons">
+            <button (click)="confirmDeleteAccount()" class="delete-account-btn">Delete Account & All Products</button>
+          </div>
+        </section>
+      </aside>
     </div>
 
-    <!-- ── STORE OWNER: link to seller dashboard ── -->
-    <div class="seller-banner" *ngIf="user.role === 'storeOwner'">
-      <p class="seller-banner-title">Your store is live 🎉</p>
-      <p class="seller-banner-copy">Manage your listings and track your products.</p>
-      <button type="button" class="seller-banner-btn" routerLink="/seller/dashboard">
-        Go to My Store
-      </button>
+
+
+    <!-- Customer profile -->
+    <div class="dashboard-layout" *ngIf="user.role === 'customer'">
+      <div class="dashboard-main">
+        <section class="account-card">
+          <div class="card-header">
+            <h2>Account information</h2>
+            <button type="button" class="edit-account-btn" (click)="toggleEditMode()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit
+            </button>
+          </div>
+
+          <!-- Update the customer edit form in your profile.component.html -->
+          <form *ngIf="isEditMode" (ngSubmit)="saveAccountChanges()" class="edit-form">
+            <div class="form-group">
+              <label>Display Name / Username</label>
+              <input type="text" [(ngModel)]="editForm.username" name="username" placeholder="Your public username">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="editForm.email" name="email" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" (click)="toggleEditMode()">Cancel</button>
+              <button type="submit" class="save-btn">Save changes</button>
+            </div>
+          </form>
+
+          <div class="info-grid" *ngIf="!isEditMode">
+            <div class="info-item">
+              <span>Email address</span>
+              <strong>{{ emailLabel }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Member since</span>
+              <strong>{{ joinedDate }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Account type</span>
+              <strong>Shopper account</strong>
+            </div>
+          </div>
+
+          <!-- Account actions - ALWAYS visible for all users -->
+          <div class="account-actions" *ngIf="!isEditMode">
+            <button (click)="logout()" class="logout-btn">Logout</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="dashboard-sidebar">
+        <section class="seller-cta-card" *ngIf="user?.role === 'customer'">
+          <h3>Start selling on Krossover</h3>
+          <p>Turn your passion into profit. Create your online store in minutes and start reaching thousands of
+            customers.</p>
+          <button routerLink="/become-seller" class="cta-button">Become a seller</button>
+        </section>
+
+        <!-- Account actions section - visible for all users -->
+        <section class="account-actions-card">
+          <h3>Account actions</h3>
+          <div class="action-buttons">
+            <button (click)="confirmDeleteAccount()" class="delete-account-btn">Delete Account</button>
+          </div>
+        </section>
+      </aside>
     </div>
 
-    <button type="button" class="profile-logout" (click)="logout()">
-      Log out
-    </button>
+    <!-- Pending seller -->
+    <section class="basic-info" *ngIf="user.role === 'pendingSeller'">
+      <h2>Store application details</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span>Store name</span>
+          <strong>{{ storeName }}</strong>
+        </div>
+        <div class="info-item">
+          <span>Submitted</span>
+          <strong>{{ joinedDate }}</strong>
+        </div>
+        <div class="info-item" *ngIf="storeLocation !== 'Location not provided'">
+          <span>Location</span>
+          <strong>{{ storeLocation }}</strong>
+        </div>
+        <div class="info-item description" *ngIf="storeDescription">
+          <span>Store description</span>
+          <strong>{{ storeDescription }}</strong>
+        </div>
+      </div>
+    </section>
+
   </div>
 </div>

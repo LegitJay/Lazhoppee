@@ -149,6 +149,19 @@
   gap: 10px;
   margin-bottom: 28px;
 }
+
+/* Product link to detail page */
+.product-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.product-link:hover .product-name {
+  color: #2a5bcc;
+}
+
 .category-btn {
   background: #ffffff;
   border: 1.5px solid #e5e0d4;
