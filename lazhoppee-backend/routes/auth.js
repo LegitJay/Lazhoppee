@@ -34,7 +34,9 @@ router.post("/register", async (req, res) => {
         .json({ message: "An account with that email already exists." });
     }
 
-    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    const existingUsername = await User.findOne({
+      username: username.toLowerCase(),
+    });
     if (existingUsername) {
       return res
         .status(409)
@@ -50,11 +52,18 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, username: user.username, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ message: "Something went wrong while registering." });
+    res
+      .status(500)
+      .json({ message: "Something went wrong while registering." });
   }
 });
 
@@ -83,7 +92,12 @@ router.post("/login", async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, username: user.username, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -111,14 +125,16 @@ router.get("/me", requireAuth, async (req, res) => {
 });
 
 // PUT /auth/update-profile
+// PUT /auth/update-profile
 router.put("/update-profile", requireAuth, async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const { username, email, profileImage } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found." });
 
     if (username) user.username = username;
     if (email) user.email = email;
+    if (profileImage) user.profileImage = profileImage;
     await user.save();
 
     res.json({
@@ -157,7 +173,7 @@ router.post("/upload-profile-image", requireAuth, async (req, res) => {
 router.get("/users/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
-      "username email role profileImage createdAt storeDetails"
+      "username email role profileImage createdAt storeDetails",
     );
     if (!user) return res.status(404).json({ message: "User not found." });
     res.json(user);

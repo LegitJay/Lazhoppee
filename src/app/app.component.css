@@ -176,6 +176,42 @@
   font-weight: 600;
 }
 
+.header-message-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: #f5f2ea;
+  flex-shrink: 0;
+  padding: 8px;
+  border-radius: 50%;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.header-message-btn:hover {
+  background: rgba(245, 242, 234, 0.08);
+  transform: translateY(-1px);
+}
+
+.unread-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #d6293a;
+  color: #f5f2ea;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: badge-pop 0.25s ease;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 720px) {
   .header-row {

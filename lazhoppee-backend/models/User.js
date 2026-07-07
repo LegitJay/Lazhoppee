@@ -20,7 +20,9 @@ const userSchema = new mongoose.Schema(
       storeContact: String,
       storeEmail: String,
       location: { lat: Number, lng: Number }
-    }
+    },
+    // Account status for admin user management
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

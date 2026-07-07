@@ -44,12 +44,23 @@ export interface BecomeSellerResponse extends AuthResponse {
   application: SellerApplication;
 }
 
+// NEW: shape returned by GET /admin/users?role=...
+export interface ManagedUser {
+  _id: string;
+  username?: string;
+  email: string;
+  role: 'customer' | 'pendingSeller' | 'storeOwner' | 'admin';
+  isActive: boolean;
+  createdAt?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private baseUrl = 'http://localhost:3002/auth';
   private sellerUrl = 'http://localhost:3002/seller';
+  private adminUrl = 'http://localhost:3002/admin'; // NEW
 
   constructor(private http: HttpClient) { }
 
@@ -166,6 +177,30 @@ export class AuthService {
 
   rejectApplication(id: string, reason?: string): Observable<SellerApplication> {
     return this.http.patch<SellerApplication>(`${this.sellerUrl}/applications/${id}/reject`, { reason }, { headers: this.adminAuthHeader() });
+  }
+
+  // ---------- NEW: Admin User Management ----------
+
+  getUsersByRole(role: 'customer' | 'storeOwner'): Observable<ManagedUser[]> {
+    return this.http.get<ManagedUser[]>(`${this.adminUrl}/users?role=${role}`, {
+      headers: this.adminAuthHeader(),
+    });
+  }
+
+  deactivateUser(id: string): Observable<{ message: string; user: ManagedUser }> {
+    return this.http.patch<{ message: string; user: ManagedUser }>(
+      `${this.adminUrl}/users/${id}/deactivate`,
+      {},
+      { headers: this.adminAuthHeader() }
+    );
+  }
+
+  activateUser(id: string): Observable<{ message: string; user: ManagedUser }> {
+    return this.http.patch<{ message: string; user: ManagedUser }>(
+      `${this.adminUrl}/users/${id}/activate`,
+      {},
+      { headers: this.adminAuthHeader() }
+    );
   }
 
   // In auth.service.ts - add this method

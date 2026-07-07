@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -14,6 +15,13 @@ function requireAuth(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded; // { id, role, email }
+
+    // Block deactivated accounts even if they still hold a valid token
+    const currentUser = await User.findById(decoded.id).select("isActive");
+    if (!currentUser || currentUser.isActive === false) {
+      return res.status(403).json({ message: "This account has been deactivated." });
+    }
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token." });

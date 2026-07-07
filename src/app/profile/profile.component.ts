@@ -330,18 +330,16 @@ export class ProfileComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file || !this.user?.id) return;
 
-    // Resize image to avoid localStorage quota error
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        // Create canvas to resize image to 200x200 (max size for avatars)
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const maxSize = 200;
         let width = img.width;
         let height = img.height;
-        
+
         if (width > height) {
           if (width > maxSize) {
             height *= maxSize / width;
@@ -353,41 +351,50 @@ export class ProfileComponent {
             height = maxSize;
           }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
         ctx?.drawImage(img, 0, 0, width, height);
-        // Convert to compressed JPEG to reduce file size
         const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
-        
+
+        // Show it immediately in the UI without waiting for the network round trip
         this.profileImageUrl = resizedImage;
-        // Save to localStorage AND update local user object
-        localStorage.setItem(`profileImageUrl_${this.user.id}`, resizedImage);
         if (this.user) this.user.profileImage = resizedImage;
+
+        // Persist to the backend so OTHER users (customers viewing your store card,
+        // the messages inbox, etc.) actually see it — localStorage alone only
+        // helps your own browser, not anyone else looking at your seller profile.
+        this.authService.updateUserProfile({ profileImage: resizedImage }).subscribe({
+          next: () => {
+            localStorage.setItem(`profileImageUrl_${this.user.id}`, resizedImage);
+            console.log('Profile image saved to database');
+          },
+          error: (err) => console.error('Failed to save profile image to database:', err)
+        });
       };
       img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
 
-logout(): void {
-  this.authService.logout();
-  this.router.navigate(['/login']);
-}
-
-confirmDeleteAccount(): void {
-  if (confirm('⚠️ WARNING: This will PERMANENTLY delete your account AND ALL your listed products. This action cannot be undone!')) {
-    this.authService.deleteAccount().subscribe({
-
-      next: () => {
-        // Clear all local storage data and redirect to login
-        localStorage.clear();
-        this.authService.logout();
-        this.router.navigate(['/login']);
-      },
-      error: (err) => console.error('Account deletion failed:', err)
-    });
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
-}
+
+  confirmDeleteAccount(): void {
+    if (confirm('⚠️ WARNING: This will PERMANENTLY delete your account AND ALL your listed products. This action cannot be undone!')) {
+      this.authService.deleteAccount().subscribe({
+
+        next: () => {
+          // Clear all local storage data and redirect to login
+          localStorage.clear();
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        },
+        error: (err) => console.error('Account deletion failed:', err)
+      });
+    }
+  }
 
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from './cart/cart.service';
 import { AuthService } from './auth/auth.service';
+import { MessageService } from './messages/message.service';
 
 @Component({
   selector: 'app-root',
@@ -11,11 +12,13 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent implements OnInit {
   title = 'online-selling-app';
   cartCount: number = 0;
+  unreadCount: number = 0;
   searchTerm: string = '';
 
   constructor(
     private cartService: CartService,
-    private authService: AuthService,
+    public authService: AuthService,
+    private messageService: MessageService,
     private router: Router
   ) {}
 
@@ -24,11 +27,16 @@ export class AppComponent implements OnInit {
       this.cartCount = count;
     });
 
-    // If a user is already logged in when the app boots (e.g. page refresh),
-    // fetch their cart so the badge is accurate immediately.
     if (this.authService.isLoggedIn()) {
       this.cartService.refreshCartCount();
+      this.refreshUnreadCount();
     }
+  }
+
+  refreshUnreadCount(): void {
+    this.messageService.getConversations().subscribe((convos: any[]) => {
+      this.unreadCount = convos.filter(c => c.hasUnread).length;
+    });
   }
 
   get isLoggedIn(): boolean {
@@ -49,7 +57,8 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    this.cartService.reset();        // ← zero the badge immediately
+    this.cartService.reset();
+    this.unreadCount = 0;
     this.router.navigate(['/auth']);
   }
 }

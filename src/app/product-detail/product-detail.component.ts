@@ -4,6 +4,7 @@ import { CartService, CartItem } from '../cart/cart.service';
 import { ProductService } from '../product/product.service';
 import { AuthService, AuthUser } from '../auth/auth.service';
 import { Product } from '../models/product';
+import { MessageService } from '../messages/message.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -23,8 +24,9 @@ export class ProductDetailComponent implements OnInit {
     public router: Router,
     private cartService: CartService,
     private productService: ProductService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     const productId = this.route.snapshot.paramMap.get('id');
@@ -98,13 +100,13 @@ export class ProductDetailComponent implements OnInit {
   addToCart(): void {
     if (!this.product) return;
     this.isAddingToCart = true;
-    
+
     // Create cart item matching your existing CartItem interface
     const cartItem: Partial<Product> = {
       ...this.product,
       quantity: this.quantity
     };
-    
+
     this.cartService.addToCart(cartItem as Product).subscribe({
       next: () => {
         this.isAddingToCart = false;
@@ -127,9 +129,17 @@ export class ProductDetailComponent implements OnInit {
   // Helper to get image URL (matches product-list component EXACTLY)
   getImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';
-    // Seller-uploaded images start with /uploads/ — serve from backend server (port 3002)
+    // Base64 data URLs (profile pictures) are already complete — don't touch them
+    if (imageUrl.startsWith('data:')) return imageUrl;
     if (imageUrl.startsWith('/uploads/')) return 'http://localhost:3002' + imageUrl;
-    // Sample/seed products use assets/images/ — serve from Angular
     return '/' + imageUrl;
+  }
+  messageSeller(): void {
+    if (!this.seller || !this.product) return;
+    const sellerId = (this.seller as any)._id;
+    this.messageService.startConversation(sellerId, this.product._id)
+      .subscribe((convo: any) => {
+        this.router.navigate(['/messages'], { queryParams: { conversation: convo._id } });
+      });
   }
 }

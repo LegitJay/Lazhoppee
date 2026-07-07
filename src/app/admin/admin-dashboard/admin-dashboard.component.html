@@ -1,34 +1,97 @@
 <div class="dash-shell">
   <header class="dash-header">
-    <h1 class="dash-title">Seller Applications</h1>
+    <h1 class="dash-title">Admin Dashboard</h1>
     <button class="dash-logout" (click)="logout()">Log out</button>
   </header>
 
-  <div class="dash-tabs">
-    <button class="dash-tab" [class.active]="filter === 'pending'" (click)="setFilter('pending')">Pending</button>
-    <button class="dash-tab" [class.active]="filter === 'approved'" (click)="setFilter('approved')">Approved</button>
-    <button class="dash-tab" [class.active]="filter === 'rejected'" (click)="setFilter('rejected')">Rejected</button>
-  </div>
+  <!-- ============ SELLER APPLICATIONS (unchanged logic) ============ -->
+  <section class="dash-section">
+    <h2 class="section-title">Seller Applications</h2>
 
-  <div class="dash-list" *ngIf="!isLoading; else loading">
-    <div class="app-card" *ngFor="let app of applications">
-      <div class="app-info">
-        <p class="app-store">{{ app.storeName }}</p>
-        <p class="app-email">{{ applicantEmail(app) }}</p>
-        <p class="app-desc" *ngIf="app.storeDescription">{{ app.storeDescription }}</p>
-        <p class="app-date">Submitted {{ app.createdAt | date: 'medium' }}</p>
-      </div>
-
-      <div class="app-actions" *ngIf="app.status === 'pending'">
-        <button class="approve-btn" (click)="approve(app)">Approve</button>
-        <button class="reject-btn" (click)="reject(app)">Reject</button>
-      </div>
-
-      <span class="status-pill" [class]="app.status" *ngIf="app.status !== 'pending'">{{ app.status }}</span>
+    <div class="dash-tabs">
+      <button class="dash-tab" [class.active]="filter === 'pending'" (click)="setFilter('pending')">Pending</button>
+      <button class="dash-tab" [class.active]="filter === 'approved'" (click)="setFilter('approved')">Approved</button>
+      <button class="dash-tab" [class.active]="filter === 'rejected'" (click)="setFilter('rejected')">Rejected</button>
     </div>
 
-    <p class="empty-msg" *ngIf="applications.length === 0">No {{ filter }} applications.</p>
-  </div>
+    <div class="dash-list" *ngIf="!isLoading; else loading">
+      <div class="app-card" *ngFor="let app of applications">
+        <div class="app-info">
+          <p class="app-store">{{ app.storeName }}</p>
+          <p class="app-email">{{ applicantEmail(app) }}</p>
+          <p class="app-desc" *ngIf="app.storeDescription">{{ app.storeDescription }}</p>
+          <p class="app-date">Submitted {{ app.createdAt | date: 'medium' }}</p>
+        </div>
 
-  <ng-template #loading><p class="empty-msg">Loading...</p></ng-template>
+        <div class="app-actions" *ngIf="app.status === 'pending'">
+          <button class="approve-btn" (click)="approve(app)">Approve</button>
+          <button class="reject-btn" (click)="reject(app)">Reject</button>
+        </div>
+
+        <span class="status-pill" [class]="app.status" *ngIf="app.status !== 'pending'">{{ app.status }}</span>
+      </div>
+
+      <p class="empty-msg" *ngIf="applications.length === 0">No {{ filter }} applications.</p>
+    </div>
+
+    <ng-template #loading><p class="empty-msg">Loading...</p></ng-template>
+  </section>
+
+  <!-- ============ NEW: USER MANAGEMENT ============ -->
+  <section class="dash-section">
+    <h2 class="section-title">User Management</h2>
+
+    <div class="dash-tabs">
+      <button class="dash-tab" [class.active]="userTab === 'customer'" (click)="setUserTab('customer')">Customers</button>
+      <button class="dash-tab" [class.active]="userTab === 'storeOwner'" (click)="setUserTab('storeOwner')">Store Owners</button>
+    </div>
+
+    <p class="user-error" *ngIf="userActionError">{{ userActionError }}</p>
+
+    <div *ngIf="!isUsersLoading; else usersLoading">
+
+      <!-- Desktop table -->
+      <table class="user-table" *ngIf="users.length > 0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Date Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td data-label="Name">{{ user.username || '—' }}</td>
+            <td data-label="Email">{{ user.email }}</td>
+            <td data-label="Role">{{ user.role }}</td>
+            <td data-label="Status">
+              <span class="status-pill" [class.active-pill]="user.isActive" [class.inactive-pill]="!user.isActive">
+                {{ user.isActive ? 'Active' : 'Deactivated' }}
+              </span>
+            </td>
+            <td data-label="Date Created">{{ user.createdAt ? (user.createdAt | date: 'medium') : '—' }}</td>
+            <td data-label="Action">
+              <button
+                class="user-action-btn"
+                [class.deactivate-btn]="user.isActive"
+                [class.activate-btn]="!user.isActive"
+                [disabled]="userActionPendingId === user._id"
+                (click)="toggleUserStatus(user)">
+                {{ userActionPendingId === user._id ? 'Please wait...' : (user.isActive ? 'Deactivate' : 'Activate') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="empty-msg" *ngIf="users.length === 0">
+        No {{ userTab === 'customer' ? 'customers' : 'store owners' }} found.
+      </p>
+    </div>
+
+    <ng-template #usersLoading><p class="empty-msg">Loading users...</p></ng-template>
+  </section>
 </div>

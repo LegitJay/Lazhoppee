@@ -10,6 +10,7 @@ import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './admin/admin.guard';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { StoreProfileComponent } from './store/store-profile.component';
+import { MessagesComponent } from './messages/messages.component';
 
 
 const routes: Routes = [
@@ -21,7 +22,8 @@ const routes: Routes = [
   { path: 'become-seller', component: BecomeSellerComponent, canActivate: [authGuard] },
   { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'product/:id', component: ProductDetailComponent },
-  { path: 'store/:sellerId', component: StoreProfileComponent }
+  { path: 'store/:sellerId', component: StoreProfileComponent },
+  { path: 'messages', component: MessagesComponent, canActivate: [authGuard] }
 ];
 
 @NgModule({

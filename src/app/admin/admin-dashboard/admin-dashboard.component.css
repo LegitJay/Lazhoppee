@@ -94,3 +94,159 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ============================================================
+   NEW: Section wrapper (used by both Seller Applications
+   and User Management sections)
+   ============================================================ */
+
+.dash-section {
+  margin-bottom: 40px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e0d4;
+}
+.dash-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.section-title {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: #14171C;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   NEW: User Management — error state
+   ============================================================ */
+
+.user-error {
+  background: #FBEAEA;
+  color: #D6293A;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* ============================================================
+   NEW: User Management — status badges (reuses .status-pill
+   base styles, adds active/inactive variants)
+   ============================================================ */
+
+.status-pill.active-pill { background: #E7F6EC; color: #2E7D45; }
+.status-pill.inactive-pill { background: #F1F1EF; color: #8B8F98; }
+
+/* ============================================================
+   NEW: User Management — action buttons
+   ============================================================ */
+
+.user-action-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+}
+.user-action-btn.deactivate-btn { background: #D6293A; color: #fff; }
+.user-action-btn.deactivate-btn:hover:not(:disabled) { background: #B91F2E; }
+.user-action-btn.activate-btn { background: #0B1B3A; color: #F5F2EA; }
+.user-action-btn.activate-btn:hover:not(:disabled) { background: #16284f; }
+.user-action-btn:active:not(:disabled) { transform: scale(0.95); }
+.user-action-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ============================================================
+   NEW: User Management — desktop table
+   ============================================================ */
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e5e0d4;
+  border-radius: 10px;
+  overflow: hidden;
+  animation: rise-in 0.3s ease backwards;
+}
+
+.user-table thead {
+  background: #F5F2EA;
+}
+
+.user-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #8B8F98;
+  padding: 12px 16px;
+  font-weight: 700;
+}
+
+.user-table td {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: #14171C;
+  border-top: 1px solid #e5e0d4;
+}
+
+.user-table tbody tr {
+  transition: background 0.15s ease;
+}
+.user-table tbody tr:hover {
+  background: #FAFAF7;
+}
+
+/* ============================================================
+   NEW: User Management — mobile stacked-card layout
+   Table rows collapse into labeled cards below 640px.
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .user-table thead {
+    display: none;
+  }
+
+  .user-table, .user-table tbody, .user-table tr, .user-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .user-table tr {
+    border: 1px solid #e5e0d4;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    background: #fff;
+  }
+
+  .user-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: none;
+    text-align: right;
+  }
+
+  .user-table td::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #8B8F98;
+    text-align: left;
+  }
+
+  .user-table td:last-child {
+    justify-content: flex-end;
+  }
+}

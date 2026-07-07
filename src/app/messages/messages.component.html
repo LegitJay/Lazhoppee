@@ -1,0 +1,37 @@
+<div class="inbox-container">
+  <aside class="conversation-list">
+    <h2 class="inbox-title">Messages</h2>
+    <div class="convo-item" *ngFor="let convo of conversations"
+         [class.active]="activeConversation?._id === convo._id"
+         (click)="selectConversation(convo)">
+      <div class="convo-avatar">
+        <img *ngIf="otherParty(convo).profileImage" [src]="otherParty(convo).profileImage" alt="">
+        <span *ngIf="!otherParty(convo).profileImage">{{ getInitial(otherParty(convo)) }}</span>
+      </div>
+      <div class="convo-info">
+        <span class="convo-name">{{ otherParty(convo).username }}</span>
+        <span class="convo-preview">{{ convo.lastMessage || 'Start the conversation' }}</span>
+      </div>
+    </div>
+    <p *ngIf="!conversations.length" class="empty-inbox">No conversations yet.</p>
+  </aside>
+
+  <section class="chat-panel" *ngIf="activeConversation">
+    <div class="chat-header">{{ otherParty(activeConversation).username }}</div>
+    <div class="chat-messages">
+      <div *ngFor="let msg of messages"
+           class="chat-bubble"
+           [class.own]="msg.sender._id === currentUserId">
+        {{ msg.text }}
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input [(ngModel)]="newMessageText" (keyup.enter)="send()" placeholder="Type a message...">
+      <button (click)="send()">Send</button>
+    </div>
+  </section>
+
+  <section class="chat-panel empty-state" *ngIf="!activeConversation">
+    <p>Select a conversation to start chatting.</p>
+  </section>
+</div>

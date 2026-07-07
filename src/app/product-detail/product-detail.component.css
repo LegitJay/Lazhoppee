@@ -498,12 +498,38 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
 }
 
 .view-store-btn:hover {
   background: var(--navy);
   color: var(--cream);
   border-color: var(--navy);
+}
+
+.message-seller-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border: 1.5px solid var(--crimson);
+  border-radius: 999px;
+  background: white;
+  color: var(--crimson);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.message-seller-btn:hover {
+  background: var(--crimson);
+  color: var(--cream);
+  border-color: var(--crimson);
+}
+
+.message-seller-btn:focus-visible,
+.view-store-btn:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 3px;
 }
 
 /* Responsive for mobile/tablet */
