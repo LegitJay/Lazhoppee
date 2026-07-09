@@ -4,20 +4,22 @@
     <div class="convo-item" *ngFor="let convo of conversations"
          [class.active]="activeConversation?._id === convo._id"
          (click)="selectConversation(convo)">
-      <div class="convo-avatar">
-        <img *ngIf="otherParty(convo).profileImage" [src]="otherParty(convo).profileImage" alt="">
-        <span *ngIf="!otherParty(convo).profileImage">{{ getInitial(otherParty(convo)) }}</span>
-      </div>
-      <div class="convo-info">
-        <span class="convo-name">{{ otherParty(convo).username }}</span>
-        <span class="convo-preview">{{ convo.lastMessage || 'Start the conversation' }}</span>
-      </div>
+      <ng-container *ngIf="otherParty(convo) as otherUser">
+        <div class="convo-avatar">
+          <img *ngIf="otherUser.profileImage" [src]="otherUser.profileImage" alt="">
+          <span *ngIf="!otherUser.profileImage">{{ getInitial(otherUser) }}</span>
+        </div>
+        <div class="convo-info">
+          <span class="convo-name">{{ getDisplayName(otherUser) }}</span>
+          <span class="convo-preview">{{ convo.lastMessage || 'Start the conversation' }}</span>
+        </div>
+      </ng-container>
     </div>
     <p *ngIf="!conversations.length" class="empty-inbox">No conversations yet.</p>
   </aside>
 
   <section class="chat-panel" *ngIf="activeConversation">
-    <div class="chat-header">{{ otherParty(activeConversation).username }}</div>
+    <div class="chat-header">{{ getDisplayName(otherParty(activeConversation)) }}</div>
     <div class="chat-messages">
       <div *ngFor="let msg of messages"
            class="chat-bubble"

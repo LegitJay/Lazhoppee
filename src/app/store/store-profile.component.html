@@ -33,38 +33,110 @@
           <h1 class="store-title">
             {{ seller.storeDetails?.storeName || seller.username + "'s Store" }}
           </h1>
+
+          <p class="store-username">
+            <span class="label-icon">👤</span>
+            <ng-container *ngIf="seller.username; else noUsername">{{ seller.username }}</ng-container>
+            <ng-template #noUsername>Username not set</ng-template>
+          </p>
+
           <p *ngIf="seller.storeDetails?.storeAddress" class="store-location">
             📍 {{ seller.storeDetails.storeAddress }}
           </p>
-          <p class="store-member-since">Member since {{ (seller.createdAt | date) || 'N/A' }}</p>
+
+          <p class="store-member-since">
+            Member since {{ (seller.createdAt | date:'mediumDate') || 'N/A' }}
+          </p>
         </div>
+      </div>
+    </div>
+
+    <!-- Store Statistics -->
+    <div class="store-stats-section">
+      <div class="stat-card">
+        <span class="stat-value">{{ sellerProducts.length }}</span>
+        <span class="stat-label">Total Products</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ seller.totalReviews ?? 'Coming soon' }}</span>
+        <span class="stat-label">Total Reviews</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ seller.rating ?? 'Not rated yet' }}</span>
+        <span class="stat-label">Store Rating</span>
       </div>
     </div>
 
     <!-- Store Details Section -->
     <div class="store-details-section">
       <h2>About This Store</h2>
-      <p *ngIf="seller.storeDetails?.storeDescription" class="store-description">
+
+      <p *ngIf="seller.storeDetails?.storeDescription; else noDescription" class="store-description">
         {{ seller.storeDetails.storeDescription }}
       </p>
-      <p *ngIf="!seller.storeDetails?.storeDescription" class="store-description">
-        A trusted seller on our platform offering quality products.
-      </p>
+      <ng-template #noDescription>
+        <p class="store-description">A trusted seller on our platform offering quality products.</p>
+      </ng-template>
 
-      <!-- Contact Info -->
-      <div class="store-contact-info" *ngIf="seller.storeDetails?.storeContact || seller.storeDetails?.storeEmail">
-        <p *ngIf="seller.storeDetails?.storeContact" class="store-contact">
-          📞 {{ seller.storeDetails.storeContact }}
-        </p>
-        <p *ngIf="seller.storeDetails?.storeEmail" class="store-email">
-          ✉️ {{ seller.storeDetails.storeEmail }}
-        </p>
+      <!-- Info Grid: Address / Contact / Email / Lat / Lng -->
+      <div class="store-info-grid">
+        <div class="info-card">
+          <span class="info-label">📍 Full Address</span>
+          <span class="info-value">
+            {{ seller.storeDetails?.storeAddress || 'Not provided' }}
+          </span>
+        </div>
+
+        <div class="info-card">
+          <span class="info-label">📞 Contact Number</span>
+          <span class="info-value">
+            {{ seller.storeDetails?.storeContact || 'Not provided' }}
+          </span>
+        </div>
+
+        <div class="info-card">
+          <span class="info-label">✉️ Store Email</span>
+          <span class="info-value">
+            {{ seller.storeDetails?.storeEmail || 'Not provided' }}
+          </span>
+        </div>
+
+        <div class="info-card" *ngIf="seller.storeDetails?.location?.lat">
+          <span class="info-label">🌐 Latitude</span>
+          <span class="info-value">{{ seller.storeDetails.location.lat }}</span>
+        </div>
+
+        <div class="info-card" *ngIf="seller.storeDetails?.location?.lng">
+          <span class="info-label">🌐 Longitude</span>
+          <span class="info-value">{{ seller.storeDetails.location.lng }}</span>
+        </div>
       </div>
 
       <!-- Real Leaflet Map -->
       <div *ngIf="seller.storeDetails?.location?.lat && seller.storeDetails?.location?.lng" class="map-container">
         <h3>Store Location</h3>
         <div id="store-map" class="store-map"></div>
+      </div>
+    </div>
+
+    <!-- Seller Information -->
+    <div class="seller-info-section">
+      <h2>Seller Information</h2>
+      <div class="store-info-grid">
+        <div class="info-card">
+          <span class="info-label">👤 Username</span>
+          <span class="info-value">{{ seller.username || 'Not provided' }}</span>
+        </div>
+
+        <div class="info-card">
+          <span class="info-label">✉️ Account Email</span>
+          <span class="info-value">{{ seller.email || 'Not provided' }}</span>
+        </div>
+
+        <div class="info-card">
+          <span class="info-label">🏷️ Seller Role</span>
+          <span class="info-value">{{ formatRole(seller.role) }}</span>
+        </div>
       </div>
     </div>
 

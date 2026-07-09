@@ -142,4 +142,8 @@ export class ProductDetailComponent implements OnInit {
         this.router.navigate(['/messages'], { queryParams: { conversation: convo._id } });
       });
   }
+
+  getSellerDisplayName(): string {
+  return this.seller?.storeDetails?.storeName || this.seller?.username || 'Store';
+}
 }

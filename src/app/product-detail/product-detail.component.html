@@ -8,11 +8,7 @@
     <!-- Image section - square preview -->
     <div class="image-section">
       <div class="main-image-container">
-        <img
-          [src]="getImageUrl(product.imageUrl)"
-          alt="{{ product.name }}"
-          class="main-product-image"
-        >
+        <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="main-product-image">
       </div>
     </div>
 
@@ -33,7 +29,8 @@
         <span class="current-price">₱{{ product.price.toFixed(2) }}</span>
       </div>
 
-      <div class="stock-status" [class.in-stock]="product.stock && product.stock > 0" [class.out-of-stock]="!product.stock || product.stock === 0">
+      <div class="stock-status" [class.in-stock]="product.stock && product.stock > 0"
+        [class.out-of-stock]="!product.stock || product.stock === 0">
         <span *ngIf="product.stock && product.stock > 0">In Stock ({{ product.stock }} available)</span>
         <span *ngIf="!product.stock || product.stock === 0">Out of Stock</span>
       </div>
@@ -64,29 +61,19 @@
       <!-- Seller/Store Owner Profile Card (AMAZON-STYLE) -->
       <div class="seller-card" *ngIf="!sellerLoading && seller">
         <div class="seller-card-header">
-          <img 
-            [src]="getImageUrl(seller.profileImage || '/assets/images/default-avatar.png')" 
-            alt="{{ seller.username }}" 
-            class="seller-avatar"
-            (click)="viewSellerProfile()"
-          >
+          <img [src]="getImageUrl(seller.profileImage || '/assets/images/default-avatar.png')"
+            alt="{{ getSellerDisplayName() }}" class="seller-avatar" (click)="viewSellerProfile()">
           <div class="seller-info">
-            <h3 (click)="viewSellerProfile()" class="seller-name">Visit {{ seller.username }}'s Store</h3>
-            <p *ngIf="seller.storeDetails?.storeName" class="store-name">{{ seller.storeDetails.storeName }}</p>
-            <p *ngIf="seller.storeDetails?.storeAddress" class="store-location">📍 {{ seller.storeDetails.storeAddress }}</p>
+            <h3 (click)="viewSellerProfile()" class="seller-name">{{ getSellerDisplayName() }}</h3>
           </div>
         </div>
         <button class="view-store-btn" (click)="viewSellerProfile()">View All Products from this Store</button>
-        <button class="message-seller-btn" (click)="messageSeller()">Message Seller</button>   <!-- ADD THIS LINE -->
+        <button class="message-seller-btn" (click)="messageSeller()">Message Seller</button>
       </div>
 
       <!-- Action buttons (Add to Cart + Buy Now) -->
       <div class="action-buttons" *ngIf="product.stock && product.stock > 0">
-        <button 
-          class="add-to-cart-btn" 
-          (click)="addToCart()" 
-          [disabled]="isAddingToCart"
-        >
+        <button class="add-to-cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
           {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
         </button>
         <button class="buy-now-btn" (click)="buyNow()" [disabled]="isAddingToCart">
@@ -97,16 +84,16 @@
   </div>
 </div>
 
-  <!-- Reviews section (placeholder) -->
-  <div class="reviews-section">
-    <div class="reviews-header">
-      <h2 class="reviews-title">Reviews</h2>
-      <button class="write-review-btn">Write a Review</button>
-    </div>
-    <div class="reviews-empty-state">
-      No reviews yet — be the first to review this product.
-    </div>
+<!-- Reviews section (placeholder) -->
+<div class="reviews-section">
+  <div class="reviews-header">
+    <h2 class="reviews-title">Reviews</h2>
+    <button class="write-review-btn">Write a Review</button>
   </div>
+  <div class="reviews-empty-state">
+    No reviews yet — be the first to review this product.
+  </div>
+</div>
 
 <!-- Loading state -->
 <div class="loading-container" *ngIf="loading">

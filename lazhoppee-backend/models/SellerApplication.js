@@ -5,9 +5,11 @@ const sellerApplicationSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, },
     storeName: { type: String, required: true, trim: true, },
     storeDescription: { type: String, default: "", trim: true, },
+    storeAddress: { type: String, default: "", trim: true, },
+    storeContact: { type: String, default: "", trim: true, },
+    storeEmail: { type: String, default: "", trim: true, },
     location: {
       lat: { type: Number, required: true, },
-
       lng: { type: Number, required: true, }
     },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", },

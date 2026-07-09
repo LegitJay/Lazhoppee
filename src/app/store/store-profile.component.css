@@ -130,6 +130,50 @@
   margin: 0;
 }
 
+/* Store Username in Header */
+.store-username {
+  font-size: 0.95rem;
+  color: var(--navy);
+  margin: 0 0 0.4rem 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Store Statistics */
+.store-stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--crimson);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 /* Store Details Section */
 .store-details-section {
   background: var(--card);
@@ -154,6 +198,38 @@
   margin-bottom: 2rem;
 }
 
+/* Info Grid (Address / Contact / Email / Lat / Lng / Seller Info) */
+.store-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.info-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-weight: 500;
+  word-break: break-word;
+}
+
 .map-container {
   margin-top: 2rem;
 }
@@ -176,6 +252,23 @@
   justify-content: center;
   gap: 0.5rem;
   color: var(--muted);
+}
+
+/* Seller Information Section */
+.seller-info-section {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.seller-info-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--navy);
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 /* Seller's Products Section */
@@ -292,6 +385,14 @@
 
   .store-banner, .store-details-section, .seller-products-section {
     padding: 1.5rem;
+  }
+
+  .store-stats-section {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .store-info-grid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -64,15 +64,19 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   otherParty(convo: any) {
-    return convo.customer._id === this.currentUserId ? convo.seller : convo.customer;
-  }
+  return convo.customer._id === this.currentUserId ? convo.seller : convo.customer;
+}
+
+getDisplayName(user: any): string {
+  return user?.storeDetails?.storeName || user?.username || 'Unknown User';
+}
 
   // Returns a single uppercase letter to use as a placeholder avatar
   // when the user has no profileImage saved in MongoDB.
   getInitial(user: any): string {
-    const source = user?.username || user?.storeName || user?.email || '';
-    return source ? source.charAt(0).toUpperCase() : '?';
-  }
+  const source = this.getDisplayName(user) || user?.email || '';
+  return source ? source.charAt(0).toUpperCase() : '?';
+}
 
   ngOnDestroy() {
     this.messageService.disconnect();

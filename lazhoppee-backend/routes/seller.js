@@ -33,7 +33,14 @@ function signToken(user) {
 // POST /seller/apply — customer submits seller application
 router.post("/apply", requireAuth, async (req, res) => {
   try {
-    const { storeName, storeDescription, location } = req.body;
+    const {
+      storeName,
+      storeDescription,
+      location,
+      storeAddress,
+      storeContact,
+      storeEmail,
+    } = req.body;
 
     if (!storeName || !storeName.trim()) {
       return res.status(400).json({ message: "Store name is required." });
@@ -65,6 +72,9 @@ router.post("/apply", requireAuth, async (req, res) => {
       user: user._id,
       storeName: storeName.trim(),
       storeDescription: storeDescription ? storeDescription.trim() : "",
+      storeAddress: storeAddress ? storeAddress.trim() : "",
+      storeContact: storeContact ? storeContact.trim() : "",
+      storeEmail: storeEmail ? storeEmail.trim() : "",
       location,
       status: "pending",
     });
@@ -145,9 +155,9 @@ router.post("/apply", requireAuth, async (req, res) => {
           storeName: application.storeName,
           storeDescription: application.storeDescription,
           location: application.location,
-          storeAddress: "", // You can add these later if needed
-          storeContact: "",
-          storeEmail: application.user.email
+          storeAddress: application.storeAddress,
+          storeContact: application.storeContact,
+          storeEmail: application.storeEmail || application.user.email,
         };
         await application.user.save();
 
