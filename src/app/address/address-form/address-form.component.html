@@ -1,0 +1,35 @@
+<form [formGroup]="addressForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="fullName">Full Name</label>
+    <input id="fullName" formControlName="fullName" />
+  </div>
+  <div class="form-group">
+    <label for="phoneNumber">Phone Number</label>
+    <input id="phoneNumber" formControlName="phoneNumber" />
+  </div>
+  <div class="form-group">
+    <label for="region">Region</label>
+    <input id="region" formControlName="region" />
+  </div>
+  <div class="form-group">
+    <label for="city">City</label>
+    <input id="city" formControlName="city" />
+  </div>
+  <div class="form-group">
+    <label for="barangay">Barangay</label>
+    <input id="barangay" formControlName="barangay" />
+  </div>
+  <div class="form-group">
+    <label for="streetAddress">Street Address</label>
+    <input id="streetAddress" formControlName="streetAddress" />
+  </div>
+  <div class="form-group">
+    <label for="postalCode">Postal Code</label>
+    <input id="postalCode" formControlName="postalCode" />
+  </div>
+  <div class="form-check">
+    <input id="isDefault" type="checkbox" formControlName="isDefault" />
+    <label for="isDefault">Set as default address</label>
+  </div>
+  <button type="submit" [disabled]="addressForm.invalid">Save Address</button>
+</form>

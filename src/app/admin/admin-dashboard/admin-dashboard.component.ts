@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, SellerApplication, ManagedUser } from '../../auth/auth.service';
+import { CategoryService, Category } from '../../category.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
 })
@@ -25,11 +27,22 @@ export class AdminDashboardComponent implements OnInit {
   // so we can disable just that row's button instead of the whole table.
   userActionPendingId: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  // ---------- NEW: Category Management ----------
+  categories: Category[] = [];
+  newCategoryName = '';
+  isCategoriesLoading = false;
+  categoryActionError: string | null = null;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private categoryService: CategoryService
+  ) {}
 
   ngOnInit(): void {
     this.loadApplications();
     this.loadUsers();
+    this.loadCategories();
   }
 
   // ---------- Seller Applications methods (unchanged) ----------
@@ -117,5 +130,50 @@ export class AdminDashboardComponent implements OnInit {
   logout(): void {
     this.authService.adminLogout();
     this.router.navigate(['/auth']);
+  }
+
+  // ---------- NEW: Category Management methods ----------
+
+  loadCategories(): void {
+    this.isCategoriesLoading = true;
+    this.categoryActionError = null;
+    this.categoryService.getCategories().subscribe({
+      next: (cats) => {
+        this.categories = cats;
+        this.isCategoriesLoading = false;
+      },
+      error: () => {
+        this.isCategoriesLoading = false;
+        this.categoryActionError = 'Failed to load categories.';
+      }
+    });
+  }
+
+  addCategory(): void {
+    if (!this.newCategoryName.trim()) return;
+    this.categoryActionError = null;
+    this.categoryService.addCategory(this.newCategoryName.trim()).subscribe({
+      next: (newCat) => {
+        this.categories.push(newCat);
+        this.newCategoryName = '';
+        this.loadCategories(); // Reload to sort the list
+      },
+      error: (err) => {
+        this.categoryActionError = err.error?.msg || 'Failed to add category.';
+      }
+    });
+  }
+
+  deleteCategory(id: string): void {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    this.categoryActionError = null;
+    this.categoryService.deleteCategory(id).subscribe({
+      next: () => {
+        this.categories = this.categories.filter(c => c._id !== id);
+      },
+      error: () => {
+        this.categoryActionError = 'Failed to delete category.';
+      }
+    });
   }
 }

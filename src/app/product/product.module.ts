@@ -6,9 +6,12 @@ import { StoreProfileComponent } from '../store/store-profile.component';
 import { MatCardModule } from '@angular/material/card';
 import { FlexModule } from '@angular/flex-layout';
 import { RouterLink } from '@angular/router';
+import { SharedModule } from '../shared/shared.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
+    ProductListComponent,
     ProductDetailComponent,
     StoreProfileComponent
   ],
@@ -17,7 +20,8 @@ import { RouterLink } from '@angular/router';
     MatCardModule,
     FlexModule,
     RouterLink,
-    ProductListComponent
+    SharedModule,
+    FormsModule
   ],
   exports: [
     ProductListComponent,

@@ -26,19 +26,32 @@ function initSocket(server) {
 
     socket.on('sendMessage', async ({ conversationId, text }) => {
       try {
+        // 1. Save the new message
         const message = await Message.create({
           conversation: conversationId,
           sender: socket.userId,
           text
         });
+
+        // 2. Update the parent conversation's last message details
         await Conversation.findByIdAndUpdate(conversationId, {
-          lastMessage: text,
+          lastMessage: text.length > 50 ? text.substring(0, 47) + '...' : text,
           lastMessageAt: new Date()
         });
-        const populated = await message.populate('sender', 'username profileImage');
-        io.to(conversationId).emit('newMessage', populated);
+
+        // 3. Populate sender details for the emitted message
+        const populatedMessage = await message.populate('sender', 'username profileImage');
+
+        // 4. **THE FIX**: Convert the populated message to a plain object
+        //    and ensure the conversation ID is a string before emitting.
+        const payload = populatedMessage.toObject();
+        payload.conversation = payload.conversation.toString();
+
+        // 5. Emit to the entire room (including sender)
+        io.to(conversationId).emit('newMessage', payload);
       } catch (err) {
-        socket.emit('errorMessage', err.message);
+        console.error('Socket sendMessage error:', err);
+        socket.emit('errorMessage', 'Failed to send message.');
       }
     });
   });

@@ -1,0 +1,131 @@
+/* ==========================================================================
+   LAZHOPPEE ADDRESS FORM
+   ========================================================================== */
+
+:host {
+  --color-primary: #d6293a;
+  --color-primary-dark: #b81f2e;
+  --color-primary-light: #fbe9ea;
+  --color-navy: #0b1b3a;
+  --color-ink: #1a1a1a;
+  --color-muted: #767676;
+  --color-border: #dcdcdf;
+  --color-white: #ffffff;
+  --radius-sm: 6px;
+
+  display: block;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+form {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 28px;
+  max-width: 680px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Street Address (6th field) reads better spanning the full width */
+.form-group:nth-of-type(6) {
+  grid-column: 1 / -1;
+}
+
+.form-check,
+button[type="submit"] {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.form-group input {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input::placeholder {
+  color: #b3b3b6;
+}
+
+.form-group input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(214, 41, 58, 0.12);
+}
+
+.form-group input.ng-invalid.ng-touched {
+  border-color: #d9534f;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.form-check label {
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  cursor: pointer;
+  user-select: none;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-white);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+button[type="submit"]:disabled {
+  background: #d8d8db;
+  color: #9a9a9e;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  form {
+    padding: 18px;
+    max-width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .form-group:nth-of-type(6) {
+    grid-column: 1;
+  }
+}

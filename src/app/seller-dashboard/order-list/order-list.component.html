@@ -1,1 +1,43 @@
-<p>order-list works!</p>
+<div class="order-list-container">
+  <h2>My Orders</h2>
+  <div *ngIf="isLoading" class="loading-spinner"></div>
+  <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
+    You have no orders.
+  </div>
+  <div *ngIf="!isLoading && orders.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let order of orders">
+          <tr *ngFor="let item of order.items">
+            <td>{{ order._id }}</td>
+            <td>
+              <ng-container *ngIf="isPopulatedBuyer(order.buyer); else buyerFallback">
+                {{ order.buyer.username }}
+              </ng-container>
+              <ng-template #buyerFallback>Unknown customer</ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="isPopulatedProduct(item.product); else productFallback">
+                {{ item.product.name }}
+              </ng-container>
+              <ng-template #productFallback>Product unavailable</ng-template>
+            </td>
+            <td>{{ item.quantity }}</td>
+            <td>₱{{ (item.price * item.quantity).toFixed(2) }}</td>
+            <td>{{ order.status }}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

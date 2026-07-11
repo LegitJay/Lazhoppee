@@ -94,4 +94,33 @@
 
     <ng-template #usersLoading><p class="empty-msg">Loading users...</p></ng-template>
   </section>
+
+  <!-- ============ NEW: CATEGORY MANAGEMENT ============ -->
+  <section class="dash-section">
+    <h2 class="section-title">Category Management</h2>
+
+    <div class="category-form">
+      <input
+        type="text"
+        [(ngModel)]="newCategoryName"
+        placeholder="Enter new category name"
+        class="category-input"
+        (keyup.enter)="addCategory()"
+      />
+      <button class="category-add-btn" (click)="addCategory()">Add Category</button>
+    </div>
+
+    <p class="user-error" *ngIf="categoryActionError">{{ categoryActionError }}</p>
+
+    <div *ngIf="!isCategoriesLoading; else categoriesLoading">
+      <ul class="category-list" *ngIf="categories.length > 0">
+        <li *ngFor="let category of categories" class="category-item">
+          <span>{{ category.name }}</span>
+          <button class="category-delete-btn" (click)="deleteCategory(category._id)">Delete</button>
+        </li>
+      </ul>
+      <p class="empty-msg" *ngIf="categories.length === 0">No categories found. Add one above!</p>
+    </div>
+    <ng-template #categoriesLoading><p class="empty-msg">Loading categories...</p></ng-template>
+  </section>
 </div>

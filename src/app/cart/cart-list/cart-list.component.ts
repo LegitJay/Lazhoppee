@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CartService, CartItem } from '../cart.service';
+import { CheckoutService } from '../../checkout/checkout.service';
 
 @Component({
   selector: 'app-cart-list',
@@ -11,7 +13,11 @@ export class CartListComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalPrice: number = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private checkoutService: CheckoutService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void { this.loadCart(); }
 
@@ -45,7 +51,8 @@ export class CartListComponent implements OnInit {
   }
 
   checkout(): void {
-    this.cartService.checkout(this.cartItems).subscribe(() => { this.cartItems = []; this.totalPrice = 0; });
+    this.checkoutService.setCheckoutItems(this.cartItems, 'cart');
+    this.router.navigate(['/checkout']);
   }
 
   getImageUrl(imageUrl: string): string {

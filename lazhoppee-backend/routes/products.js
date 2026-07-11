@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
       filter.category = req.query.category;
     if (req.query.q)
       filter.name = { $regex: req.query.q, $options: 'i' };
-    res.json(await Product.find(filter));
+    res.json(await Product.find(filter).populate('sellerId', 'addresses'));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -5,6 +5,8 @@ import { ProductService } from '../product/product.service';
 import { AuthService, AuthUser } from '../auth/auth.service';
 import { Product } from '../models/product';
 import { MessageService } from '../messages/message.service';
+import { CheckoutService } from '../checkout/checkout.service';
+import { WishlistService } from '../services/wishlist.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -25,7 +27,9 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private productService: ProductService,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private checkoutService: CheckoutService,
+    private wishlistService: WishlistService
   ) { }
 
   ngOnInit(): void {
@@ -46,7 +50,7 @@ export class ProductDetailComponent implements OnInit {
         console.log('Product loaded:', this.product);
         if (this.product?.sellerId) {
           console.log('Found sellerId on product:', this.product.sellerId);
-          this.loadSeller(this.product.sellerId);
+          this.loadSeller((this.product.sellerId as any)._id);
         } else {
           console.log('No sellerId found on product, seller card will be hidden');
           this.sellerLoading = false;
@@ -83,7 +87,7 @@ export class ProductDetailComponent implements OnInit {
   // Navigate to store owner's public profile page (like Amazon's seller store)
   viewSellerProfile(): void {
     if (this.seller) {
-      this.router.navigate(['/store', this.product?.sellerId]);
+      this.router.navigate(['/store', (this.product?.sellerId as any)?._id]);
     }
   }
 
@@ -121,9 +125,24 @@ export class ProductDetailComponent implements OnInit {
 
   buyNow(): void {
     if (!this.product) return;
-    // First add to cart, then redirect to checkout
-    this.addToCart();
-    setTimeout(() => this.router.navigate(['/checkout']), 500);
+    const productToCheckout = { ...this.product, quantity: this.quantity };
+    this.checkoutService.setCheckoutItems([productToCheckout], 'buyNow');
+    this.router.navigate(['/checkout']);
+  }
+
+  addToWishlist(): void {
+    if (!this.product) return;
+    const productId = this.product._id || this.product.id;
+    if (!productId) return;
+
+    this.wishlistService.addToWishlist(productId.toString()).subscribe({
+      next: () => {
+        alert('Added to wishlist successfully!');
+      },
+      error: (err) => {
+        alert(err.error.message || 'Failed to add to wishlist. Please try again.');
+      }
+    });
   }
 
   // Helper to get image URL (matches product-list component EXACTLY)

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, BehaviorSubject } from 'rxjs';
 
 export interface AuthUser {
   id: string;
@@ -62,6 +62,9 @@ export class AuthService {
   private sellerUrl = 'http://localhost:3002/seller';
   private adminUrl = 'http://localhost:3002/admin'; // NEW
 
+  private userSubject = new BehaviorSubject<AuthUser | null>(this.getUser());
+  public user$ = this.userSubject.asObservable();
+
   constructor(private http: HttpClient) { }
 
   // ---------- Customer / storeOwner session (unchanged keys: token / user) ----------
@@ -75,7 +78,12 @@ export class AuthService {
   login(payload: { email: string; password: string }): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/login`, payload)
-      .pipe(tap((res) => this.setSession(res)));
+      .pipe(
+        tap((res) => {
+          this.setSession(res);
+          this.getMe().subscribe(); // Fetch full user profile after login
+        })
+      );
   }
 
   becomeSeller(payload: BecomeSellerRequest): Observable<BecomeSellerResponse> {
@@ -92,6 +100,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    this.userSubject.next(null);
   }
 
   getToken(): string | null {
@@ -110,7 +119,14 @@ export class AuthService {
   // Fetches live user data from DB so role is always accurate after approval/rejection
   getMe(): Observable<AuthUser> {
     return this.http.get<AuthUser>(`${this.baseUrl}/me`, { headers: this.authHeader() }).pipe(
-      tap((user) => localStorage.setItem('user', JSON.stringify(user)))
+      tap((user) => {
+        try {
+          localStorage.setItem('user', JSON.stringify(user));
+        } catch (e) {
+          console.warn('Failed to cache user data in localStorage. This may happen if the profile image is too large.', e);
+        }
+        this.userSubject.next(user);
+      })
     );
   }
 
@@ -125,7 +141,12 @@ export class AuthService {
 
   private setSession(res: AuthResponse): void {
     localStorage.setItem('token', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    try {
+      localStorage.setItem('user', JSON.stringify(res.user));
+    } catch (e) {
+      console.warn('Failed to cache user data in localStorage. This may happen if the profile image is too large.', e);
+    }
+    this.userSubject.next(res.user);
   }
 
   // ---------- Admin session (separate keys: adminToken / adminUser) ----------
@@ -212,13 +233,20 @@ export class AuthService {
   updateUserProfile(data: any): Observable<any> {
     return this.http.put(`${this.baseUrl}/update-profile`, data, {
       headers: this.authHeader()
-    });
+    }).pipe(
+      tap((response: any) => {
+        const updatedUser = { ...this.getUser(), ...response.user };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        this.userSubject.next(updatedUser);
+      })
+    );
   }
 
   // Delete account and cascade delete all associated products (cascade deletion)
   deleteAccount(): Observable<any> {
-    const user = this.getUser();
-    return this.http.delete(`${this.baseUrl}/users/${user?.id}`, {
+    // The user is identified by their JWT. The /me endpoint is a common REST
+    // pattern for referring to the authenticated user's own resource.
+    return this.http.delete(`${this.baseUrl}/me`, {
       headers: this.authHeader()
     });
   }

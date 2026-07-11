@@ -1,0 +1,213 @@
+/* ==========================================================================
+   LAZHOPPEE ORDER HISTORY
+   Same card language as checkout / address pages.
+   ========================================================================== */
+
+.order-history-container {
+  --color-primary: #d6293a;
+  --color-primary-dark: #b81f2e;
+  --color-primary-light: #fbe9ea;
+  --color-navy: #0b1b3a;
+  --color-ink: #1a1a1a;
+  --color-muted: #767676;
+  --color-border: #e5e5e5;
+  --color-page-bg: #f5f5f7;
+  --color-white: #ffffff;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  background: var(--color-page-bg);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--color-ink);
+}
+
+.order-history-container h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  margin: 0 0 20px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* EMPTY / LOADING STATES                                                  */
+/* ---------------------------------------------------------------------- */
+
+.no-orders {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.loading-spinner {
+  width: 34px;
+  height: 34px;
+  margin: 60px auto;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* ORDER CARD                                                              */
+/* ---------------------------------------------------------------------- */
+
+.order-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--color-page-bg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.82rem;
+}
+
+.order-header span:first-child {
+  color: var(--color-muted);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  letter-spacing: -0.01em;
+}
+
+.order-header span:last-child {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------- */
+/* ORDER ITEMS                                                             */
+/* ---------------------------------------------------------------------- */
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-item:last-of-type {
+  border-bottom: none;
+}
+
+.order-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.order-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-item h3 {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-item p {
+  margin: 0 0 2px;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.order-item p:last-child {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------------- */
+/* ORDER FOOTER                                                            */
+/* ---------------------------------------------------------------------- */
+
+.order-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--color-page-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.order-footer span:first-child {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-primary);
+}
+
+.order-footer span:last-child {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+/* ---------------------------------------------------------------------- */
+/* RESPONSIVE                                                              */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  .order-history-container {
+    padding: 16px 12px 48px;
+  }
+
+  .order-header,
+  .order-item,
+  .order-footer {
+    padding: 12px 14px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .order-item img {
+    width: 52px;
+    height: 52px;
+  }
+}

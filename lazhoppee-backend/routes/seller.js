@@ -5,6 +5,8 @@ const router = express.Router();
 const Product = require("../models/Product");
 const SellerApplication = require("../models/SellerApplication");
 const User = require("../models/User");
+const Order = require("../models/Order");
+const Store = require("../models/Store"); // Import the Store model
 const { requireAuth } = require("../middleware/auth.middleware");
 const upload = require("../middleware/upload.middleware");
 
@@ -113,6 +115,20 @@ router.post("/apply", requireAuth, async (req, res) => {
     }
   });
 
+  // GET /seller/application/:userId — get a seller application by user ID
+  router.get("/application/:userId", requireAuth, async (req, res) => {
+    try {
+      const application = await SellerApplication.findOne({
+        user: req.params.userId,
+      }).sort({ createdAt: -1 });
+      if (!application)
+        return res.status(404).json({ message: "No application found." });
+      res.json(application);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // GET /seller/applications — admin views all applications, filterable by ?status=
   router.get(
     "/applications",
@@ -149,16 +165,18 @@ router.post("/apply", requireAuth, async (req, res) => {
         application.reviewedAt = new Date();
         await application.save();
 
-        application.user.role = "storeOwner";
-        // Copy store details from application to user's storeDetails
-        application.user.storeDetails = {
+        // Create a new Store document
+        await Store.create({
+          owner: application.user._id,
           storeName: application.storeName,
           storeDescription: application.storeDescription,
           location: application.location,
           storeAddress: application.storeAddress,
           storeContact: application.storeContact,
           storeEmail: application.storeEmail || application.user.email,
-        };
+        });
+
+        application.user.role = "storeOwner";
         await application.user.save();
 
         res.json({ message: "Application approved.", application });
@@ -206,6 +224,30 @@ router.get(
   async (req, res) => {
     try {
       res.json(await Product.find({ sellerId: req.user.id }));
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+);
+
+// GET /seller/orders — seller's own orders only
+router.get(
+  "/orders",
+  requireAuth,
+  requireRole("storeOwner"),
+  async (req, res) => {
+    try {
+      const orders = await Order.find({ "items.seller": req.user.id })
+        .populate({
+          path: "items.product",
+          model: "Product",
+        })
+        .populate({
+          path: "buyer",
+          model: "User",
+          select: "username",
+        });
+      res.json(orders);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

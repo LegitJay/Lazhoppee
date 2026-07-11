@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SellerProductService, SellerProduct } from './seller-product.service';
 import { AuthService } from '../auth/auth.service';
+import { CategoryService, Category } from '../category.service';
 import { OrderListComponent } from './order-list/order-list.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
@@ -25,14 +26,19 @@ export class SellerDashboardComponent implements OnInit {
   editingProduct: SellerProduct | null = null;
   errorMessage = '';
 
+  get overviewCards(): Array<{ label: string; value: string; hint: string }> {
+    return [
+      { label: 'Products', value: this.products.length.toString(), hint: 'Listed' },
+      { label: 'Orders', value: '0', hint: 'This month' },
+      { label: 'Revenue', value: '₱0', hint: 'Sales' },
+    ];
+  }
+
   get lowStockCount(): number {
     return this.products.filter((p) => (p.stock ?? 0) <= 5).length;
   }
 
-  suggestedCategories = [
-    'Shirts' ,'Jerseys', 'Shorts', 'Shoes', 'Basketballs', 'Socks',
-    'Hoodies & Jackets', 'Headwear', 'Bags', 'Accessories', 'Equipment'
-  ];
+  categories: Category[] = [];
 
   form = { name: '', price: 0, category: '', stock: 0, description: '' };
 
@@ -41,15 +47,29 @@ export class SellerDashboardComponent implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  constructor(private sellerProductService: SellerProductService, private authService: AuthService) {}
+  constructor(
+    private sellerProductService: SellerProductService,
+    private authService: AuthService,
+    private categoryService: CategoryService
+  ) {}
 
-  ngOnInit(): void { this.loadProducts(); }
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadCategories();
+  }
 
   loadProducts(): void {
     this.isLoading = true;
     this.sellerProductService.getMyProducts().subscribe({
       next: (p) => { this.products = p; this.isLoading = false; },
       error: () => { this.isLoading = false; }
+    });
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (cats) => { this.categories = cats; },
+      error: () => { this.errorMessage = 'Could not load categories.'; }
     });
   }
 
@@ -124,7 +144,7 @@ export class SellerDashboardComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.form.name);
     formData.append('price', String(this.form.price));
-    formData.append('category', this.form.category);
+    formData.append('category', String(this.form.category));
     formData.append('stock', String(this.form.stock));
     formData.append('description', this.form.description);
     if (this.selectedFile) formData.append('image', this.selectedFile);

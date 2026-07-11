@@ -25,7 +25,11 @@ router.get('/conversations', auth, async (req, res) => {
       .populate('seller', 'username profileImage storeDetails')
       .populate('product', 'name imageUrl')
       .sort({ lastMessageAt: -1 });
-    res.json(conversations);
+
+    // Drop conversations where the other party's account no longer exists
+    const validConversations = conversations.filter(c => c.customer && c.seller);
+
+    res.json(validConversations);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

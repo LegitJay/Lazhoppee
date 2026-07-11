@@ -1,4 +1,19 @@
 :host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.home {
+  background: #f5f2ea;
+  min-height: 100%;
+}
+
+.home {
+  background: #f5f2ea;
+}
+
+:host {
   --navy: #0b1b3a;
   --crimson: #d6293a;
   --crimson-dark: #b81f2f;
@@ -324,6 +339,31 @@
   background: var(--crimson);
   color: var(--cream);
   transform: translateY(-2px);
+}
+
+.add-to-wishlist-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--crimson);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-to-wishlist-btn:hover {
+  background: var(--crimson);
+  color: var(--cream);
+  border-color: var(--crimson);
+  transform: scale(1.05);
+}
+
+.heart-icon {
+  font-size: 1.5rem;
 }
 
 .add-to-cart-btn:active:not(:disabled),

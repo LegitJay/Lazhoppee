@@ -1,0 +1,57 @@
+<div class="checkout-container">
+  <h1>Checkout</h1>
+
+  <!-- Delivery Address Section -->
+  <div class="delivery-address">
+    <h2>Delivery Address</h2>
+    <div *ngIf="addresses.length > 0; else noAddresses">
+      <div *ngFor="let address of addresses" class="address-item" [class.selected]="address === selectedAddress" (click)="onSelectAddress(address)">
+        <p><strong>{{ address.fullName }}</strong> ({{ address.phoneNumber }})</p>
+        <p>{{ address.streetAddress }}, {{ address.barangay }}, {{ address.city }}, {{ address.region }} {{ address.postalCode }}</p>
+        <span *ngIf="address.isDefault" class="default-badge">Default</span>
+      </div>
+    </div>
+    <ng-template #noAddresses>
+      <p>No saved addresses. <a routerLink="/addresses">Add one now</a>.</p>
+    </ng-template>
+    <button class="manage-addresses-btn" routerLink="/addresses">Manage Addresses</button>
+  </div>
+
+  <!-- Product List Section -->
+  <div class="product-list">
+    <h2>Products Ordered</h2>
+    <div *ngFor="let item of checkoutItems" class="product-item">
+      <img [src]="getImageUrl(item.imageUrl)" alt="{{ item.name }}">
+      <div class="product-details">
+        <p class="product-name">{{ item.name }}</p>
+        <p class="product-price">₱{{ item.price.toFixed(2) }}</p>
+      </div>
+      <div class="product-quantity">
+        <span>x{{ item.quantity ?? 1 }}</span>
+      </div>
+      <div class="product-total">
+        <p>₱{{ (item.price * (item.quantity ?? 1)).toFixed(2) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Summary Section -->
+  <div class="order-summary">
+    <h2>Order Summary</h2>
+    <div class="summary-row">
+      <span>Subtotal ({{ checkoutItems.length }} items)</span>
+      <span>₱{{ subtotal.toFixed(2) }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Shipping Fee</span>
+      <span>₱{{ shippingFee.toFixed(2) }}</span>
+    </div>
+    <div class="summary-row total">
+      <span>Total Payment</span>
+      <span>₱{{ totalPayment.toFixed(2) }}</span>
+    </div>
+    <button class="place-order-btn" (click)="placeOrder()" [disabled]="!selectedAddress || isProcessing">
+      {{ isProcessing ? 'Processing...' : 'Place Order' }}
+    </button>
+  </div>
+</div>

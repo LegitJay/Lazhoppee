@@ -1,4 +1,19 @@
 :host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.home {
+  background: #f5f2ea;
+  min-height: 100%;
+}
+
+.home {
+  background: #f5f2ea;
+}
+
+:host {
   --navy: #0b1b3a;
   --crimson: #d6293a;
   --crimson-dark: #b81f2f;

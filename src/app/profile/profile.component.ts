@@ -7,7 +7,10 @@ import * as L from 'leaflet';
 import { AuthService } from '../auth/auth.service';
 import { CartService } from '../cart/cart.service';
 import { Router } from '@angular/router';
-import { SellerDashboardComponent } from '../seller-dashboard/seller-dashboard.component';
+import { NotificationService } from '../notification.service';
+import { StoreService } from '../services/store.service';
+
+import { SellerService } from '../services/seller.service';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -18,7 +21,7 @@ L.Icon.Default.mergeOptions({
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SellerDashboardComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -32,7 +35,6 @@ export class ProfileComponent {
   isEditMode = false;
   isStoreEditMode = false;
   editForm = { email: '', username: '' };
-  showStoreDetails = false;
 
   // COMPLETELY FIXED storeEditForm WITH ALL FIELDS
   storeEditForm = {
@@ -56,7 +58,10 @@ export class ProfileComponent {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService,
+    private storeService: StoreService,
+    private sellerService: SellerService
   ) { }
 
   ngOnInit(): void {
@@ -88,7 +93,9 @@ export class ProfileComponent {
   }
 
   ngAfterViewInit(): void {
-    // Map will be initialized after application loads for store owners
+    if (this.user?.role === 'storeOwner') {
+      setTimeout(() => this.initStoreMap(), 100);
+    }
   }
 
   private initStoreMap(): void {
@@ -146,16 +153,38 @@ export class ProfileComponent {
   }
 
   loadApplication(): void {
+    if (!this.user?.id) return;
     this.loadingApplication = true;
-    // Load only THIS user's application from localStorage (fixes wrong details issue)
-    if (this.user?.id) {
-      const allApps = JSON.parse(localStorage.getItem('sellerApplications') || '{}');
-      this.application = allApps[this.user.id] || null;
-    }
-    this.loadingApplication = false;
 
-    // In production, you would call an API here:
-    // this.authService.getMySellerApplication().subscribe({...})
+    if (this.user.role === 'storeOwner') {
+      // For approved store owners, fetch the live Store document.
+      this.storeService.getStoreByOwnerId(this.user.id).subscribe({
+        next: (storeData) => {
+          this.application = storeData;
+          this.loadingApplication = false;
+          setTimeout(() => this.initStoreMap(), 0);
+        },
+        error: (err: any) => {
+          console.error('Failed to load store data:', err);
+          this.application = null; // Ensure fallback works
+          this.loadingApplication = false;
+        }
+      });
+    } else if (this.user.role === 'pendingSeller') {
+      this.sellerService.getApplicationByUserId(this.user.id).subscribe({
+        next: (applicationData: any) => {
+          this.application = applicationData;
+          this.loadingApplication = false;
+        },
+        error: (err: any) => {
+          console.error('Failed to load application data:', err);
+          this.application = null;
+          this.loadingApplication = false;
+        }
+      });
+    } else {
+      this.loadingApplication = false;
+    }
   }
 
   // --- GETTERS FOR TEMPLATE ACCESS ---
@@ -210,16 +239,6 @@ export class ProfileComponent {
     return this.application?.storeEmail || 'Email not provided';
   }
 
-
-
-  get overviewCards(): Array<{ label: string; value: string; hint: string }> {
-    return [
-      { label: 'Products', value: '0', hint: 'Listed' },
-      { label: 'Orders', value: '0', hint: 'This month' },
-      { label: 'Revenue', value: '₱0', hint: 'Sales' },
-    ];
-  }
-
   // --- CUSTOMER EDIT MODE ---
   toggleEditMode(): void {
     this.isEditMode = !this.isEditMode;
@@ -247,57 +266,38 @@ export class ProfileComponent {
   }
 
   // --- STORE OWNER EDIT MODE ---
-  toggleStoreDetails(): void {
-    this.showStoreDetails = !this.showStoreDetails;
-    if (this.showStoreDetails) {
-      setTimeout(() => this.initStoreMap(), 100);
-    } else if (this.map) {
-      this.map.remove();
-      this.map = undefined as any;
-      this.mapMarker = null;
-    }
-  }
   toggleStoreEditMode(): void {
     this.isStoreEditMode = !this.isStoreEditMode;
-    if (this.isStoreEditMode && this.application) {
-      this.storeEditForm.storeName = this.application.storeName || '';
-      this.storeEditForm.storeDescription = this.application.storeDescription || '';
-      this.storeEditForm.storeAddress = this.application.storeAddress || '';
-      this.storeEditForm.storeContact = this.application.storeContact || '';
-      this.storeEditForm.storeEmail = this.application.storeEmail || '';
+    if (this.isStoreEditMode) {
+      this.storeEditForm.storeName = this.application?.storeName || '';
+      this.storeEditForm.storeDescription = this.application?.storeDescription || '';
+      this.storeEditForm.storeAddress = this.application?.storeAddress || '';
+      this.storeEditForm.storeContact = this.application?.storeContact || '';
+      this.storeEditForm.storeEmail = this.application?.storeEmail || '';
     }
-
-    // Reset map reference since the old DOM container was destroyed by *ngIf
-    this.map = undefined as any;
-    this.mapMarker = null;
-
-    setTimeout(() => this.initStoreMap(), 100);
+    // Re-initialize map to enable/disable click events
+    this.initStoreMap();
   }
 
   saveStoreChanges(): void {
-    if (!this.storeEditForm.storeName) {
-      alert('Store name is required.');
-      return;
-    }
+    if (!this.user?.id || !this.application?._id) return;
 
-    if (!this.application) {
-      this.application = {};
-    }
+    const updatedStoreData = {
+      ...this.storeEditForm,
+      location: this.application.location // Keep the updated location
+    };
 
-    this.application.storeName = this.storeEditForm.storeName;
-    this.application.storeDescription = this.storeEditForm.storeDescription;
-    this.application.storeAddress = this.storeEditForm.storeAddress;
-    this.application.storeContact = this.storeEditForm.storeContact;
-    this.application.storeEmail = this.storeEditForm.storeEmail;
-
-    localStorage.setItem('myApplication', JSON.stringify(this.application));
-    this.isStoreEditMode = false;
-
-    this.map = undefined as any;
-    this.mapMarker = null;
-    if (this.showStoreDetails) {
-      setTimeout(() => this.initStoreMap(), 100);
-    }
+    this.storeService.updateStore(this.application._id, updatedStoreData).subscribe({
+      next: (updatedStore) => {
+        this.application = updatedStore;
+        this.notificationService.show('Store details updated!', 'success');
+        this.toggleStoreEditMode(); // Exit edit mode
+      },
+      error: (err) => {
+        console.error('Failed to update store:', err);
+        this.notificationService.show('Failed to update store. Please try again.', 'error');
+      }
+    });
   }
 
   // --- PROFILE PICTURE UPLOAD ---
@@ -387,12 +387,16 @@ export class ProfileComponent {
       this.authService.deleteAccount().subscribe({
 
         next: () => {
-          // Clear all local storage data and redirect to login
+          // Clear all local storage data and redirect to the public product list
           localStorage.clear();
           this.authService.logout();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/products']);
+          this.notificationService.show('Account deleted successfully', 'success');
         },
-        error: (err) => console.error('Account deletion failed:', err)
+        error: (err) => {
+          console.error('Account deletion failed:', err);
+          this.notificationService.show('Account deletion failed. Please try again.', 'error');
+        }
       });
     }
   }

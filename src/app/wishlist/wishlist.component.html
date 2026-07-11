@@ -1,0 +1,20 @@
+<div class="wishlist-container">
+  <h1>My Wishlist</h1>
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading wishlist...</p>
+  </div>
+  <div *ngIf="!loading && wishlist.length === 0" class="empty-wishlist">
+    <p>Your wishlist is empty.</p>
+  </div>
+  <div *ngIf="!loading && wishlist.length > 0" class="wishlist-grid">
+    <div *ngFor="let product of wishlist" class="product-card">
+      <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-image">
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">₱{{ product.price.toFixed(2) }}</p>
+        <button (click)="removeFromWishlist(product._id)" class="remove-btn">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,12 +8,20 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { SharedModule } from './shared/shared.module';
 import { CartModule } from './cart/cart.module';
+import { CheckoutModule } from './checkout/checkout.module';
+import { OrderHistoryModule } from './order-history/order-history.module';
 import { AuthInterceptor } from './auth.interceptor';
+import { AddressModule } from './address/address.module';
+import { WishlistComponent } from './wishlist/wishlist.component';
+import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+import { NotificationComponent } from './notification.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    WishlistComponent
   ],
   imports: [
     BrowserModule,
@@ -25,6 +33,12 @@ import { AuthInterceptor } from './auth.interceptor';
     MatButtonModule,
     CartModule,
     FormsModule,
+    SharedModule,
+    CheckoutModule,
+    OrderHistoryModule,
+    AddressModule,
+    SellerDashboardComponent,
+    NotificationComponent
   ],
   providers: [
     {

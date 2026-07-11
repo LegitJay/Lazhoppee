@@ -1,0 +1,36 @@
+<div class="order-history-container">
+  <h1>My Orders</h1>
+  <div *ngIf="isLoading" class="loading-spinner"></div>
+  <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
+    You have no orders.
+  </div>
+  <div *ngIf="!isLoading && orders.length > 0">
+    <div *ngFor="let order of orders" class="order-card">
+      <div class="order-header">
+        <span>Order ID: {{ order._id }}</span>
+        <span>Status: {{ order.status }}</span>
+      </div>
+      <div *ngFor="let item of order.items" class="order-item">
+        <ng-container *ngIf="isPopulatedProduct(item.product); else unresolvedProduct">
+          <img [src]="getImageUrl(item.product.imageUrl)" alt="{{ item.product.name }}">
+          <div>
+            <h3>{{ item.product.name }}</h3>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p>Price: ₱{{ item.price.toFixed(2) }}</p>
+          </div>
+        </ng-container>
+        <ng-template #unresolvedProduct>
+          <div>
+            <h3>Product unavailable</h3>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p>Price: ₱{{ item.price.toFixed(2) }}</p>
+          </div>
+        </ng-template>
+      </div>
+      <div class="order-footer">
+        <span>Total: ₱{{ order.total.toFixed(2) }}</span>
+        <span>Placed on: {{ order.createdAt | date:'medium' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

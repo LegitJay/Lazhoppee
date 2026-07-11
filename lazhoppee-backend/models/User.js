@@ -12,6 +12,18 @@ const userSchema = new mongoose.Schema(
     },
     username: { type: String, required: true, unique: true, lowercase: true, trim: true },
     profileImage: { type: String, default: null }, // base64 data URL
+    addresses: [
+      {
+        fullName: { type: String, required: true },
+        phoneNumber: { type: String, required: true },
+        region: { type: String, required: true },
+        city: { type: String, required: true },
+        barangay: { type: String, required: true },
+        streetAddress: { type: String, required: true },
+        postalCode: { type: String, required: true },
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
     // Store details for storeOwner role users
     storeDetails: {
       storeName: String,
@@ -23,6 +35,7 @@ const userSchema = new mongoose.Schema(
     },
     // Account status for admin user management
     isActive: { type: Boolean, default: true },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   },
   { timestamps: true },
 );

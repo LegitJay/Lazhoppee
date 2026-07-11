@@ -1,7 +1,3 @@
-.home {
-  background: #f5f2ea;
-}
-
 /* ---------- HERO ---------- */
 .hero {
   position: relative;
@@ -356,8 +352,7 @@
 /* ---------- MAIN LAYOUT (sidebar + grid) ---------- */
 .main-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 32px;
+  grid-template-columns: 1fr;
   padding: 48px 24px 40px;
 }
 @media (max-width: 900px) {

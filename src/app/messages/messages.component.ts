@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -13,6 +13,8 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit, OnDestroy {
+  @ViewChild('messagesScroll') messagesScroll!: ElementRef<HTMLDivElement>;
+
   conversations: any[] = [];
   activeConversation: any = null;
   messages: any[] = [];
@@ -23,17 +25,25 @@ export class MessagesComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private authService: AuthService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.currentUserId = this.authService.getUser()?.id || '';
     this.messageService.connect();
 
     this.messageService.newMessage$.subscribe((msg) => {
-      if (msg && this.activeConversation && msg.conversation === this.activeConversation._id) {
-        this.messages.push(msg);
+      if (!msg) return;
+
+      if (this.activeConversation && msg.conversation === this.activeConversation._id) {
+        const alreadyShown = this.messages.some(m =>
+          m._id && msg._id && m._id === msg._id
+        );
+        if (!alreadyShown) {
+          this.messages.push(msg);
+          this.scrollToBottom();
+        }
       }
-      // bump the conversation preview in the sidebar without a refetch
+
       const convo = this.conversations.find(c => c._id === msg?.conversation);
       if (convo) {
         convo.lastMessage = msg.text;
@@ -54,29 +64,48 @@ export class MessagesComponent implements OnInit, OnDestroy {
   selectConversation(convo: any) {
     this.activeConversation = convo;
     this.messageService.joinConversation(convo._id);
-    this.messageService.getMessages(convo._id).subscribe((msgs) => this.messages = msgs);
+    this.messageService.getMessages(convo._id).subscribe((msgs) => {
+      this.messages = msgs;
+      this.scrollToBottom();
+    });
   }
 
   send() {
     if (!this.newMessageText.trim() || !this.activeConversation) return;
-    this.messageService.sendMessage(this.activeConversation._id, this.newMessageText.trim());
+
+    const text = this.newMessageText.trim();
+
+    this.messageService.sendMessage(this.activeConversation._id, text);
     this.newMessageText = '';
+
+    // No optimistic push — the backend now broadcasts 'newMessage' back to the
+    // sender via the room (io.to(conversationId).emit), so it will arrive
+    // through newMessage$ just like it does for the other participant.
+  }
+
+  private scrollToBottom() {
+    // Wait a tick so Angular has rendered the new message into the DOM first
+    setTimeout(() => {
+      if (this.messagesScroll) {
+        const el = this.messagesScroll.nativeElement;
+        el.scrollTop = el.scrollHeight;
+      }
+    }, 0);
   }
 
   otherParty(convo: any) {
-  return convo.customer._id === this.currentUserId ? convo.seller : convo.customer;
-}
+    if (!convo || !convo.customer || !convo.seller) return null;
+    return convo.customer._id === this.currentUserId ? convo.seller : convo.customer;
+  }
 
-getDisplayName(user: any): string {
-  return user?.storeDetails?.storeName || user?.username || 'Unknown User';
-}
+  getDisplayName(user: any): string {
+    return user?.storeDetails?.storeName || user?.username || 'Unknown User';
+  }
 
-  // Returns a single uppercase letter to use as a placeholder avatar
-  // when the user has no profileImage saved in MongoDB.
   getInitial(user: any): string {
-  const source = this.getDisplayName(user) || user?.email || '';
-  return source ? source.charAt(0).toUpperCase() : '?';
-}
+    const source = this.getDisplayName(user) || user?.email || '';
+    return source ? source.charAt(0).toUpperCase() : '?';
+  }
 
   ngOnDestroy() {
     this.messageService.disconnect();

@@ -1,124 +1,73 @@
+
 <div class="home">
 
-  <!-- ============================================= -->
-  <!-- HERO -->
-  <!-- ============================================= -->
-  <section class="hero">
-    <img class="hero-bg" src="/assets/images/nba1.jpg" alt="">
-    <div class="hero-half hero-half--navy"></div>
-    <div class="hero-half hero-half--crimson"></div>
+  <ng-container *ngIf="!searchTerm">
+    <!-- ============================================= -->
+    <!-- HERO -->
+    <!-- ============================================= -->
+    <section class="hero">
+      <img class="hero-bg" src="/assets/images/nba1.jpg" alt="">
+      <div class="hero-half hero-half--navy"></div>
+      <div class="hero-half hero-half--crimson"></div>
 
-    <div class="hero-content">
-      <img class="hero-logo" src="/assets/images/KRSSVR LOGO-01.svg" alt="Krossover">
-      <h1 class="hero-title">
-        <span class="hero-title--red">MOVE</span>
-        <span class="hero-title--blue">DIFFERENT</span>
-      </h1>
-      <p class="hero-sub">Streetwear built for the handle, the hoop, <br> and everywhere after.</p>
-      <a routerLink="/products" class="hero-cta">Shop Now</a>
-    </div>
-  </section>
+      <div class="hero-content">
+        <img class="hero-logo" src="/assets/images/KRSSVR LOGO-01.svg" alt="Krossover">
+        <h1 class="hero-title">
+          <span class="hero-title--red">MOVE</span>
+          <span class="hero-title--blue">DIFFERENT</span>
+        </h1>
+        <p class="hero-sub">Streetwear built for the handle, the hoop, <br> and everywhere after.</p>
+        <a routerLink="/products" class="hero-cta">Shop Now</a>
+      </div>
+    </section>
 
-  <!-- Secondary promo strip -->
-  <section class="container promo-strip">
-    <div class="promo-card promo-card--navy">
-      <span class="promo-eyebrow">New Drop</span>
-      <h4>Court-Ready Fits</h4>
-      <p>Fresh shorts &amp; tees just landed</p>
-    </div>
-    <div class="promo-card promo-card--crimson">
-      <span class="promo-eyebrow">Members</span>
-      <h4>Free Shipping</h4>
-      <p>On orders over ₱1,500</p>
-    </div>
-    <div class="promo-card promo-card--outline">
-      <span class="promo-eyebrow">Limited</span>
-      <h4>Accessories Restock</h4>
-      <p>Grab yours before it's gone</p>
-    </div>
-  </section>
+    <!-- Secondary promo strip -->
+    <section class="container promo-strip">
+      <div class="promo-card promo-card--navy">
+        <span class="promo-eyebrow">New Drop</span>
+        <h4>Court-Ready Fits</h4>
+        <p>Fresh shorts &amp; tees just landed</p>
+      </div>
+      <div class="promo-card promo-card--crimson">
+        <span class="promo-eyebrow">Members</span>
+        <h4>Free Shipping</h4>
+        <p>On orders over ₱1,500</p>
+      </div>
+      <div class="promo-card promo-card--outline">
+        <span class="promo-eyebrow">Limited</span>
+        <h4>Accessories Restock</h4>
+        <p>Grab yours before it's gone</p>
+      </div>
+    </section>
 
-  <!-- ============================================= -->
-  <!-- CATEGORIES -->
-  <!-- ============================================= -->
-  <section class="container categories-section">
-    <div class="section-head">
-      <h3 class="section-title">Shop by Category</h3>
-      <span class="section-rule"></span>
-    </div>
+    <!-- ============================================= -->
+    <!-- CATEGORIES -->
+    <!-- ============================================= -->
+    <section class="container categories-section">
+      <div class="section-head">
+        <h3 class="section-title">Shop by Category</h3>
+        <span class="section-rule"></span>
+      </div>
 
-    <div class="category-rail">
-      <button
-        class="category-tile"
-        *ngFor="let category of categories"
-        [class.active]="selectedCategory === category"
-        (click)="selectCategory(category)">
-        <span class="category-tile-icon">{{ getCategoryIcon(category) }}</span>
-        <span class="category-tile-label">{{ category }}</span>
-      </button>
-    </div>
-  </section>
-
+      <div class="category-rail">
+        <button
+          class="category-tile"
+          *ngFor="let category of categories"
+          [class.active]="selectedCategory === category"
+          (click)="selectCategory(category)">
+          <span class="category-tile-icon">{{ getCategoryIcon(category) }}</span>
+          <span class="category-tile-label">{{ category }}</span>
+        </button>
+      </div>
+    </section>
+  </ng-container>
 
   <!-- ============================================= -->
   <!-- MAIN: SIDEBAR + PRODUCT GRID -->
   <!-- ============================================= -->
   <div class="container main-layout">
 
-    <!-- FILTER SIDEBAR -->
-    <aside class="filters-sidebar">
-      <div class="filters-head">
-        <h4>Filters</h4>
-        <button class="filters-reset" (click)="resetFilters()">Reset</button>
-      </div>
 
-      <div class="filter-group">
-        <h5>Category</h5>
-        <label class="filter-option" *ngFor="let category of categories">
-          <input
-            type="radio"
-            name="filterCategory"
-            [checked]="selectedCategory === category"
-            (change)="selectCategory(category)">
-          <span>{{ category }}</span>
-        </label>
-      </div>
-
-      <div class="filter-group">
-        <h5>Price Range</h5>
-        <div class="price-inputs">
-          <input type="number" placeholder="Min" [(ngModel)]="priceMin" (change)="applyFilters()">
-          <span>&ndash;</span>
-          <input type="number" placeholder="Max" [(ngModel)]="priceMax" (change)="applyFilters()">
-        </div>
-      </div>
-
-      <div class="filter-group">
-        <h5>Rating</h5>
-        <label class="filter-option" *ngFor="let r of [4,3,2,1]">
-          <input type="radio" name="filterRating" [checked]="minRating === r" (change)="setMinRating(r)">
-          <span>{{ getStarString(r) }} &amp; up</span>
-        </label>
-      </div>
-
-      <div class="filter-group">
-        <h5>Availability</h5>
-        <label class="filter-option">
-          <input type="checkbox" [(ngModel)]="inStockOnly" (change)="applyFilters()">
-          <span>In Stock Only</span>
-        </label>
-      </div>
-
-      <div class="filter-group">
-        <h5>Sort By</h5>
-        <select class="sort-select" [(ngModel)]="sortOption" (change)="applyFilters()">
-          <option value="relevance">Relevance</option>
-          <option value="priceAsc">Price: Low to High</option>
-          <option value="priceDesc">Price: High to Low</option>
-          <option value="newest">Newest</option>
-        </select>
-      </div>
-    </aside>
 
     <!-- PRODUCT GRID -->
     <main class="products-main">
@@ -176,14 +125,14 @@
               </div>
 
               <div class="product-meta-row">
-                <span class="product-location">📍 {{ getLocation(product) }}</span>
+                <span class="product-location"> {{ getLocation(product) }}</span>
                 <span class="badge-shipping" *ngIf="hasFreeShipping(product)">Free Shipping</span>
               </div>
 
               <div class="store-row">
-                <span class="store-avatar">{{ getStoreInitial(product) }}</span>
+                <span class="store-avatar">{{ getStoreInitial (product) }}</span>
                 <span class="store-name">{{ getStoreName(product) }}</span>
-                <span class="verified-badge" *ngIf="isVerifiedSeller(product)" title="Verified Seller">✓</span>
+                <span class="verified-badge" *ngIf="isVerifiedSeller(product)" title="Verified Seller"></span>
               </div>
             </div>
           </a>
@@ -197,7 +146,6 @@
 
       <div class="empty-state" *ngIf="products.length === 0">
         <p>No products match that search yet. Try a different category or term.</p>
-        <button class="filters-reset" (click)="resetFilters()">Reset Filters</button>
       </div>
     </main>
   </div>

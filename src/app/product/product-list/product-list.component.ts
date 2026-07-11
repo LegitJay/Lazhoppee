@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { Product } from 'src/app/models/product';
 import { ProductService } from '../product.service';
 import { CartService } from '../../cart/cart.service';
 import { AuthService } from '../../auth/auth.service';
+import { WishlistService } from 'src/app/services/wishlist.service';
+import { CategoryService } from 'src/app/category.service';
 
 @Component({
   selector: 'app-product-list',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
@@ -20,18 +19,10 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   flashSaleProducts: Product[] = [];
 
-  categories: string[] = ['All', 'Shirts', 'Shorts', 'Accessories'];
+  categories: string[] = [];
   selectedCategory: string = 'All';
   searchTerm: string = '';
 
-  // --- new filter state ---
-  priceMin: number | null = null;
-  priceMax: number | null = null;
-  minRating: number = 0;
-  inStockOnly: boolean = false;
-  sortOption: string = 'relevance';
-
-  // --- wishlist (client-side only for now, see note below) ---
   private wishlistIds = new Set<string>();
 
   currentYear = new Date().getFullYear();
@@ -56,6 +47,8 @@ export class ProductListComponent implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
+    private wishlistService: WishlistService,
+    private categoryService: CategoryService,
     private router: Router,
     private route: ActivatedRoute) { }
 
@@ -68,6 +61,37 @@ export class ProductListComponent implements OnInit {
     this.productService.getProducts().subscribe(data => {
       this.allProducts = data;
       this.applyFilters();
+    });
+    this.loadWishlist();
+    this.loadCategories();
+  }
+
+  private loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (backendCategories) => {
+        // Extract just the names and prepend 'All'
+        this.categories = ['All', ...backendCategories.map(c => c.name)];
+      },
+      error: (err) => {
+        console.error('Failed to load categories, using fallback.', err);
+        // Keep the hardcoded list as a fallback in case of API error
+        this.categories = ['All', 'Shirts', 'Shorts', 'Accessories'];
+      }
+    });
+  }
+
+  private loadWishlist(): void {
+    this.wishlistService.getWishlist().subscribe({
+      next: (wishlist) => {
+        const wishlistProductIds = wishlist
+          .map(item => item._id)
+          .filter((id): id is string => !!id);
+        this.wishlistIds = new Set<string>(wishlistProductIds);
+      },
+      error: (err) => {
+        // Silently fail if not logged in or other error
+        console.error('Could not load wishlist', err);
+      }
     });
   }
 
@@ -99,22 +123,6 @@ export class ProductListComponent implements OnInit {
       const term = this.searchTerm.trim().toLowerCase();
       result = result.filter(p => p.name.toLowerCase().includes(term));
     }
-
-    // --- new filters ---
-    if (this.priceMin !== null) {
-      result = result.filter(p => p.price >= (this.priceMin as number));
-    }
-    if (this.priceMax !== null) {
-      result = result.filter(p => p.price <= (this.priceMax as number));
-    }
-    if (this.minRating > 0) {
-      result = result.filter(p => this.getRating(p) >= this.minRating);
-    }
-    if (this.inStockOnly) {
-      result = result.filter(p => this.getStock(p) > 0);
-    }
-
-    result = this.sortProducts(result);
 
     this.products = result;
     this.flashSaleProducts = this.allProducts
@@ -201,7 +209,11 @@ export class ProductListComponent implements OnInit {
 
   /** Reads an optional `location` field; falls back to a default city. */
   getLocation(product: Product): string {
-    return (product as any).location ?? 'Metro Manila';
+    const seller = (product as any).sellerId;
+    if (seller?.addresses?.length > 0) {
+      return seller.addresses[0].city;
+    }
+    return 'Metro Manila'; // Fallback if no address is found
   }
 
   hasFreeShipping(product: Product): boolean {
@@ -224,45 +236,28 @@ export class ProductListComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     if (!productId) return;
-    if (this.wishlistIds.has(productId)) {
-      this.wishlistIds.delete(productId);
-    } else {
-      this.wishlistIds.add(productId);
+
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth']);
+      return;
     }
-    // Currently client-side only (resets on refresh). Wire this up to a
-    // WishlistService + backend endpoint when you're ready to persist it.
+
+    const isWishlisted = this.wishlistIds.has(productId);
+    const action = isWishlisted
+      ? this.wishlistService.removeFromWishlist(productId)
+      : this.wishlistService.addToWishlist(productId);
+
+    action.subscribe({
+      next: () => {
+        if (isWishlisted) {
+          this.wishlistIds.delete(productId);
+        } else {
+          this.wishlistIds.add(productId);
+        }
+      },
+      error: (err) => console.error('Failed to update wishlist', err)
+    });
   }
 
-  setMinRating(rating: number): void {
-    this.minRating = this.minRating === rating ? 0 : rating;
-    this.applyFilters();
-  }
 
-  resetFilters(): void {
-    this.selectedCategory = 'All';
-    this.priceMin = null;
-    this.priceMax = null;
-    this.minRating = 0;
-    this.inStockOnly = false;
-    this.sortOption = 'relevance';
-    this.applyFilters();
-  }
-
-  private sortProducts(products: Product[]): Product[] {
-    const sorted = [...products];
-    switch (this.sortOption) {
-      case 'priceAsc':
-        return sorted.sort((a, b) => a.price - b.price);
-      case 'priceDesc':
-        return sorted.sort((a, b) => b.price - a.price);
-      case 'newest':
-        return sorted.sort((a, b) => {
-          const aDate = new Date((a as any).createdAt ?? 0).getTime();
-          const bDate = new Date((b as any).createdAt ?? 0).getTime();
-          return bDate - aDate;
-        });
-      default:
-        return sorted;
-    }
-  }
 }

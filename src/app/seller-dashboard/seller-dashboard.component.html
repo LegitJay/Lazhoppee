@@ -4,6 +4,13 @@
     <button class="add-btn" (click)="openAddForm()">+ Add Product</button>
   </div>
 
+  <section class="stats-section">
+    <div class="stat-card" *ngFor="let card of overviewCards">
+      <strong class="stat-value">{{ card.value }}</strong>
+      <span class="stat-label">{{ card.label }}</span>
+    </div>
+  </section>
+
   <!-- ADD / EDIT FORM MODAL -->
   <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()"></div>
   <div class="modal" *ngIf="showForm">
@@ -20,11 +27,10 @@
     </label>
     <label class="form-field">
       <span>Category</span>
-      <input type="text" [(ngModel)]="form.category" list="category-suggestions"
-        placeholder="e.g. Jerseys, Shoes, Basketballs..." />
-      <datalist id="category-suggestions">
-        <option *ngFor="let c of suggestedCategories" [value]="c"></option>
-      </datalist>
+      <select [(ngModel)]="form.category" required>
+        <option value="" disabled>Select a category</option>
+        <option *ngFor="let c of categories" [value]="c.name">{{ c.name }}</option>
+      </select>
     </label>
     <label class="form-field">
       <span>Stock</span>
