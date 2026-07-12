@@ -24,14 +24,10 @@
     <!-- Store Header/Banner -->
     <div class="store-banner">
       <div class="store-header">
-        <img
-          [src]="getImageUrl(seller.profileImage)"
-          alt="{{ seller.username }}"
-          class="store-avatar"
-        >
+        <img [src]="getImageUrl(seller.profileImage)" alt="{{ seller.username }}" class="store-avatar">
         <div class="store-info">
           <h1 class="store-title">
-            {{ seller.storeDetails?.storeName || seller.username + "'s Store" }}
+            {{ store?.storeName || (seller.username + "'s Store") }}
           </h1>
 
           <p class="store-username">
@@ -40,8 +36,8 @@
             <ng-template #noUsername>Username not set</ng-template>
           </p>
 
-          <p *ngIf="seller.storeDetails?.storeAddress" class="store-location">
-            📍 {{ seller.storeDetails.storeAddress }}
+          <p *ngIf="store?.storeAddress" class="store-location">
+            📍 {{ store?.storeAddress }}
           </p>
 
           <p class="store-member-since">
@@ -71,8 +67,8 @@
     <div class="store-details-section">
       <h2>About This Store</h2>
 
-      <p *ngIf="seller.storeDetails?.storeDescription; else noDescription" class="store-description">
-        {{ seller.storeDetails.storeDescription }}
+      <p *ngIf="store?.storeDescription; else noDescription" class="store-description">
+        {{ store?.storeDescription }}
       </p>
       <ng-template #noDescription>
         <p class="store-description">A trusted seller on our platform offering quality products.</p>
@@ -83,37 +79,37 @@
         <div class="info-card">
           <span class="info-label">📍 Full Address</span>
           <span class="info-value">
-            {{ seller.storeDetails?.storeAddress || 'Not provided' }}
+            {{ store?.storeAddress || 'Not provided' }}
           </span>
         </div>
 
         <div class="info-card">
           <span class="info-label">📞 Contact Number</span>
           <span class="info-value">
-            {{ seller.storeDetails?.storeContact || 'Not provided' }}
+            {{ store?.storeContact || 'Not provided' }}
           </span>
         </div>
 
         <div class="info-card">
           <span class="info-label">✉️ Store Email</span>
           <span class="info-value">
-            {{ seller.storeDetails?.storeEmail || 'Not provided' }}
+            {{ store?.storeEmail || 'Not provided' }}
           </span>
         </div>
 
-        <div class="info-card" *ngIf="seller.storeDetails?.location?.lat">
+        <div class="info-card" *ngIf="store?.location?.lat">
           <span class="info-label">🌐 Latitude</span>
-          <span class="info-value">{{ seller.storeDetails.location.lat }}</span>
+          <span class="info-value">{{ store?.location?.lat }}</span>
         </div>
 
-        <div class="info-card" *ngIf="seller.storeDetails?.location?.lng">
+        <div class="info-card" *ngIf="store?.location?.lng">
           <span class="info-label">🌐 Longitude</span>
-          <span class="info-value">{{ seller.storeDetails.location.lng }}</span>
+          <span class="info-value">{{ store?.location?.lng }}</span>
         </div>
       </div>
 
       <!-- Real Leaflet Map -->
-      <div *ngIf="seller.storeDetails?.location?.lat && seller.storeDetails?.location?.lng" class="map-container">
+      <div *ngIf="store?.location?.lat && store?.location?.lng" class="map-container">
         <h3>Store Location</h3>
         <div id="store-map" class="store-map"></div>
       </div>
@@ -157,16 +153,9 @@
 
       <!-- Products Grid -->
       <div *ngIf="!productsLoading && sellerProducts.length > 0" class="products-grid">
-        <div
-          *ngFor="let product of sellerProducts"
-          class="product-card"
-          [routerLink]="['/product', product._id || product.id]"
-        >
-          <img
-            [src]="getImageUrl(product.imageUrl)"
-            alt="{{ product.name }}"
-            class="product-image"
-          >
+        <div *ngFor="let product of sellerProducts" class="product-card"
+          [routerLink]="['/product', product._id || product.id]">
+          <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-image">
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
             <p class="product-price">${{ product.price }}</p>

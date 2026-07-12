@@ -4,6 +4,18 @@ import * as L from 'leaflet';
 import { AuthService, AuthUser } from '../auth/auth.service';
 import { ProductService } from '../product/product.service';
 import { Product } from '../models/product';
+import { StoreService } from '../services/store.service';
+
+export interface Store {
+  _id: string;
+  storeName: string;
+  storeDescription: string;
+  storeAddress: string;
+  storeContact: string;
+  storeEmail: string;
+  location: { lat: number; lng: number };
+  owner: string;
+}
 
 @Component({
   selector: 'app-store-profile',
@@ -12,7 +24,8 @@ import { Product } from '../models/product';
 })
 export class StoreProfileComponent implements OnInit, OnDestroy {
   sellerId: string | null = null;
-  seller: (AuthUser & { storeDetails?: any; totalReviews?: number; rating?: number }) | null = null;
+  seller: (AuthUser & { totalReviews?: number; rating?: number }) | null = null;
+  store: Store | null = null;
   sellerProducts: Product[] = [];
   loading = true;
   productsLoading = true;
@@ -24,7 +37,8 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private productService: ProductService
+    private productService: ProductService,
+    private storeService: StoreService
   ) { }
 
   ngOnInit(): void {
@@ -36,12 +50,11 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
     }
 
     this.loadSellerData();
+    this.loadStoreData();
     this.loadSellerProducts();
   }
 
   ngOnDestroy(): void {
-    // Prevent Leaflet memory leaks / "map container already initialized" errors
-    // if the user navigates away and back to this component.
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -53,19 +66,27 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
       next: (sellerData) => {
         this.seller = sellerData;
         this.loading = false;
-
-        const lat = sellerData?.storeDetails?.location?.lat;
-        const lng = sellerData?.storeDetails?.location?.lng;
-        if (typeof lat === 'number' && typeof lng === 'number') {
-          // The #store-map div is behind *ngIf, so it doesn't exist in the DOM
-          // yet on this exact tick. Deferring with setTimeout lets Angular
-          // finish rendering it first (same pattern as BecomeSellerComponent).
-          setTimeout(() => this.initMap(lat, lng), 0);
-        }
       },
       error: () => {
         this.error = 'Failed to load store profile';
         this.loading = false;
+      }
+    });
+  }
+
+  private loadStoreData(): void {
+    this.storeService.getStoreByOwnerId(this.sellerId!).subscribe({
+      next: (storeData) => {
+        this.store = storeData;
+
+        const lat = storeData?.location?.lat;
+        const lng = storeData?.location?.lng;
+        if (typeof lat === 'number' && typeof lng === 'number') {
+          setTimeout(() => this.initMap(lat, lng), 0);
+        }
+      },
+      error: () => {
+        this.store = null;
       }
     });
   }
@@ -76,7 +97,7 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
 
     this.map = L.map('store-map', {
       dragging: true,
-      scrollWheelZoom: false, // avoids hijacking page scroll while browsing the profile
+      scrollWheelZoom: false,
     }).setView([lat, lng], 15);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

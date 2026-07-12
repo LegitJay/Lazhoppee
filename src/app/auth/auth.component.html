@@ -1,4 +1,5 @@
 <div class="auth-shell">
+    <button (click)="goBack()" class="back-button">&larr; Back to Shop</button>
     <div class="auth-card" [class.right-panel-active]="mode === 'register'">
 
         <!-- LOGIN: fixed on the left half, never moves -->
@@ -29,7 +30,7 @@
                         </div>
                     </label>
 
-                    <a class="auth-forgot" href="#">Forgot your password?</a>
+                    <a class="auth-forgot" routerLink="/forgot-password">Forgot your password?</a>
 
                     <button type="submit" class="auth-submit" [disabled]="isSubmitting">
                         Log in

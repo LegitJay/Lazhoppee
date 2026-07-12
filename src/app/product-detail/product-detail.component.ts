@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartService, CartItem } from '../cart/cart.service';
+import { CartService } from '../cart/cart.service';
 import { ProductService } from '../product/product.service';
 import { AuthService, AuthUser } from '../auth/auth.service';
 import { Product } from '../models/product';
 import { MessageService } from '../messages/message.service';
 import { CheckoutService } from '../checkout/checkout.service';
 import { WishlistService } from '../services/wishlist.service';
+import { ReviewService } from '../services/review.service';
+import { Review } from '../models/review';
+import { StoreService } from '../services/store.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -16,10 +19,12 @@ import { WishlistService } from '../services/wishlist.service';
 export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
   seller: (AuthUser & { storeDetails?: any }) | null = null;
+  storeName: string = '';
   loading = true;
   sellerLoading = true;
   quantity = 1;
   isAddingToCart = false;
+  reviews: Review[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -29,7 +34,9 @@ export class ProductDetailComponent implements OnInit {
     private authService: AuthService,
     private messageService: MessageService,
     private checkoutService: CheckoutService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private reviewService: ReviewService,
+    private storeService: StoreService
   ) { }
 
   ngOnInit(): void {
@@ -42,21 +49,21 @@ export class ProductDetailComponent implements OnInit {
   private loadProduct(id: string): void {
     this.productService.getProducts().subscribe({
       next: (products) => {
-        // Find product by either _id (seller products) or id (seed products)
         this.product = products.find(p => (p._id === id || p.id?.toString() === id)) || null;
         this.loading = false;
 
-        // If product has a sellerId, load their profile details (Amazon-style store owner card)
-        console.log('Product loaded:', this.product);
         if (this.product?.sellerId) {
-          console.log('Found sellerId on product:', this.product.sellerId);
-          this.loadSeller((this.product.sellerId as any)._id);
+          const sellerId = (this.product.sellerId as any)._id ?? this.product.sellerId;
+          this.loadSeller(sellerId);
+          this.loadStoreName(sellerId);
         } else {
-          console.log('No sellerId found on product, seller card will be hidden');
           this.sellerLoading = false;
         }
 
-        if (!this.product) {
+        if (this.product) {
+          const productId = this.product._id || this.product.id?.toString();
+          if (productId) this.loadReviews(productId);
+        } else {
           this.router.navigate(['/']);
         }
       },
@@ -68,26 +75,34 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private loadSeller(sellerId: string): void {
-    console.log('Trying to load seller with ID:', sellerId);
     this.authService.getSellerById(sellerId).subscribe({
       next: (sellerData) => {
-        console.log('Seller loaded successfully:', sellerData);
         this.seller = sellerData;
         this.sellerLoading = false;
       },
-      error: (err) => {
-        console.error('Failed to load seller, ID might be invalid:', sellerId, err);
+      error: () => {
         this.sellerLoading = false;
-        // Hide the seller card completely if we can't load the seller
         this.seller = null;
       }
     });
   }
 
-  // Navigate to store owner's public profile page (like Amazon's seller store)
+  /** Fetches the store name from the dedicated Store collection. */
+  private loadStoreName(sellerId: string): void {
+    this.storeService.getStoreByOwnerId(sellerId).subscribe({
+      next: (store) => {
+        this.storeName = store?.storeName || '';
+      },
+      error: () => {
+        this.storeName = '';
+      }
+    });
+  }
+
   viewSellerProfile(): void {
     if (this.seller) {
-      this.router.navigate(['/store', (this.product?.sellerId as any)?._id]);
+      const sellerId = (this.product?.sellerId as any)?._id ?? this.product?.sellerId;
+      this.router.navigate(['/store', sellerId]);
     }
   }
 
@@ -104,22 +119,10 @@ export class ProductDetailComponent implements OnInit {
   addToCart(): void {
     if (!this.product) return;
     this.isAddingToCart = true;
-
-    // Create cart item matching your existing CartItem interface
-    const cartItem: Partial<Product> = {
-      ...this.product,
-      quantity: this.quantity
-    };
-
+    const cartItem: Partial<Product> = { ...this.product, quantity: this.quantity };
     this.cartService.addToCart(cartItem as Product).subscribe({
-      next: () => {
-        this.isAddingToCart = false;
-        alert('Added to cart successfully!');
-      },
-      error: () => {
-        this.isAddingToCart = false;
-        alert('Failed to add to cart. Please try again.');
-      }
+      next: () => { this.isAddingToCart = false; alert('Added to cart successfully!'); },
+      error: () => { this.isAddingToCart = false; alert('Failed to add to cart. Please try again.'); }
     });
   }
 
@@ -134,25 +137,19 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product) return;
     const productId = this.product._id || this.product.id;
     if (!productId) return;
-
     this.wishlistService.addToWishlist(productId.toString()).subscribe({
-      next: () => {
-        alert('Added to wishlist successfully!');
-      },
-      error: (err) => {
-        alert(err.error.message || 'Failed to add to wishlist. Please try again.');
-      }
+      next: () => { alert('Added to wishlist successfully!'); },
+      error: (err) => { alert(err.error.message || 'Failed to add to wishlist.'); }
     });
   }
 
-  // Helper to get image URL (matches product-list component EXACTLY)
   getImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';
-    // Base64 data URLs (profile pictures) are already complete — don't touch them
     if (imageUrl.startsWith('data:')) return imageUrl;
     if (imageUrl.startsWith('/uploads/')) return 'http://localhost:3002' + imageUrl;
     return '/' + imageUrl;
   }
+
   messageSeller(): void {
     if (!this.seller || !this.product) return;
     const sellerId = (this.seller as any)._id;
@@ -162,7 +159,14 @@ export class ProductDetailComponent implements OnInit {
       });
   }
 
+  /** Uses the store name from the Store collection; falls back to username. */
   getSellerDisplayName(): string {
-  return this.seller?.storeDetails?.storeName || this.seller?.username || 'Store';
-}
+    return this.storeName || this.seller?.username || 'Store';
+  }
+
+  loadReviews(productId: string): void {
+    this.reviewService.getReviewsForProduct(productId).subscribe({
+      next: (reviews) => { this.reviews = reviews; }
+    });
+  }
 }

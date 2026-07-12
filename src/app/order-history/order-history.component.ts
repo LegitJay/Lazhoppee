@@ -9,34 +9,89 @@ import { OrderService } from '../services/order.service';
   styleUrls: ['./order-history.component.css']
 })
 export class OrderHistoryComponent implements OnInit {
-  orders: Order[] = [];
+  allOrders: Order[] = [];
+  toShipOrders: Order[] = [];
+  toReceiveOrders: Order[] = [];
+  toReviewOrders: Order[] = [];
+  completedOrders: Order[] = [];
+  
   isLoading = true;
+  activeTab: string = 'toShip';
+
+  reviewingProductId: string | null = null;
 
   constructor(private orderService: OrderService) { }
 
   ngOnInit(): void {
+    this.fetchOrders();
+  }
+
+  fetchOrders(): void {
+    this.isLoading = true;
     this.orderService.getOrders().subscribe({
       next: (orders) => {
-        this.orders = orders;
+        this.allOrders = orders;
+        this.toShipOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
+        this.toReceiveOrders = orders.filter(o => o.status === 'in_transit');
+        this.toReviewOrders = orders.filter(o => o.status === 'shipped');
+        this.completedOrders = orders.filter(o => o.status === 'completed');
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('Failed to load order history:', err);
-        this.isLoading = false;
-      }
+      error: () => this.isLoading = false
     });
+  }
+
+  onReviewSubmitted(): void {
+    this.reviewingProductId = null;
+    this.fetchOrders();
+    this.activeTab = 'completed';
+  }
+
+  confirmReceipt(orderId: string | undefined): void {
+    if (!orderId) {
+      return;
+    }
+    this.orderService.updateOrderStatus(orderId, 'completed').subscribe(() => {
+      this.fetchOrders();
+    });
+  }
+
+  changeTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  toggleReviewForm(productId: string | undefined): void {
+    if (!productId) {
+      return;
+    }
+    this.reviewingProductId = this.reviewingProductId === productId ? null : productId;
+  }
+
+  get orders(): Order[] {
+    switch (this.activeTab) {
+      case 'toShip':
+        return this.toShipOrders;
+      case 'toReceive':
+        return this.toReceiveOrders;
+      case 'toReview':
+        return this.toReviewOrders;
+      case 'completed':
+        return this.completedOrders;
+      default:
+        return [];
+    }
   }
 
   /** Type guard: item.product is Product | string depending on whether the backend
    *  populated it for this request. The template must check this before reading
    *  Product-only fields like imageUrl/name. */
-  isPopulatedProduct(product: Product | string): product is Product {
-    return typeof product !== 'string';
+  isPopulatedProduct(product: Product | string | null): product is Product {
+    return product !== null && typeof product !== 'string';
   }
 
   /** Same pattern used in checkout/cart: relative /uploads/ paths resolve against
    *  the Angular dev server unless prefixed with the backend origin. */
-  getImageUrl(imageUrl: string): string {
+  getImageUrl(imageUrl: string | undefined): string {
     if (!imageUrl) return '';
     if (imageUrl.startsWith('data:')) return imageUrl;
     if (imageUrl.startsWith('/uploads/')) return 'http://localhost:3002' + imageUrl;

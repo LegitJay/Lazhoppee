@@ -209,4 +209,81 @@ router.delete("/me", requireAuth, async (req, res) => {
   }
 });
 
+// @route   POST api/auth/forgot-password
+// @desc    Request password reset
+// @access  Public
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const crypto = require('crypto');
+    const nodemailer = require('nodemailer');
+
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // Set token and expiration
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // Send email
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      to: user.email,
+      from: process.env.GMAIL_USER,
+      subject: 'Lazhoppee Password Reset',
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+        Please click on the following link, or paste this into your browser to complete the process:\n\n
+        http://${req.headers.host}/reset-password/${token}\n\n
+        If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ msg: 'An e-mail has been sent to ' + user.email + ' with further instructions.' });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/auth/reset-password/:token
+// @desc    Reset password
+// @access  Public
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ msg: 'Password reset token is invalid or has expired.' });
+    }
+
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ msg: 'Password has been updated.' });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

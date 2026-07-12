@@ -1,0 +1,51 @@
+<div class="dashboard-container">
+  <h1 class="anton-font">My Deliveries</h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Buyer</th>
+          <th>Delivery Address</th>
+          <th>Status</th>
+          <th>Items</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of deliveries">
+          <td>{{ order._id }}</td>
+          <td>
+            <ng-container *ngIf="isUser(order.buyer)">
+              {{ order.buyer.username }}
+            </ng-container>
+          </td>
+          <td>{{ order.shipping.streetAddress }}, {{ order.shipping.city }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="{
+              'status-in-transit': order.status === 'in_transit',
+              'status-shipped': order.status === 'shipped'
+            }">{{ order.status }}</span>
+          </td>
+          <td>{{ order.items.length }} items</td>
+          <td class="actions">
+            <button (click)="openUpdateModal(order, 'in_transit')">In Transit</button>
+            <button (click)="openUpdateModal(order, 'delivered')">Delivered</button>
+            <button (click)="openUpdateModal(order, 'unsuccessful')">Unsuccessful</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="selectedOrder">
+  <div class="modal-content">
+    <h2>Update Status to {{ updateStatus }}</h2>
+    <textarea [(ngModel)]="updateNote" placeholder="Add an optional note..."></textarea>
+    <div class="modal-actions">
+      <button (click)="closeUpdateModal()">Cancel</button>
+      <button (click)="confirmUpdate()">Confirm</button>
+    </div>
+  </div>
+</div>

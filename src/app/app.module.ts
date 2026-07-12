@@ -17,11 +17,15 @@ import { AddressModule } from './address/address.module';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { NotificationComponent } from './notification.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WishlistComponent
+    WishlistComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,

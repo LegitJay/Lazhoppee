@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Order = require("../models/Order");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
 // GET /admin/users?role=customer  OR  ?role=storeOwner
@@ -71,8 +72,51 @@ router.patch(
     } catch (err) {
       console.error("Error activating user:", err);
       res.status(500).json({ message: "Server error activating user." });
-    }
   }
-);
+});
+
+// ADMIN: Get all courier accounts
+router.get("/couriers", [requireAuth, requireRole('admin')], async (req, res) => {
+  try {
+    const couriers = await User.find({ role: 'courier' }).select('-password');
+    res.json(couriers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ADMIN: Create a new courier account
+router.post("/couriers", [requireAuth, requireRole('admin')], async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use." });
+    }
+    const user = new User({ username, email, password, role: 'courier' });
+    await user.save();
+    res.status(201).json({ message: "Courier account created successfully." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ADMIN: Assign a courier to an order
+router.patch("/orders/:id/assign-courier", [requireAuth, requireRole('admin')], async (req, res) => {
+  try {
+    const { courierId } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { courierId: courierId, status: 'shipped' },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
@@ -27,12 +27,17 @@ export class AuthComponent {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) { }
 
   switchTo(mode: 'login' | 'register') {
     this.mode = mode;
     this.errorMessage = '';
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   onLoginSubmit() {
@@ -50,6 +55,8 @@ export class AuthComponent {
 
         if (res.user.role === 'admin') {
           this.router.navigate(['/admin/dashboard']);
+        } else if (res.user.role === 'courier') {
+          this.router.navigate(['/courier/dashboard']);
         } else {
           this.router.navigate(['/products']);
         }

@@ -1,0 +1,51 @@
+.reviews-container {
+  padding: 20px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-reviews {
+  text-align: center;
+  color: #888;
+  margin-top: 20px;
+}
+
+.review-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.review-header strong {
+  font-weight: bold;
+}
+
+.review-header span {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.review-rating span {
+  color: #f8d64e;
+}

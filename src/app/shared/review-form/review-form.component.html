@@ -1,0 +1,12 @@
+<div class="review-form-container">
+  <h2>Write a Review</h2>
+  <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+    <div class="star-rating">
+      <span *ngFor="let star of [1, 2, 3, 4, 5]" (click)="setRating(star)" [class.filled]="star <= rating">
+        ★
+      </span>
+    </div>
+    <textarea formControlName="comment" placeholder="Share your thoughts about this product..."></textarea>
+    <button type="submit" [disabled]="reviewForm.invalid || rating === 0">Submit Review</button>
+  </form>
+</div>

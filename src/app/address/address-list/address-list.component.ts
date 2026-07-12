@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Address } from '../../models/address';
 import { AddressService } from '../../services/address.service';
 
@@ -12,10 +13,14 @@ export class AddressListComponent implements OnInit {
   selectedAddress: Address | null = null;
   showForm = false;
 
-  constructor(private addressService: AddressService) { }
+  constructor(private addressService: AddressService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadAddresses();
+  }
+
+  goToCheckout(): void {
+    this.router.navigate(['/checkout']);
   }
 
   loadAddresses(): void {

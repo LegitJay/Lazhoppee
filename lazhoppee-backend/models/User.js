@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String, required: true,
-      enum: ["customer", "pendingSeller", "storeOwner", "admin"],
+      enum: ["customer", "pendingSeller", "storeOwner", "admin", "courier"],
       default: "customer",
     },
     username: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -36,6 +36,8 @@ const userSchema = new mongoose.Schema(
     // Account status for admin user management
     isActive: { type: Boolean, default: true },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true },
 );

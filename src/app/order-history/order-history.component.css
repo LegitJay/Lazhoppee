@@ -2,7 +2,11 @@
    LAZHOPPEE ORDER HISTORY
    Same card language as checkout / address pages.
    ========================================================================== */
-
+.review-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
 .order-history-container {
   --color-primary: #d6293a;
   --color-primary-dark: #b81f2e;
@@ -31,6 +35,44 @@
   color: var(--color-navy);
   margin: 0 0 20px;
 }
+
+/* ---------------------------------------------------------------------- */
+/* TAB NAVIGATION                                                         */
+/* ---------------------------------------------------------------------- */
+
+.order-tabs {
+  display: flex;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 6px;
+  margin-bottom: 20px;
+}
+
+.order-tabs button {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.order-tabs button:hover {
+  background: var(--color-page-bg);
+  color: var(--color-ink);
+}
+
+.order-tabs button.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 2px 6px rgba(214, 41, 58, 0.3);
+}
+
 
 /* ---------------------------------------------------------------------- */
 /* EMPTY / LOADING STATES                                                  */
@@ -148,6 +190,48 @@
   font-size: 0.82rem;
   color: var(--color-muted);
 }
+
+.tracking-history {
+  padding: 16px 20px;
+  background-color: #fafafa;
+}
+
+.tracking-history h4 {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.tracking-history ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.tracking-history li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.tracking-history li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+}
+
+.tracking-history li:first-child::before {
+  background-color: var(--color-primary);
+}
+
 
 .order-item p:last-child {
   margin-bottom: 0;

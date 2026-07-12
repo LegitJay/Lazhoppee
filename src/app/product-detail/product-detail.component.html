@@ -87,14 +87,21 @@
   </div>
 </div>
 
-<!-- Reviews section (placeholder) -->
 <div class="reviews-section">
-  <div class="reviews-header">
-    <h2 class="reviews-title">Reviews</h2>
-    <button class="write-review-btn">Write a Review</button>
+  <h2>Customer Reviews</h2>
+  <div *ngIf="reviews.length === 0" class="no-reviews">
+    No reviews yet.
   </div>
-  <div class="reviews-empty-state">
-    No reviews yet — be the first to review this product.
+  <div *ngFor="let review of reviews" class="review-card">
+    <div class="review-header">
+      <strong>{{ review.user.username }}</strong>
+      <span>{{ review.createdAt | date:'medium' }}</span>
+    </div>
+    <div class="review-rating">
+      <span *ngFor="let i of [].constructor(review.rating)">★</span>
+      <span *ngFor="let i of [].constructor(5 - review.rating)">☆</span>
+    </div>
+    <p>{{ review.comment }}</p>
   </div>
 </div>
 

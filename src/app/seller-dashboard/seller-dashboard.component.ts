@@ -18,7 +18,7 @@ const BACKEND = 'http://localhost:3002';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SellerDashboardComponent implements OnInit {
-  activeTab: 'products' | 'orders' = 'products';
+  activeTab: 'products' | 'orders' | 'reviews' = 'products';
 
   products: SellerProduct[] = [];
   isLoading = false;

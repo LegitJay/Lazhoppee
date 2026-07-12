@@ -2,6 +2,8 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const Product = require("../models/Product");
 const SellerApplication = require("../models/SellerApplication");
 const User = require("../models/User");
@@ -101,94 +103,55 @@ router.post("/apply", requireAuth, async (req, res) => {
   }
 });
 
-  // GET /seller/apply/me — customer checks their own application status
-  router.get("/apply/me", requireAuth, async (req, res) => {
+// GET /seller/apply/me — customer checks their own application status
+router.get("/apply/me", requireAuth, async (req, res) => {
+  try {
+    const application = await SellerApplication.findOne({
+      user: req.user.id,
+    }).sort({ createdAt: -1 });
+    if (!application)
+      return res.status(404).json({ message: "No application found." });
+    res.json(application);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /seller/application/:userId — get a seller application by user ID
+router.get("/application/:userId", requireAuth, async (req, res) => {
+  try {
+    const application = await SellerApplication.findOne({
+      user: req.params.userId,
+    }).sort({ createdAt: -1 });
+    if (!application)
+      return res.status(404).json({ message: "No application found." });
+    res.json(application);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /seller/applications — admin views all applications, filterable by ?status=
+router.get(
+  "/applications",
+  requireAuth,
+  requireRole("admin"),
+  async (req, res) => {
     try {
-      const application = await SellerApplication.findOne({
-        user: req.user.id,
-      }).sort({ createdAt: -1 });
-      if (!application)
-        return res.status(404).json({ message: "No application found." });
-      res.json(application);
+      const filter = req.query.status ? { status: req.query.status } : {};
+      const applications = await SellerApplication.find(filter)
+        .populate("user", "email role")
+        .sort({ createdAt: -1 });
+      res.json(applications);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  });
+  },
+);
 
-  // GET /seller/application/:userId — get a seller application by user ID
-  router.get("/application/:userId", requireAuth, async (req, res) => {
-    try {
-      const application = await SellerApplication.findOne({
-        user: req.params.userId,
-      }).sort({ createdAt: -1 });
-      if (!application)
-        return res.status(404).json({ message: "No application found." });
-      res.json(application);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  });
-
-  // GET /seller/applications — admin views all applications, filterable by ?status=
-  router.get(
-    "/applications",
-    requireAuth,
-    requireRole("admin"),
-    async (req, res) => {
-      try {
-        const filter = req.query.status ? { status: req.query.status } : {};
-        const applications = await SellerApplication.find(filter)
-          .populate("user", "email role")
-          .sort({ createdAt: -1 });
-        res.json(applications);
-      } catch (err) {
-        res.status(500).json({ message: err.message });
-      }
-    },
-  );
-
-  // PATCH /seller/applications/:id/approve — admin approves application
-  router.patch(
-    "/applications/:id/approve",
-    requireAuth,
-    requireRole("admin"),
-    async (req, res) => {
-      try {
-        const application = await SellerApplication.findById(
-          req.params.id,
-        ).populate("user");
-        if (!application)
-          return res.status(404).json({ message: "Application not found." });
-
-        application.status = "approved";
-        application.reviewedBy = req.user.id;
-        application.reviewedAt = new Date();
-        await application.save();
-
-        // Create a new Store document
-        await Store.create({
-          owner: application.user._id,
-          storeName: application.storeName,
-          storeDescription: application.storeDescription,
-          location: application.location,
-          storeAddress: application.storeAddress,
-          storeContact: application.storeContact,
-          storeEmail: application.storeEmail || application.user.email,
-        });
-
-        application.user.role = "storeOwner";
-        await application.user.save();
-
-        res.json({ message: "Application approved.", application });
-      } catch (err) {
-        res.status(500).json({ message: err.message });
-      }
-    },
-  );
-
-// PATCH /seller/applications/:id/reject — admin rejects application
+// PATCH /seller/applications/:id/approve — admin approves application
 router.patch(
-  "/applications/:id/reject",
+  "/applications/:id/approve",
   requireAuth,
   requireRole("admin"),
   async (req, res) => {
@@ -199,22 +162,61 @@ router.patch(
       if (!application)
         return res.status(404).json({ message: "Application not found." });
 
-      application.status = "rejected";
-      application.rejectionReason = req.body.reason || "";
+      application.status = "approved";
       application.reviewedBy = req.user.id;
       application.reviewedAt = new Date();
       await application.save();
 
-      // Revert role so they can reapply
-      application.user.role = "customer";
+      // Create a new Store document
+      await Store.create({
+        owner: application.user._id,
+        storeName: application.storeName,
+        storeDescription: application.storeDescription,
+        location: application.location,
+        storeAddress: application.storeAddress,
+        storeContact: application.storeContact,
+        storeEmail: application.storeEmail || application.user.email,
+      });
+
+      application.user.role = "storeOwner";
       await application.user.save();
 
-      res.json({ message: "Application rejected.", application });
+      res.json({ message: "Application approved.", application });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   },
 );
+
+// PATCH /seller/applications/:id/reject — admin rejects application
+// PATCH /seller/applications/:id/approve
+router.patch("/applications/:id/approve", requireAuth, requireRole("admin"), async (req, res) => {
+  try {
+    const application = await SellerApplication.findById(req.params.id).populate("user");
+    if (!application) return res.status(404).json({ message: "Application not found." });
+
+    application.status = "approved";
+    application.reviewedBy = req.user.id;
+    application.reviewedAt = new Date();
+    await application.save();
+
+    // Copy store info from application into User.storeDetails
+    application.user.role = "storeOwner";
+    application.user.storeDetails = {
+      storeName: application.storeName,
+      storeDescription: application.storeDescription,
+      location: application.location,
+      storeAddress: '',
+      storeContact: '',
+      storeEmail: '',
+    };
+    await application.user.save();
+
+    res.json({ message: "Application approved.", application });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // GET /seller/products — seller's own listings only
 router.get(
@@ -349,8 +351,89 @@ router.delete(
       });
       if (!product)
         return res.status(404).json({ message: "Product not found." });
+
+      // If the product has an image, delete it from the filesystem
+      if (product.imageUrl) {
+        const imagePath = path.join(__dirname, '..', product.imageUrl);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      }
+
       await product.deleteOne();
       res.status(204).end();
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+);
+
+// PATCH /seller/orders/:orderId - Update the status of an order
+router.patch("/orders/:orderId", requireAuth, requireRole("storeOwner"), async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!["processing", "cancelled", "confirmed"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status. Use 'processing', 'cancelled', or 'confirmed'." });
+    }
+
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ message: "Order not found." });
+
+    const sellerItems = order.items.filter(
+      item => item.seller && item.seller.toString() === req.user.id
+    );
+    if (sellerItems.length === 0) {
+      return res.status(403).json({ message: "You are not authorized to update this order." });
+    }
+
+    order.status = status;
+
+    if (status === 'processing' || status === 'confirmed') {
+      const couriers = await User.find({ role: 'courier' });
+      if (couriers.length > 0) {
+        const randomCourier = couriers[Math.floor(Math.random() * couriers.length)];
+        order.courierId = randomCourier._id;
+      }
+    }
+
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ message: "Failed to update order status." });
+  }
+});
+
+// DELETE /seller/me — store owner deletes their own account
+router.delete(
+  "/me",
+  requireAuth,
+  requireRole("storeOwner"),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+
+      // Find all products by this seller
+      const products = await Product.find({ sellerId: userId });
+
+      // Delete all product images from the filesystem
+      for (const product of products) {
+        if (product.imageUrl) {
+          const imagePath = path.join(__dirname, '..', product.imageUrl);
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+          }
+        }
+      }
+
+      // Delete all products from the database
+      await Product.deleteMany({ sellerId: userId });
+
+      // Delete the user account
+      await User.findByIdAndDelete(userId);
+
+      res.json({ message: "Account and all associated products and images have been deleted." });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

@@ -1,100 +1,113 @@
 <div class="seller-dash">
   <div class="seller-dash-header">
     <h1 class="seller-dash-title">My Store</h1>
-    <button class="add-btn" (click)="openAddForm()">+ Add Product</button>
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'products'" (click)="activeTab = 'products'">Products</button>
+      <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">Orders</button>
+      <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">Reviews</button>
+    </div>
+    <button class="add-btn" (click)="openAddForm()" *ngIf="activeTab === 'products'">+ Add Product</button>
   </div>
 
-  <section class="stats-section">
-    <div class="stat-card" *ngFor="let card of overviewCards">
-      <strong class="stat-value">{{ card.value }}</strong>
-      <span class="stat-label">{{ card.label }}</span>
-    </div>
-  </section>
+  <div *ngIf="activeTab === 'products'">
+    <section class="stats-section">
+      <div class="stat-card" *ngFor="let card of overviewCards">
+        <strong class="stat-value">{{ card.value }}</strong>
+        <span class="stat-label">{{ card.label }}</span>
+      </div>
+    </section>
 
-  <!-- ADD / EDIT FORM MODAL -->
-  <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()"></div>
-  <div class="modal" *ngIf="showForm">
-    <h2 class="modal-title">{{ editingProduct ? 'Edit Product' : 'New Listing' }}</h2>
-    <p class="modal-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <!-- ADD / EDIT FORM MODAL -->
+    <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()"></div>
+    <div class="modal" *ngIf="showForm">
+      <h2 class="modal-title">{{ editingProduct ? 'Edit Product' : 'New Listing' }}</h2>
+      <p class="modal-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-    <label class="form-field">
-      <span>Product name</span>
-      <input type="text" [(ngModel)]="form.name" placeholder="e.g. Classic Tee" />
-    </label>
-    <label class="form-field">
-      <span>Price (PHP)</span>
-      <input type="number" [(ngModel)]="form.price" min="0" />
-    </label>
-    <label class="form-field">
-      <span>Category</span>
-      <select [(ngModel)]="form.category" required>
-        <option value="" disabled>Select a category</option>
-        <option *ngFor="let c of categories" [value]="c.name">{{ c.name }}</option>
-      </select>
-    </label>
-    <label class="form-field">
-      <span>Stock</span>
-      <input type="number" [(ngModel)]="form.stock" min="0" />
-    </label>
+      <label class="form-field">
+        <span>Product name</span>
+        <input type="text" [(ngModel)]="form.name" placeholder="e.g. Classic Tee" />
+      </label>
+      <label class="form-field">
+        <span>Price (PHP)</span>
+        <input type="number" [(ngModel)]="form.price" min="0" />
+      </label>
+      <label class="form-field">
+        <span>Category</span>
+        <select [(ngModel)]="form.category" required>
+          <option value="" disabled>Select a category</option>
+          <option *ngFor="let c of categories" [value]="c.name">{{ c.name }}</option>
+        </select>
+      </label>
+      <label class="form-field">
+        <span>Stock</span>
+        <input type="number" [(ngModel)]="form.stock" min="0" />
+      </label>
 
-    <!-- NEW IMAGE UPLOAD SECTION -->
-    <div class="form-field">
-      <span>Product Image</span>
-      <input type="file" accept="image/*" #fileInput (change)="onFileSelected($event)" style="display: none;" />
-      <div class="image-upload-container">
-        <!-- Preview Image -->
-        <img *ngIf="imagePreview" [src]="imagePreview" class="image-preview" alt="Preview">
-        <div *ngIf="!imagePreview" class="image-placeholder">
-          No image selected
+      <!-- NEW IMAGE UPLOAD SECTION -->
+      <div class="form-field">
+        <span>Product Image</span>
+        <input type="file" accept="image/*" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+        <div class="image-upload-container">
+          <img *ngIf="imagePreview" [src]="imagePreview" class="image-preview" alt="Preview">
+          <div *ngIf="!imagePreview" class="image-placeholder">
+            No image selected
+          </div>
+          <button type="button" class="upload-btn" (click)="triggerFileUpload()">
+            {{ imagePreview ? 'Change Image' : 'Upload Image' }}
+          </button>
         </div>
-        <button type="button" class="upload-btn" (click)="triggerFileUpload()">
-          {{ imagePreview ? 'Change Image' : 'Upload Image' }}
-        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" (click)="closeForm()">Cancel</button>
+        <button class="save-btn" (click)="onSubmit()">{{ editingProduct ? 'Save Changes' : 'List Product' }}</button>
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button class="cancel-btn" (click)="closeForm()">Cancel</button>
-      <button class="save-btn" (click)="onSubmit()">{{ editingProduct ? 'Save Changes' : 'List Product' }}</button>
-    </div>
-  </div>
+    <!-- PRODUCT CARDS -->
+    <div *ngIf="!isLoading; else loading">
+      <div class="store-stats" *ngIf="products.length > 0">
+        <div class="stat-card">
+          <span class="stat-label">Low stock</span>
+          <strong>{{ lowStockCount }}</strong>
+        </div>
+      </div>
 
-  <!-- PRODUCT CARDS -->
-  <!-- PRODUCT CARDS -->
-  <div *ngIf="!isLoading; else loading">
-    <div class="store-stats" *ngIf="products.length > 0">
-      <div class="stat-card">
-        <span class="stat-label">Low stock</span>
-        <strong>{{ lowStockCount }}</strong>
+      <div class="product-grid" *ngIf="products.length > 0">
+        <article class="product-card" *ngFor="let p of products">
+          <div class="product-card-media">
+            <img [src]="imageUrl(p)" [alt]="p.name" class="product-card-image" *ngIf="p.imageUrl">
+            <div class="product-card-placeholder" *ngIf="!p.imageUrl">No image</div>
+          </div>
+          <div class="product-card-body">
+            <div class="product-card-top">
+              <p class="product-category">{{ p.category || 'Uncategorized' }}</p>
+              <span class="product-stock" [class.low-stock]="p.stock <= 5">{{ p.stock }} in stock</span>
+            </div>
+            <h3 class="product-card-title">{{ p.name }}</h3>
+            <p class="product-card-price">{{ p.price | currency: 'PHP ':'symbol':'1.2-2' }}</p>
+            <div class="product-card-actions">
+              <button class="edit-btn" (click)="openEditForm(p)">Edit</button>
+              <button class="delete-btn" (click)="deleteProduct(p)">Delete</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty-state" *ngIf="products.length === 0">
+        <p>No products listed yet.</p>
+        <button class="add-btn" (click)="openAddForm()">List your first product</button>
       </div>
     </div>
 
-    <div class="product-grid" *ngIf="products.length > 0">
-      <article class="product-card" *ngFor="let p of products">
-        <div class="product-card-media">
-          <img [src]="imageUrl(p)" [alt]="p.name" class="product-card-image" *ngIf="p.imageUrl">
-          <div class="product-card-placeholder" *ngIf="!p.imageUrl">No image</div>
-        </div>
-        <div class="product-card-body">
-          <div class="product-card-top">
-            <p class="product-category">{{ p.category || 'Uncategorized' }}</p>
-            <span class="product-stock" [class.low-stock]="p.stock <= 5">{{ p.stock }} in stock</span>
-          </div>
-          <h3 class="product-card-title">{{ p.name }}</h3>
-          <p class="product-card-price">{{ p.price | currency: 'PHP ':'symbol':'1.2-2' }}</p>
-          <div class="product-card-actions">
-            <button class="edit-btn" (click)="openEditForm(p)">Edit</button>
-            <button class="delete-btn" (click)="deleteProduct(p)">Delete</button>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <div class="empty-state" *ngIf="products.length === 0">
-      <p>No products listed yet.</p>
-      <button class="add-btn" (click)="openAddForm()">List your first product</button>
-    </div>
+    <ng-template #loading><p class="empty-state">Loading your products...</p></ng-template>
   </div>
 
-  <ng-template #loading><p class="empty-state">Loading your products...</p></ng-template>
+  <div *ngIf="activeTab === 'orders'">
+    <app-order-list></app-order-list>
+  </div>
+
+  <div *ngIf="activeTab === 'reviews'">
+    <app-reviews></app-reviews>
+  </div>
 </div>

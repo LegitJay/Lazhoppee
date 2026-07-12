@@ -32,6 +32,7 @@
           </svg>
           Edit Store
         </button>
+        <button (click)="confirmDeleteAccount()" class="delete-account-btn">Delete Account</button>
       </div>
     </section>
 
@@ -178,14 +179,6 @@
           <p>Turn your passion into profit. Create your online store in minutes and start reaching thousands of
             customers.</p>
           <button routerLink="/become-seller" class="cta-button">Become a seller</button>
-        </section>
-
-        <!-- Account actions section - visible for all users -->
-        <section class="account-actions-card">
-          <h3>Account actions</h3>
-          <div class="action-buttons">
-            <button (click)="confirmDeleteAccount()" class="delete-account-btn">Delete Account</button>
-          </div>
         </section>
       </aside>
     </div>

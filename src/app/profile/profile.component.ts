@@ -384,8 +384,11 @@ export class ProfileComponent {
 
   confirmDeleteAccount(): void {
     if (confirm('⚠️ WARNING: This will PERMANENTLY delete your account AND ALL your listed products. This action cannot be undone!')) {
-      this.authService.deleteAccount().subscribe({
+      const deleteObservable = this.user.role === 'storeOwner'
+        ? this.authService.deleteSellerAccountAndProducts()
+        : this.authService.deleteAccount();
 
+      deleteObservable.subscribe({
         next: () => {
           // Clear all local storage data and redirect to the public product list
           localStorage.clear();

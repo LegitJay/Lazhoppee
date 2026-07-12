@@ -17,6 +17,10 @@ import { AddressListComponent } from './address/address-list/address-list.compon
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { NotificationsPageComponent } from './notifications-page/notifications-page.component';
+import { CourierDashboardComponent } from './courier/courier-dashboard/courier-dashboard.component';
+import { CourierGuard } from './courier/courier.guard';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 
 const routes: Routes = [
@@ -24,6 +28,8 @@ const routes: Routes = [
   { path: 'products', component: ProductListComponent },
   { path: 'cart', component: CartListComponent },
   { path: 'auth', component: AuthComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'addresses', component: AddressListComponent, canActivate: [authGuard] },
   { path: 'order-history', component: OrderHistoryComponent, canActivate: [authGuard] },
@@ -36,7 +42,8 @@ const routes: Routes = [
   { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },
-  { path: 'notifications', component: NotificationsPageComponent, canActivate: [authGuard] }
+  { path: 'notifications', component: NotificationsPageComponent, canActivate: [authGuard] },
+  { path: 'courier/dashboard', component: CourierDashboardComponent, canActivate: [CourierGuard] }
 ];
 
 @NgModule({

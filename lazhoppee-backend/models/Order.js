@@ -19,20 +19,11 @@ const orderSchema = new mongoose.Schema(
           ref: "User",
           required: true,
         },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
       },
     ],
-    total: {
-      type: Number,
-      required: true,
-    },
+    total: { type: Number, required: true },
     shipping: {
       fullName: { type: String, required: true },
       phoneNumber: { type: String, required: true },
@@ -45,9 +36,21 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "completed", "cancelled"],
+      enum: ["pending", "processing", "in_transit", "shipped", "completed", "cancelled", "confirmed"],
       default: "pending",
     },
+    courierId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    trackingHistory: [
+      {
+        status: String,
+        note: String,
+        updatedAt: Date,
+      },
+    ],
   },
   { timestamps: true }
 );

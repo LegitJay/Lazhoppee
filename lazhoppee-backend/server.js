@@ -25,6 +25,7 @@ app.use("/cart", require("./routes/cart"));
 app.use("/checkout", require("./routes/checkout"));
 app.use("/auth", authRoutes);
 app.use("/seller", sellerRoutes);
+app.use("/api/sellers", require("./routes/seller"));
 app.use("/messages", require("./routes/messages"));
 app.use("/orders", require("./routes/orders"));
 app.use("/profile", require("./routes/profile"));
@@ -32,6 +33,8 @@ app.use("/admin", adminRoutes);
 app.use("/wishlist", require("./routes/wishlist"));
 app.use("/api/categories", require("./routes/categories"));
 app.use("/api/stores", require("./routes/stores"));
+app.use("/seller-orders", require("./routes/seller-orders"));
+app.use("/reviews", require("./routes/reviews"));
 
 const server = http.createServer(app);
 const initSocket = require("./socket");
