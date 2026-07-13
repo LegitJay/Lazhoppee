@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
-import { CartService } from '../cart/cart.service';
+import { CartService } from './cart.service';
 
 export interface AuthUser {
   id: string;

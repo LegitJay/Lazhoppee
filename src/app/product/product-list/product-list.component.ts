@@ -3,10 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Product } from 'src/app/models/product';
 import { ProductService } from '../product.service';
-import { CartService } from '../../cart/cart.service';
-import { AuthService } from '../../auth/auth.service';
+import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 import { WishlistService } from 'src/app/services/wishlist.service';
-import { CategoryService } from 'src/app/category.service';
+import { CategoryService } from 'src/app/services/category.service';
 
 @Component({
   selector: 'app-product-list',
@@ -62,7 +62,11 @@ export class ProductListComponent implements OnInit {
       this.allProducts = data;
       this.applyFilters();
     });
-    this.loadWishlist();
+
+    if (this.authService.isLoggedIn()) {  // ← add this guard
+      this.loadWishlist();
+    }
+
     this.loadCategories();
   }
 

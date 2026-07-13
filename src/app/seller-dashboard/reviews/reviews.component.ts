@@ -24,4 +24,20 @@ export class ReviewsComponent implements OnInit {
       }
     });
   }
+
+  getProductName(product: Review['product']): string {
+    return typeof product === 'object' ? product.name : '';
+  }
+
+  getUsername(user: Review['user']): string {
+    return typeof user === 'object' ? user.username : '';
+  }
+
+  getProfileImage(user: Review['user']): string {
+    return typeof user === 'object' ? user.profileImage || '' : '';
+  }
+
+  getInitial(user: Review['user']): string {
+    return typeof user === 'object' ? user.username[0].toUpperCase() : '?';
+  }
 }

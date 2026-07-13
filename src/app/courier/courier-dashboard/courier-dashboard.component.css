@@ -1,17 +1,17 @@
 .dashboard-container {
   padding: 2rem;
-  background-color: #F5F2EA;
 }
 
-h1 {
+.dashboard-container h1 {
   font-family: 'Anton', sans-serif;
   color: #0B1B3A;
+  margin-bottom: 1.5rem;
 }
 
 .table-container {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -21,74 +21,126 @@ table {
 }
 
 th, td {
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
 }
 
 th {
   background-color: #0B1B3A;
   color: #fff;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb;
 }
 
 .status-pill {
+  display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
-.status-in-transit { background-color: #3498db; }
-.status-shipped { background-color: #f39c12; }
-.status-delivered { background-color: #2ecc71; }
-.status-unsuccessful { background-color: #D6293A; }
+.status-in-transit  { background-color: #dbeafe; color: #1d4ed8; }
+.status-shipped     { background-color: #fef3c7; color: #92400e; }
+.status-delivered   { background-color: #dcfce7; color: #166534; }
+.status-unsuccessful { background-color: #fee2e2; color: #991b1b; }
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
 
 .actions button {
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.375rem 0.75rem;
   border: none;
   border-radius: 6px;
-  background-color: #0B1B3A;
-  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: opacity 0.15s;
 }
 
-.actions button:hover {
-  background-color: #D6293A;
-}
+.actions button:hover { opacity: 0.85; }
 
+.actions button:nth-child(1) { background-color: #dbeafe; color: #1d4ed8; }
+.actions button:nth-child(2) { background-color: #dcfce7; color: #166534; }
+.actions button:nth-child(3) { background-color: #fee2e2; color: #991b1b; }
+
+/* Modal — wrap in a min-height div instead of position:fixed */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2rem;
 }
 
 .modal-content {
   background-color: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 400px;
+  padding: 1.5rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid #e5e7eb;
 }
 
 .modal-content h2 {
-  margin-top: 0;
+  margin: 0 0 1rem;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0B1B3A;
 }
 
 .modal-content textarea {
   width: 100%;
   min-height: 100px;
-  margin: 1rem 0;
+  margin-bottom: 1rem;
+  padding: 0.625rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 }
+
+.modal-actions button:first-child {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.modal-actions button:last-child {
+  background-color: #0B1B3A;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.modal-actions button:last-child:hover { background-color: #D6293A; }

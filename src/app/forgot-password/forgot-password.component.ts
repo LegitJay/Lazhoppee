@@ -1,53 +1,51 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
-import { NotificationService } from '../notification.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
-  template: `
-    <div class="container">
-      <h2>Forgot Password</h2>
-      <p>Enter your email address and we will send you a link to reset your password.</p>
-      <form (ngSubmit)="onSubmit()">
-        <input type="email" [(ngModel)]="email" name="email" placeholder="Email Address" required>
-        <button type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Sending...' : 'Send Reset Link' }}
-        </button>
-      </form>
-    </div>
-  `,
-  styles: [
-    `
-      .container {
-        max-width: 400px;
-        margin: 50px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-    `,
-  ],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.css'],
 })
 export class ForgotPasswordComponent {
-  email: string = '';
+  forgotEmail = '';
+  resetToken = '';
+  errorMessage = '';
   isSubmitting = false;
+  tokenCopied = false;
 
   constructor(
     private authService: AuthService,
-    private notificationService: NotificationService
+    public router: Router
   ) {}
 
   onSubmit(): void {
+    this.errorMessage = '';
     this.isSubmitting = true;
-    this.authService.forgotPassword(this.email).subscribe({
-      next: (res) => {
-        this.notificationService.show(res.msg, 'success');
+    this.authService.forgotPassword(this.forgotEmail).subscribe({
+      next: (res: any) => {
+        this.resetToken = res.token ?? res.resetToken ?? '';
         this.isSubmitting = false;
       },
-      error: (err) => {
-        this.notificationService.show(err.error.msg, 'error');
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || err?.error?.msg || 'Something went wrong.';
         this.isSubmitting = false;
       },
     });
+  }
+
+  copyToken(): void {
+    navigator.clipboard.writeText(this.resetToken).then(() => {
+      this.tokenCopied = true;
+      setTimeout(() => (this.tokenCopied = false), 2000);
+    });
+  }
+
+  goToReset(): void {
+    this.router.navigate(['/reset-password', this.resetToken]);
   }
 }

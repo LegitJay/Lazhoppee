@@ -1,6 +1,10 @@
 <div class="order-list-container">
-  <h2>Order Management</h2>
-  <div class="table-container">
+  <div class="order-list-header">
+    <h2 class="order-list-title">Order management</h2>
+    <span class="order-list-count" *ngIf="orders.length > 0">{{ orders.length }} orders</span>
+  </div>
+
+  <div class="table-wrap">
     <table>
       <thead>
         <tr>
@@ -13,24 +17,31 @@
       </thead>
       <tbody>
         <tr *ngFor="let order of orders">
-          <td>{{ order._id }}</td>
+          <td><span class="order-id">{{ order._id }}</span></td>
           <td>
-            <ng-container *ngIf="isUser(order.buyer)">
+            <span class="customer-name" *ngIf="isUser(order.buyer)">
               {{ order.buyer.username }}
-            </ng-container>
+            </span>
           </td>
-          <td>{{ order.total | currency:'PHP':'symbol' }}</td>
+          <td><span class="order-total">{{ order.total | currency:'PHP':'symbol' }}</span></td>
           <td>
-            <span class="status-pill" [ngClass]="{
-              'status-pending': order.status === 'pending',
-              'status-confirmed': order.status === 'confirmed',
-              'status-rejected': order.status === 'rejected'
-            }">{{ order.status }}</span>
+            <span class="status-badge" [ngClass]="'status-' + order.status">
+              {{ order.status }}
+            </span>
           </td>
-          <td class="actions">
-            <button (click)="confirmOrder(order)" [disabled]="order.status !== 'pending'">Confirm</button>
-            <button (click)="rejectOrder(order)" [disabled]="order.status !== 'pending'">Reject</button>
+          <td>
+            <div class="action-btns">
+              <button class="confirm-btn" (click)="confirmOrder(order)" [disabled]="order.status !== 'pending'">
+                Confirm
+              </button>
+              <button class="reject-btn" (click)="rejectOrder(order)" [disabled]="order.status !== 'pending'">
+                Reject
+              </button>
+            </div>
           </td>
+        </tr>
+        <tr *ngIf="orders.length === 0">
+          <td colspan="5" class="empty-row">No orders yet.</td>
         </tr>
       </tbody>
     </table>

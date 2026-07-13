@@ -1,18 +1,19 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SellerProductService, SellerProduct } from './seller-product.service';
-import { AuthService } from '../auth/auth.service';
-import { CategoryService, Category } from '../category.service';
+import { SellerProductService, SellerProduct } from '../services/seller-product.service';
+import { AuthService } from '../services/auth.service';
+import { CategoryService, Category } from '../services/category.service';
 import { OrderListComponent } from './order-list/order-list.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { SellerDashboardModule } from './seller-dashboard.module';
 
 const BACKEND = 'http://localhost:3002';
 
 @Component({
   selector: 'app-seller-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderListComponent],
+  imports: [CommonModule, FormsModule, OrderListComponent, SellerDashboardModule],
   templateUrl: './seller-dashboard.component.html',
   styleUrls: ['./seller-dashboard.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

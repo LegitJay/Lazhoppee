@@ -4,9 +4,9 @@ import { Subscription } from 'rxjs';
 import { Product } from '../models/product';
 import { Order } from '../models/order';
 import { Address } from '../models/address';
-import { CheckoutService, CheckoutSource } from './checkout.service';
+import { CheckoutService, CheckoutSource } from '../services/checkout.service';
 import { AddressService } from '../services/address.service';
-import { CartService } from '../cart/cart.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-checkout',

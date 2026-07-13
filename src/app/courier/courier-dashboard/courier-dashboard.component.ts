@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CourierService } from '../courier.service';
+import { CourierService } from '../../services/courier.service';
 import { Order } from '../../models/order';
 import { User } from '../../models/user';
 

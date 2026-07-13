@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, SellerApplication, ManagedUser } from '../../auth/auth.service';
-import { CategoryService, Category } from '../../category.service';
+import { AuthService, SellerApplication, ManagedUser } from '../../services/auth.service';
+import { CategoryService, Category } from '../../services/category.service';
 
 @Component({
   selector: 'app-admin-dashboard',

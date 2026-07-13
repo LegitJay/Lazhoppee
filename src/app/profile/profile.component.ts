@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import * as L from 'leaflet';
-import { AuthService } from '../auth/auth.service';
-import { CartService } from '../cart/cart.service';
+import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
-import { NotificationService } from '../notification.service';
+import { NotificationService } from '../services/notification.service';
 import { StoreService } from '../services/store.service';
 
 import { SellerService } from '../services/seller.service';

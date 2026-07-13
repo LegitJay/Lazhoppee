@@ -1,112 +1,159 @@
-<div class="product-detail-container" *ngIf="!loading && product">
-  <!-- Back to products button (icon only) -->
-  <div class="top-nav-row">
-    <button class="back-btn" (click)="router.navigate(['/'])" aria-label="Back to all products">←</button>
-  </div>
+<div class="pdp-wrapper" *ngIf="!loading && product">
+  
+  <!-- Breadcrumb Navigation -->
+  <nav class="breadcrumb-nav">
+    <button class="back-link" (click)="router.navigate(['/'])" aria-label="Back">
+      ← Back
+    </button>
+    <span class="separator">/</span>
+    <a (click)="router.navigate(['/'])" class="bc-link">Home</a>
+    <span class="separator">/</span>
+    <span class="bc-current">{{ product.category }}</span>
+  </nav>
 
-  <div class="product-grid">
-    <!-- Image section - square preview -->
-    <div class="image-section">
-      <div class="main-image-container">
-        <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="main-product-image">
+  <!-- Main Grid Layout -->
+  <div class="product-layout">
+    
+    <!-- CARD 1: IMAGE SECTION -->
+    <div class="image-card">
+      <div class="image-container">
+        <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-img">
+        
+        <!-- Low Stock Badge -->
+        <div class="stock-badge" *ngIf="product.stock && product.stock > 0 && product.stock <= 5">
+          Only {{ product.stock }} left
+        </div>
       </div>
     </div>
 
-    <!-- Product details section -->
-    <div class="details-section">
-      <div class="product-breadcrumb">
-        <span>{{ product.category }}</span>
-      </div>
-
-      <h1 class="product-title">{{ product.name }}</h1>
-
-      <div class="product-rating">
-        <span class="stars">★★★★★</span>
-        <span class="review-count">(0 reviews)</span>
-      </div>
-
-      <div class="price-section">
-        <span class="current-price">₱{{ product.price.toFixed(2) }}</span>
-      </div>
-
-      <div class="stock-status" [class.in-stock]="product.stock && product.stock > 0"
-        [class.out-of-stock]="!product.stock || product.stock === 0">
-        <span *ngIf="product.stock && product.stock > 0">In Stock ({{ product.stock }} available)</span>
-        <span *ngIf="!product.stock || product.stock === 0">Out of Stock</span>
-      </div>
-
-      <!-- Size selector (placeholder - not yet wired to product data) -->
-      <div class="size-section" *ngIf="product.stock && product.stock > 0">
-        <label class="size-label">Size</label>
-        <div class="size-options">
-          <button class="size-chip">XS</button>
-          <button class="size-chip">S</button>
-          <button class="size-chip">M</button>
-          <button class="size-chip">L</button>
-          <button class="size-chip">XL</button>
-          <button class="size-chip">XXL</button>
+    <!-- CARD 2: DETAILS SECTION -->
+    <div class="details-card">
+      
+      <!-- Header: Title & Rating -->
+      <div class="details-header">
+        <h1 class="product-title">{{ product.name }}</h1>
+        
+        <div class="rating-row">
+          <ng-container *ngIf="reviews.length > 0; else noReviewsYet">
+            <div class="stars">★★★★★</div>
+            <span class="review-meta">{{ reviews.length }} Reviews</span>
+          </ng-container>
+          <ng-template #noReviewsYet>
+            <div class="stars muted">★★★★★</div>
+            <span class="review-meta">No reviews yet</span>
+          </ng-template>
         </div>
       </div>
 
-      <!-- Quantity selector -->
-      <div class="quantity-section" *ngIf="product.stock && product.stock > 0">
-        <label>Quantity:</label>
-        <div class="quantity-control">
-          <button (click)="decreaseQuantity()" [disabled]="quantity === 1">-</button>
-          <span>{{ quantity }}</span>
-          <button (click)="increaseQuantity()" [disabled]="product.stock && quantity >= product.stock">+</button>
+      <!-- Price & Availability -->
+      <div class="price-block">
+        <span class="price-tag">₱{{ product.price.toFixed(2) }}</span>
+        <div class="stock-indicator" 
+             [class.in-stock]="product.stock && product.stock > 0"
+             [class.out-of-stock]="!product.stock || product.stock === 0">
+          <span class="status-dot"></span>
+          <span *ngIf="product.stock && product.stock > 0">In Stock</span>
+          <span *ngIf="!product.stock || product.stock === 0">Out of Stock</span>
         </div>
       </div>
 
-      <!-- Seller/Store Owner Profile Card (AMAZON-STYLE) -->
-      <div class="seller-card" *ngIf="!sellerLoading && seller">
-        <div class="seller-card-header">
-          <img [src]="getImageUrl(seller.profileImage || '/assets/images/default-avatar.png')"
-            alt="{{ getSellerDisplayName() }}" class="seller-avatar" (click)="viewSellerProfile()">
-          <div class="seller-info">
-            <h3 (click)="viewSellerProfile()" class="seller-name">{{ getSellerDisplayName() }}</h3>
+      <!-- Purchase Actions -->
+      <div class="action-area" *ngIf="product.stock && product.stock > 0">
+        
+        <!-- Quantity Selector -->
+        <div class="quantity-row">
+          <label>Quantity</label>
+          <div class="qty-selector">
+            <button (click)="decreaseQuantity()" [disabled]="quantity === 1" aria-label="Decrease quantity">−</button>
+            <span class="qty-val">{{ quantity }}</span>
+            <button (click)="increaseQuantity()" [disabled]="product.stock && quantity >= product.stock" aria-label="Increase quantity">+</button>
           </div>
         </div>
-        <button class="view-store-btn" (click)="viewSellerProfile()">View All Products from this Store</button>
-        <button class="message-seller-btn" (click)="messageSeller()">Message Seller</button>
+
+        <!-- Primary Buttons -->
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="addToCart()" [disabled]="isAddingToCart">
+            {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+          </button>
+          <button class="btn btn-secondary" (click)="buyNow()" [disabled]="isAddingToCart">
+            Buy Now
+          </button>
+          <button class="btn-icon-wishlist" (click)="addToWishlist()" aria-label="Add to wishlist">
+            ❤
+          </button>
+        </div>
       </div>
 
-      <!-- Action buttons (Add to Cart + Buy Now) -->
-      <div class="action-buttons" *ngIf="product.stock && product.stock > 0">
-        <button class="add-to-cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
-          {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
-        </button>
-        <button class="buy-now-btn" (click)="buyNow()" [disabled]="isAddingToCart">
-          Buy Now
-        </button>
-        <button class="add-to-wishlist-btn" (click)="addToWishlist()">
-          <span class="heart-icon">❤</span>
-        </button>
+      <!-- Out of Stock Message -->
+      <div class="oos-message" *ngIf="!product.stock || product.stock === 0">
+        <p>This item is currently unavailable.</p>
+      </div>
+
+      <!-- Seller Information -->
+      <div class="seller-module" *ngIf="!sellerLoading && seller">
+        <div class="seller-profile" (click)="viewSellerProfile()">
+          <img [src]="getImageUrl(seller.profileImage || '/assets/images/default-avatar.png')" 
+               alt="{{ getSellerDisplayName() }}" 
+               class="seller-avatar">
+          <div class="seller-text">
+            <h3 class="seller-name">{{ getSellerDisplayName() }}</h3>
+            <span class="seller-role">Store Owner</span>
+          </div>
+        </div>
+        <div class="seller-cta">
+          <button class="btn-text" (click)="viewSellerProfile()">View Store</button>
+          <button class="btn-text-outline" (click)="messageSeller()">Message</button>
+        </div>
+      </div>
+      
+      <!-- Skeleton Loader for Seller -->
+      <div class="skeleton-seller" *ngIf="sellerLoading"></div>
+
+    </div>
+  </div>
+
+  <!-- REVIEWS SECTION (Separated from main cards) -->
+  <section class="reviews-section">
+    <div class="reviews-header">
+      <h2>Customer Reviews</h2>
+      <span class="count-pill" *ngIf="reviews.length > 0">{{ reviews.length }}</span>
+    </div>
+
+    <div *ngIf="reviews.length === 0" class="empty-reviews">
+      Be the first to share your thoughts on this product.
+    </div>
+
+    <div class="reviews-list">
+      <div *ngFor="let review of reviews" class="review-item">
+        <div class="reviewer-info">
+          <div class="avatar-circle" *ngIf="!review.user.profileImage">
+            {{ review.user.username.charAt(0).toUpperCase() }}
+          </div>
+          <img *ngIf="review.user.profileImage" 
+               [src]="review.user.profileImage" 
+               class="avatar-circle img-avatar" 
+               [alt]="review.user.username">
+          <div class="reviewer-meta">
+            <span class="r-name">{{ review.user.username }}</span>
+            <span class="r-date">{{ review.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+        
+        <div class="review-content">
+          <div class="r-stars">
+            <span *ngFor="let i of [].constructor(review.rating)">★</span>
+            <span *ngFor="let i of [].constructor(5 - review.rating)" class="muted">☆</span>
+          </div>
+          <p class="r-text">{{ review.comment }}</p>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
+
 </div>
 
-<div class="reviews-section">
-  <h2>Customer Reviews</h2>
-  <div *ngIf="reviews.length === 0" class="no-reviews">
-    No reviews yet.
-  </div>
-  <div *ngFor="let review of reviews" class="review-card">
-    <div class="review-header">
-      <strong>{{ review.user.username }}</strong>
-      <span>{{ review.createdAt | date:'medium' }}</span>
-    </div>
-    <div class="review-rating">
-      <span *ngFor="let i of [].constructor(review.rating)">★</span>
-      <span *ngFor="let i of [].constructor(5 - review.rating)">☆</span>
-    </div>
-    <p>{{ review.comment }}</p>
-  </div>
-</div>
-
-<!-- Loading state -->
-<div class="loading-container" *ngIf="loading">
+<!-- Loading State -->
+<div class="loading-overlay" *ngIf="loading">
   <div class="spinner"></div>
-  <p>Loading product details...</p>
+  <p>Loading details...</p>
 </div>

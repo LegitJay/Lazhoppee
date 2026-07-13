@@ -1,151 +1,146 @@
-/* ==========================================================================
-   LAZHOPPEE ADDRESS LIST
-   ========================================================================== */
-
 .address-list-container {
-  --color-primary: #d6293a;
-  --color-primary-dark: #b81f2e;
-  --color-primary-light: #fbe9ea;
-  --color-navy: #0b1b3a;
-  --color-ink: #1a1a1a;
-  --color-muted: #767676;
-  --color-border: #e5e5e5;
-  --color-white: #ffffff;
-  --radius-md: 10px;
-  --radius-sm: 6px;
-
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 24px 20px 64px;
+  padding: 1.5rem 1rem 4rem;
   font-family: "Inter", "Segoe UI", sans-serif;
-  color: var(--color-ink);
 }
 
-.address-list-container h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--color-navy);
-  margin: 0 0 16px;
+/* Header row */
+.address-list-container > h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #0b1b3a;
+  margin: 0 0 1rem;
 }
 
-.address-list-container > button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  padding: 10px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 0.86rem;
-  font-weight: 600;
+/* Top action buttons — wrap them in a div in the HTML */
+.address-top-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back {
+  font-size: 13px;
+  color: #4b5563;
+  background: transparent;
+  border: 0.5px solid #d1d5db;
+  padding: 7px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 20px;
-  transition: background 0.15s ease;
+  transition: border-color 0.15s, color 0.15s;
 }
 
-.address-list-container > button:hover {
-  background: var(--color-primary-dark);
+.btn-back:hover {
+  color: #0b1b3a;
+  border-color: #0b1b3a;
 }
 
-/* ---------------------------------------------------------------------- */
-/* ADDRESS CARD                                                            */
-/* ---------------------------------------------------------------------- */
+.btn-add {
+  font-size: 13px;
+  color: #fff;
+  background: #0b1b3a;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
 
+.btn-add:hover {
+  background: #d6293a;
+}
+
+/* Address cards */
 .address-item {
-  position: relative;
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px 18px;
-  margin-bottom: 12px;
-  transition: border-color 0.15s ease;
+  background: #fff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
 }
 
 .address-item:hover {
-  border-color: #cfcfd2;
+  border-color: #c0c4cc;
+}
+
+.address-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .address-item p {
-  margin: 0 0 4px;
-  font-size: 0.88rem;
+  margin: 0 0 3px;
+  font-size: 13px;
+  color: #6b7280;
   line-height: 1.5;
-  color: var(--color-ink);
 }
 
-.address-item p:first-child strong {
-  font-size: 0.95rem;
+.address-item p:first-of-type strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
 }
 
-.address-item p:nth-child(2) {
-  color: var(--color-muted);
-}
-
-.address-item p:nth-child(3) {
-  color: var(--color-muted);
+.address-item p:last-of-type {
   margin-bottom: 12px;
 }
 
 .default-badge {
   display: inline-block;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  padding: 1px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #fbe9ea;
+  color: #b81f2e;
+  border: 0.5px solid #f5c0c4;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 4px;
 }
 
-.address-item button {
+/* Card action buttons */
+.address-item-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 0.5px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.btn-edit {
+  font-size: 12px;
+  color: #4b5563;
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-ink);
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
+  border: 0.5px solid #d1d5db;
+  padding: 5px 14px;
+  border-radius: 6px;
   cursor: pointer;
-  margin-right: 8px;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition: color 0.15s, border-color 0.15s;
 }
 
-.address-item button:first-of-type:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: var(--color-primary-light);
+.btn-edit:hover {
+  color: #0b1b3a;
+  border-color: #0b1b3a;
 }
 
-.address-item button:last-of-type:hover {
-  border-color: #d9534f;
-  color: #d9534f;
-  background: #fdecec;
+.btn-delete {
+  font-size: 12px;
+  color: #b81f2e;
+  background: transparent;
+  border: 0.5px solid #f5c0c4;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-/* ---------------------------------------------------------------------- */
-/* EMPTY STATE (optional — applies automatically if no address-item cards
-   render inside the list wrapper) */
-/* ---------------------------------------------------------------------- */
-
-.address-list-container > div:not(:has(.address-item)) {
-  color: var(--color-muted);
-  font-size: 0.88rem;
+.btn-delete:hover {
+  background: #fbe9ea;
 }
 
 @media (max-width: 600px) {
-  .address-list-container {
-    padding: 16px 12px 48px;
-  }
-
-  .address-item button {
-    width: calc(50% - 4px);
-    margin-right: 0;
-  }
-
-  .address-item button:first-of-type {
-    margin-right: 8px;
-  }
+  .address-top-actions { flex-wrap: wrap; }
+  .address-item-actions button { flex: 1; }
 }

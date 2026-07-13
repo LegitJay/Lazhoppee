@@ -11,5 +11,5 @@ app-customer-header {
 .main-content {
   flex: 1;
   min-height: 0;
-  display: block;/* Adjust this value to match your header's height */
+  display: block; /* Adjust this value to match your header's height */
 }

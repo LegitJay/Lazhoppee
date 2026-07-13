@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-become-seller',

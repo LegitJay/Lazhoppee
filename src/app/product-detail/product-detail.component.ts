@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartService } from '../cart/cart.service';
+import { CartService } from '../services/cart.service';
 import { ProductService } from '../product/product.service';
-import { AuthService, AuthUser } from '../auth/auth.service';
+import { AuthService, AuthUser } from '../services/auth.service';
 import { Product } from '../models/product';
-import { MessageService } from '../messages/message.service';
-import { CheckoutService } from '../checkout/checkout.service';
+import { MessageService } from '../services/message.service';
+import { CheckoutService } from '../services/checkout.service';
 import { WishlistService } from '../services/wishlist.service';
 import { ReviewService } from '../services/review.service';
 import { Review } from '../models/review';

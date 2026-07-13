@@ -38,7 +38,7 @@
   font-size: 13px;
 }
 
-/* ---- Card: static stage, white throughout, fixed height for absolute children ---- */
+/* ---- Card ---- */
 .auth-card {
   position: relative;
   width: 100%;
@@ -61,7 +61,7 @@
   }
 }
 
-/* ---- Form halves: fixed in place, never move. Login = left, Register = right ---- */
+/* ---- Form halves ---- */
 .form-container {
   position: absolute;
   top: 0;
@@ -69,12 +69,30 @@
   height: 100%;
 }
 
-.sign-in-container {
+.sign-in-container  { left: 0; }
+.sign-up-container  { left: 50%; }
+
+/* Forgot panel: left 50% only (mirrors the login half), hidden by default */
+.forgot-container {
   left: 0;
+  width: 50%;
+  z-index: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--slide-duration) var(--slide-ease),
+              visibility var(--slide-duration) var(--slide-ease);
 }
 
-.sign-up-container {
-  left: 50%;
+/* Fade in when active — overlay already sits on the right half so no movement needed */
+.auth-card.forgot-panel-active .forgot-container {
+  visibility: visible;
+  opacity: 1;
+  z-index: 90;
+}
+
+/* Overlay stays on the right half in forgot mode (default translateX(0) — no change needed) */
+.auth-card.forgot-panel-active .overlay-container {
+  transform: translateX(0);
 }
 
 @media (max-width: 760px) {
@@ -95,23 +113,40 @@
   .auth-card.right-panel-active .sign-up-container {
     display: block;
   }
+
+  /* On mobile: forgot replaces the visible panel */
+  .forgot-container {
+    visibility: visible;
+    opacity: 1;
+    display: none;
+    width: 100%;
+  }
+
+  .auth-card.forgot-panel-active .forgot-container {
+    display: block;
+  }
+
+  .auth-card.forgot-panel-active .sign-in-container,
+  .auth-card.forgot-panel-active .sign-up-container {
+    display: none;
+  }
 }
 
 .auth-forms {
   position: relative;
   height: 100%;
   display: flex;
-  align-items: flex-start;   /* was: center */
-  overflow-y: auto;          /* new: lets tall content scroll instead of overflowing */
+  align-items: flex-start;
+  overflow-y: auto;
   background: var(--panel);
 }
 
 .auth-form {
   width: 100%;
-  padding: 56px 56px;
+  padding: 32px 56px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 @media (max-width: 760px) {
@@ -130,12 +165,19 @@
 }
 
 .auth-title {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-family: "Anton", "Arial Narrow", sans-serif;
   font-size: 32px;
   font-weight: 400;
   color: var(--ink);
   letter-spacing: 0.01em;
+}
+
+.auth-subtitle {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--slate);
+  line-height: 1.5;
 }
 
 .auth-field {
@@ -211,12 +253,18 @@
   border-radius: 4px;
 }
 
+/* Forgot link — now a button-styled anchor, clickable */
 .auth-forgot {
   align-self: flex-end;
   font-size: 13px;
   color: var(--slate);
   text-decoration: none;
   margin-top: -4px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 .auth-forgot:hover {
@@ -236,9 +284,10 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    background 150ms ease,
-    transform 150ms ease;
+  transition: background 150ms ease, transform 150ms ease;
+  text-align: center;
+  text-decoration: none;
+  display: block;
 }
 
 .auth-submit:hover:not(:disabled) {
@@ -260,6 +309,98 @@
   outline-offset: 2px;
 }
 
+/* Back link inside forgot form */
+.auth-back-link {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slate);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 150ms ease;
+}
+
+.auth-back-link:hover {
+  color: var(--coral);
+}
+
+/* ---- Token display ---- */
+.token-display {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.token-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+
+.token-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.token-value {
+  flex: 1;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.token-copy-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms ease;
+  white-space: nowrap;
+}
+
+.token-copy-btn:hover {
+  background: var(--coral);
+}
+
+.token-hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--slate);
+  line-height: 1.55;
+}
+
+.token-hint strong {
+  color: var(--ink);
+}
+
+.token-reset-link {
+  margin-top: 4px;
+}
+
+/* ---- Mobile switch links ---- */
 .auth-switch-mobile {
   display: none;
   margin: 12px 0 0;
@@ -283,7 +424,7 @@
   }
 }
 
-/* ---- The ONLY thing that animates: a dark panel sitting on top, sliding to cover one side ---- */
+/* ---- Overlay (the dark sliding panel) ---- */
 .overlay-container {
   position: absolute;
   top: 0;
@@ -302,20 +443,62 @@
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(
-      circle at 25% 15%,
-      rgba(214, 41, 58, 0.45),
-      transparent 55%
-    ),
+    radial-gradient(circle at 25% 15%, rgba(214, 41, 58, 0.45), transparent 55%),
     radial-gradient(circle at 80% 85%, rgba(42, 91, 204, 0.35), transparent 55%);
 }
 
-/* Slides left by exactly its own width (50%), landing it over the left half instead */
 .auth-card.right-panel-active .overlay-container {
   transform: translateX(-100%);
 }
 
+/* Forgot: overlay stays on the right, shows its own copy */
+.auth-card.forgot-panel-active .overlay-container {
+  transform: translateX(0);
+}
+
+.back-button {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: 0.2s;
+  z-index: 200;
+}
+
+.back-button:hover {
+  background: var(--ink);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.back-button span:first-child {
+  font-size: 18px;
+  line-height: 1;
+}
+
 @media (max-width: 760px) {
+  .back-button {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 18px;
+  }
+
+  .auth-shell {
+    padding-top: 24px;
+  }
+
   .overlay-container {
     display: none;
   }
@@ -368,9 +551,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    background 150ms ease,
-    color 150ms ease;
+  transition: background 150ms ease, color 150ms ease;
 }
 
 .auth-overlay-btn:hover {
@@ -385,7 +566,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .overlay-container {
+  .overlay-container,
+  .forgot-container {
     transition: none !important;
   }
 }

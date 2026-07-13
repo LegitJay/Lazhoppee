@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SellerOrderService } from './seller-order.service';
+import { SellerOrderService } from '../../services/seller-order.service';
 import { Order } from '../../models/order';
 import { User } from '../../models/user';
 

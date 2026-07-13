@@ -1,121 +1,122 @@
 <div class="auth-shell">
-    <button (click)="goBack()" class="back-button">&larr; Back to Shop</button>
-    <div class="auth-card" [class.right-panel-active]="mode === 'register'">
+  <button class="back-button" (click)="goBack()">
+    <span>←</span>
+    <span>Back to Shop</span>
+  </button>
 
-        <!-- LOGIN: fixed on the left half, never moves -->
-        <div class="form-container sign-in-container">
-            <div class="auth-forms">
-                <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm"
-                    novalidate>
-                    <p class="auth-eyebrow">Welcome back</p>
-                    <h1 class="auth-title">Log in</h1>
-                    <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
-                    <label class="auth-field">
-                        <span class="auth-label">Email</span>
-                        <input type="email" name="loginEmail" [(ngModel)]="loginData.email" required
-                            placeholder="you@example.com" autocomplete="username" />
-                    </label>
+  <div class="auth-card" [class.right-panel-active]="mode === 'register'">
 
-                    <label class="auth-field">
-                        <span class="auth-label">Password</span>
-                        <div class="auth-password-wrap">
-                            <input [type]="showLoginPassword ? 'text' : 'password'" name="loginPassword"
-                                [(ngModel)]="loginData.password" required placeholder="••••••••"
-                                autocomplete="current-password" />
-                            <button type="button" class="auth-password-toggle"
-                                (click)="showLoginPassword = !showLoginPassword"
-                                [attr.aria-label]="showLoginPassword ? 'Hide password' : 'Show password'">
-                                {{ showLoginPassword ? 'Hide' : 'Show' }}
-                            </button>
-                        </div>
-                    </label>
+    <!-- LOGIN: fixed on the left half -->
+    <div class="form-container sign-in-container">
+      <div class="auth-forms">
+        <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm" novalidate>
+          <p class="auth-eyebrow">Welcome back</p>
+          <h1 class="auth-title">Log in</h1>
+          <p class="auth-error" *ngIf="errorMessage && mode === 'login'">{{ errorMessage }}</p>
 
-                    <a class="auth-forgot" routerLink="/forgot-password">Forgot your password?</a>
+          <label class="auth-field">
+            <span class="auth-label">Email</span>
+            <input type="email" name="loginEmail" [(ngModel)]="loginData.email" required
+              placeholder="you@example.com" autocomplete="username" />
+          </label>
 
-                    <button type="submit" class="auth-submit" [disabled]="isSubmitting">
-                        Log in
-                    </button>
-
-                    <p class="auth-switch-mobile">
-                        New to Lazhoppee?
-                        <button type="button" (click)="switchTo('register')">Create an account</button>
-                    </p>
-                </form>
+          <label class="auth-field">
+            <span class="auth-label">Password</span>
+            <div class="auth-password-wrap">
+              <input [type]="showLoginPassword ? 'text' : 'password'" name="loginPassword"
+                [(ngModel)]="loginData.password" required placeholder="••••••••"
+                autocomplete="current-password" />
+              <button type="button" class="auth-password-toggle"
+                (click)="showLoginPassword = !showLoginPassword"
+                [attr.aria-label]="showLoginPassword ? 'Hide password' : 'Show password'">
+                {{ showLoginPassword ? 'Hide' : 'Show' }}
+              </button>
             </div>
-        </div>
+          </label>
 
-        <!-- REGISTER: fixed on the right half, never moves -->
-        <div class="form-container sign-up-container">
-            <div class="auth-forms">
-                <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm"
-                    novalidate>
-                    <p class="auth-eyebrow">Join Krossover</p>
-                    <h1 class="auth-title">Create your account</h1>
-                    <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <!-- Routes to the separate forgot-password page -->
+          <a class="auth-forgot" routerLink="/forgot-password">Forgot your password?</a>
 
-                    <label class="auth-field">
-                        <span class="auth-label">Display Name / Username</span>
-                        <input type="text" name="registerUsername" [(ngModel)]="registerData.username" required placeholder="your username" autocomplete="username" />
-                    </label>
+          <button type="submit" class="auth-submit" [disabled]="isSubmitting">
+            Log in
+          </button>
 
-                    <label class="auth-field">
-                        <span class="auth-label">Email</span>
-                        <input type="email" name="registerEmail" [(ngModel)]="registerData.email" required
-                            placeholder="you@example.com" autocomplete="email" />
-                    </label>
-
-                    <label class="auth-field">
-                        <span class="auth-label">Password</span>
-                        <div class="auth-password-wrap">
-                            <input [type]="showRegisterPassword ? 'text' : 'password'" name="registerPassword"
-                                [(ngModel)]="registerData.password" required minlength="3"
-                                placeholder="At least 8 characters" autocomplete="new-password" />
-                            <button type="button" class="auth-password-toggle"
-                                (click)="showRegisterPassword = !showRegisterPassword"
-                                [attr.aria-label]="showRegisterPassword ? 'Hide password' : 'Show password'">
-                                {{ showRegisterPassword ? 'Hide' : 'Show' }}
-                            </button>
-                        </div>
-                    </label>
-
-                    <label class="auth-field">
-                        <span class="auth-label">Confirm password</span>
-                        <input type="password" name="confirmPassword" [(ngModel)]="registerData.confirmPassword"
-                            required placeholder="Type it again" autocomplete="new-password" />
-                    </label>
-                    
-                    <button type="submit" class="auth-submit" [disabled]="isSubmitting">
-                        Create account
-                    </button>
-
-                    <p class="auth-switch-mobile">
-                        Already shopping with us?
-                        <button type="button" (click)="switchTo('login')">Log in</button>
-                    </p>
-                </form>
-            </div>
-        </div>
-
-        <!-- THE ONLY MOVING PIECE: dark cover panel, slides left/right on top -->
-        <div class="overlay-container">
-            <div class="overlay-panel" *ngIf="mode === 'login'">
-                <p class="auth-overlay-eyebrow">New here?</p>
-                <h2 class="auth-overlay-title">Start shopping in seconds.</h2>
-                <p class="auth-overlay-copy">Create an account to check out faster and save your cart.</p>
-                <button type="button" class="auth-overlay-btn" (click)="switchTo('register')">
-                    Sign up
-                </button>
-            </div>
-
-            <div class="overlay-panel" *ngIf="mode === 'register'">
-                <p class="auth-overlay-eyebrow">Already a customer?</p>
-                <h2 class="auth-overlay-title">Pick up right where you left off.</h2>
-                <p class="auth-overlay-copy">Log in to track orders, manage your store, or keep shopping.</p>
-                <button type="button" class="auth-overlay-btn" (click)="switchTo('login')">
-                    Log in
-                </button>
-            </div>
-        </div>
-
+          <p class="auth-switch-mobile">
+            New to Lazhoppee?
+            <button type="button" (click)="switchTo('register')">Create an account</button>
+          </p>
+        </form>
+      </div>
     </div>
+
+    <!-- REGISTER: fixed on the right half -->
+    <div class="form-container sign-up-container">
+      <div class="auth-forms">
+        <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm" novalidate>
+          <p class="auth-eyebrow">Join Krossover</p>
+          <h1 class="auth-title">Create your account</h1>
+          <p class="auth-error" *ngIf="errorMessage && mode === 'register'">{{ errorMessage }}</p>
+
+          <label class="auth-field">
+            <span class="auth-label">Display Name / Username</span>
+            <input type="text" name="registerUsername" [(ngModel)]="registerData.username" required
+              placeholder="your username" autocomplete="username" />
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-label">Email</span>
+            <input type="email" name="registerEmail" [(ngModel)]="registerData.email" required
+              placeholder="you@example.com" autocomplete="email" />
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-label">Password</span>
+            <div class="auth-password-wrap">
+              <input [type]="showRegisterPassword ? 'text' : 'password'" name="registerPassword"
+                [(ngModel)]="registerData.password" required minlength="3"
+                placeholder="At least 8 characters" autocomplete="new-password" />
+              <button type="button" class="auth-password-toggle"
+                (click)="showRegisterPassword = !showRegisterPassword"
+                [attr.aria-label]="showRegisterPassword ? 'Hide password' : 'Show password'">
+                {{ showRegisterPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-label">Confirm password</span>
+            <input type="password" name="confirmPassword" [(ngModel)]="registerData.confirmPassword"
+              required placeholder="Type it again" autocomplete="new-password" />
+          </label>
+
+          <button type="submit" class="auth-submit" [disabled]="isSubmitting">
+            Create account
+          </button>
+
+          <p class="auth-switch-mobile">
+            Already shopping with us?
+            <button type="button" (click)="switchTo('login')">Log in</button>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- THE ONLY MOVING PIECE: dark overlay panel -->
+    <div class="overlay-container">
+      <div class="overlay-panel" *ngIf="mode === 'login'">
+        <p class="auth-overlay-eyebrow">New here?</p>
+        <h2 class="auth-overlay-title">Start shopping in seconds.</h2>
+        <p class="auth-overlay-copy">Create an account to check out faster and save your cart.</p>
+        <button type="button" class="auth-overlay-btn" (click)="switchTo('register')">Sign up</button>
+      </div>
+
+      <div class="overlay-panel" *ngIf="mode === 'register'">
+        <p class="auth-overlay-eyebrow">Already a customer?</p>
+        <h2 class="auth-overlay-title">Pick up right where you left off.</h2>
+        <p class="auth-overlay-copy">Log in to track orders, manage your store, or keep shopping.</p>
+        <button type="button" class="auth-overlay-btn" (click)="switchTo('login')">Log in</button>
+      </div>
+    </div>
+
+  </div>
 </div>

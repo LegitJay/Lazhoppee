@@ -128,12 +128,6 @@
                 <span class="product-location"> {{ getLocation(product) }}</span>
                 <span class="badge-shipping" *ngIf="hasFreeShipping(product)">Free Shipping</span>
               </div>
-
-              <div class="store-row">
-                <span class="store-avatar">{{ getStoreInitial (product) }}</span>
-                <span class="store-name">{{ getStoreName(product) }}</span>
-                <span class="verified-badge" *ngIf="isVerifiedSeller(product)" title="Verified Seller"></span>
-              </div>
             </div>
           </a>
 

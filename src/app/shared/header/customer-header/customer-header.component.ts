@@ -1,8 +1,8 @@
 import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CartService } from '../../../cart/cart.service';
-import { AuthService, AuthUser } from '../../../auth/auth.service';
-import { MessageService } from '../../../messages/message.service';
+import { CartService } from '../../../services/cart.service';
+import { AuthService, AuthUser } from '../../../services/auth.service';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'app-customer-header',

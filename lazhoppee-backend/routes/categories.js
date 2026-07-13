@@ -41,11 +41,10 @@ router.post('/', [requireAuth, admin], async (req, res) => {
 // @access  Private/Admin
 router.delete('/:id', [requireAuth, admin], async (req, res) => {
   try {
-    let category = await Category.findById(req.params.id);
+    const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) {
       return res.status(404).json({ msg: 'Category not found' });
     }
-    await category.remove();
     res.json({ msg: 'Category removed' });
   } catch (err) {
     console.error(err.message);

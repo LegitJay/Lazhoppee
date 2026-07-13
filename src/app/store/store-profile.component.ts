@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
-import { AuthService, AuthUser } from '../auth/auth.service';
+import { AuthService, AuthUser } from '../services/auth.service';
 import { ProductService } from '../product/product.service';
 import { Product } from '../models/product';
 import { StoreService } from '../services/store.service';
@@ -113,7 +113,10 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
   private loadSellerProducts(): void {
     this.productService.getProducts().subscribe({
       next: (allProducts) => {
-        this.sellerProducts = allProducts.filter(p => p.sellerId === this.sellerId);
+        this.sellerProducts = allProducts.filter(p => {
+          const id = (p.sellerId as any)?._id ?? p.sellerId;
+          return id?.toString() === this.sellerId;
+        });
         this.productsLoading = false;
       },
       error: () => {

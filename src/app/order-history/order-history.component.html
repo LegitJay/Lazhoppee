@@ -1,5 +1,9 @@
 <div class="order-history-container">
-  <h1>My Orders</h1>
+
+  <div class="page-header">
+    <h1>My Orders</h1>
+    <span class="order-count" *ngIf="orders.length > 0">{{ orders.length }} order{{ orders.length !== 1 ? 's' : '' }}</span>
+  </div>
 
   <div class="order-tabs">
     <button [class.active]="activeTab === 'toShip'" (click)="changeTab('toShip')">To Ship</button>
@@ -9,60 +13,93 @@
   </div>
 
   <div *ngIf="isLoading" class="loading-spinner"></div>
-  
+
   <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
-    You have no orders in this category.
+    No orders here yet.
   </div>
 
   <div *ngIf="!isLoading && orders.length > 0">
     <div *ngFor="let order of orders" class="order-card">
+
+      <!-- Card header -->
       <div class="order-header">
-        <span>Order ID: {{ order._id }}</span>
-        <span>Status: {{ order.status }}</span>
+        <span class="order-id-text">#{{ order._id }}</span>
+        <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
       </div>
+
+      <!-- Line items -->
       <div *ngFor="let item of order.items" class="order-item">
         <ng-container *ngIf="isPopulatedProduct(item.product); else unresolvedProduct">
           <img [src]="getImageUrl(item.product?.imageUrl)" alt="{{ item.product?.name }}">
-          <div>
+          <div class="item-info">
             <h3>{{ item.product?.name }}</h3>
-            <p>Quantity: {{ item.quantity }}</p>
-            <p>Price: ₱{{ item.price.toFixed(2) }}</p>
+            <p>Qty {{ item.quantity }}</p>
           </div>
+          <span class="item-price">₱{{ item.price.toFixed(2) }}</span>
         </ng-container>
         <ng-template #unresolvedProduct>
-          <div>
+          <div class="item-info">
             <h3>Product unavailable</h3>
-            <p>Quantity: {{ item.quantity }}</p>
-            <p>Price: ₱{{ item.price.toFixed(2) }}</p>
+            <p>Qty {{ item.quantity }}</p>
           </div>
+          <span class="item-price">₱{{ item.price.toFixed(2) }}</span>
         </ng-template>
-        <ng-container *ngIf="activeTab === 'toReview' && isPopulatedProduct(item.product)">
-          <div class="review-section">
-            <button (click)="toggleReviewForm(item.product._id)">
-              {{ reviewingProductId === item.product._id ? 'Cancel' : 'Leave a Review' }}
-            </button>
-            <button (click)="confirmReceipt(order._id)">Confirm Receipt</button>
-            <app-review-form
-              *ngIf="reviewingProductId === item.product._id"
-              [productId]="item.product._id"
-              [orderId]="order._id!"
-              (reviewSubmitted)="onReviewSubmitted()">
-            </app-review-form>
-          </div>
-        </ng-container>
       </div>
-      <div class="order-footer">
-        <span>Total: ₱{{ order.total.toFixed(2) }}</span>
-        <span>Placed on: {{ order.createdAt | date:'medium' }}</span>
-      </div>
+
+      <!-- Review prompt strip (toReview tab only) -->
+      <ng-container *ngIf="activeTab === 'toReview'">
+        <div *ngFor="let item of order.items">
+          <ng-container *ngIf="isPopulatedProduct(item.product)">
+            <div class="review-section">
+              <div class="review-section-inner">
+                <span class="review-prompt-text">How was {{ item.product?.name }}?</span>
+                <button
+                  class="leave-review-btn"
+                  *ngIf="reviewingProductId !== item.product._id"
+                  (click)="toggleReviewForm(item.product._id)">
+                  Leave a review
+                </button>
+                <button
+                  class="cancel-review-btn"
+                  *ngIf="reviewingProductId === item.product._id"
+                  (click)="toggleReviewForm(item.product._id)">
+                  Cancel
+                </button>
+              </div>
+              <div class="review-form-wrapper" *ngIf="reviewingProductId === item.product._id">
+                <app-review-form
+                  [productId]="item.product._id"
+                  [orderId]="order._id!"
+                  (reviewSubmitted)="onReviewSubmitted()">
+                </app-review-form>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <!-- Tracking history -->
       <div *ngIf="order.trackingHistory && order.trackingHistory.length > 0" class="tracking-history">
-        <h4>Tracking History</h4>
-        <ul>
-          <li *ngFor="let track of order.trackingHistory">
-            <strong>{{ track.status }}</strong> ({{ track.updatedAt | date:'short' }}): {{ track.note }}
+        <p class="tracking-title">Tracking</p>
+        <ul class="tracking-list">
+          <li *ngFor="let track of order.trackingHistory; let first = first">
+            <div class="track-dot" [class.is-current]="first"></div>
+            <div class="track-body">
+              <div class="track-status">{{ track.status }}</div>
+              <div class="track-note" *ngIf="track.note">{{ track.note }}</div>
+              <div class="track-time">{{ track.updatedAt | date:'medium' }}</div>
+            </div>
           </li>
         </ul>
       </div>
+
+      <!-- Card footer -->
+      <div class="order-footer">
+        <span class="footer-total">Total <span>₱{{ order.total.toFixed(2) }}</span></span>
+        <span class="footer-date">{{ order.createdAt | date:'mediumDate' }}</span>
+      </div>
+
     </div>
   </div>
+
 </div>

@@ -16,16 +16,14 @@ import { AuthInterceptor } from './auth.interceptor';
 import { AddressModule } from './address/address.module';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
-import { NotificationComponent } from './notification.component';
+import { NotificationComponent } from './notification/notification.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WishlistComponent,
-    ForgotPasswordComponent,
-    ResetPasswordComponent
+    WishlistComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +40,9 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     OrderHistoryModule,
     AddressModule,
     SellerDashboardComponent,
-    NotificationComponent
+    NotificationComponent,
+    ResetPasswordComponent,
+    ForgotPasswordComponent
   ],
   providers: [
     {

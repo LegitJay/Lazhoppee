@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { MessageService } from '../messages/message.service';
-import { AuthService } from '../auth/auth.service';
+import { MessageService } from '../services/message.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-messages',
@@ -99,7 +99,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   getDisplayName(user: any): string {
-    return user?.storeDetails?.storeName || user?.username || 'Unknown User';
+    if (user?.storeName?.trim()) return user.storeName;
+    return user?.username || user?.email || 'Unknown User';
   }
 
   getInitial(user: any): string {

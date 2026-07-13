@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
-import { CartService } from '../cart/cart.service';
+import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
@@ -29,7 +30,7 @@ export class AuthComponent {
     private cartService: CartService,
     private router: Router,
     private location: Location
-  ) { }
+  ) {}
 
   switchTo(mode: 'login' | 'register') {
     this.mode = mode;
@@ -37,7 +38,7 @@ export class AuthComponent {
   }
 
   goBack(): void {
-    this.location.back();
+    this.router.navigate(['/products']);
   }
 
   onLoginSubmit() {
@@ -48,9 +49,8 @@ export class AuthComponent {
       next: (res) => {
         if (res.user.role === 'pendingSeller') {
           this.router.navigate(['/become-seller']);
-      }
+        }
         this.isSubmitting = false;
-        // Fetch this user's cart immediately so the badge is correct
         this.cartService.refreshCartCount();
 
         if (res.user.role === 'admin') {
@@ -76,7 +76,7 @@ export class AuthComponent {
     }
     this.isSubmitting = true;
 
-      this.authService.register({
+    this.authService.register({
       username: this.registerData.username,
       email: this.registerData.email,
       password: this.registerData.password,

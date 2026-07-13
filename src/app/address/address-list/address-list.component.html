@@ -1,7 +1,10 @@
 <div class="address-list-container">
-  <h2>My Addresses</h2>
-  <button (click)="goToCheckout()">Back to Checkout</button>
-  <button (click)="onAdd()">Add New Address</button>
+  <h2>My addresses</h2>
+
+  <div class="address-top-actions">
+    <button class="btn-back" (click)="goToCheckout()">← Back to checkout</button>
+    <button class="btn-add" (click)="onAdd()">+ Add address</button>
+  </div>
 
   <div *ngIf="showForm">
     <app-address-form [address]="selectedAddress" (save)="onSave($event)"></app-address-form>
@@ -12,9 +15,11 @@
       <p><strong>{{ address.fullName }}</strong></p>
       <p>{{ address.phoneNumber }}</p>
       <p>{{ address.streetAddress }}, {{ address.barangay }}, {{ address.city }}, {{ address.region }} {{ address.postalCode }}</p>
-      <p *ngIf="address.isDefault" class="default-badge">Default</p>
-      <button (click)="onEdit(address)">Edit</button>
-      <button (click)="onDelete(address._id!)">Delete</button>
+      <span class="default-badge" *ngIf="address.isDefault">Default</span>
+      <div class="address-item-actions">
+        <button class="btn-edit" (click)="onEdit(address)">Edit</button>
+        <button class="btn-delete" (click)="onDelete(address._id!)">Delete</button>
+      </div>
     </div>
   </div>
 </div>
