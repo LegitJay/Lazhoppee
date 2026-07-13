@@ -8,15 +8,13 @@ import { BecomeSellerComponent } from './become-seller/become-seller.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './admin/admin.guard';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
-import { StoreProfileComponent } from './store/store-profile.component';
+import { ProductDetailComponent } from './product/product-detail/product-detail.component';
+import { StoreProfileComponent } from './product/store/store-profile.component';
 import { MessagesComponent } from './messages/messages.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
 import { AddressListComponent } from './address/address-list/address-list.component';
-import { WishlistComponent } from './wishlist/wishlist.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
-import { NotificationsPageComponent } from './notifications-page/notifications-page.component';
 import { CourierDashboardComponent } from './courier/courier-dashboard/courier-dashboard.component';
 import { CourierGuard } from './courier/courier.guard';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
@@ -41,8 +39,6 @@ const routes: Routes = [
   { path: 'store/:sellerId', component: StoreProfileComponent },
   { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
-  { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },
-  { path: 'notifications', component: NotificationsPageComponent, canActivate: [authGuard] },
   { path: 'courier/dashboard', component: CourierDashboardComponent, canActivate: [CourierGuard] }
 ];
 

@@ -42,6 +42,34 @@ router.get("/product/:productId", async (req, res) => {
   }
 });
 
+// GET /reviews/averages — returns { productId: avgRating } map for all products
+router.get("/averages", async (req, res) => {
+  try {
+    const averages = await Review.aggregate([
+      {
+        $group: {
+          _id: "$product",
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Convert to a plain object map for easy frontend lookup
+    const map = {};
+    averages.forEach(r => {
+      map[r._id.toString()] = {
+        avg: Math.round(r.avgRating * 10) / 10,  // 1 decimal place
+        count: r.count
+      };
+    });
+
+    res.json(map);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // GET /reviews/seller - Get all reviews for the logged in seller
 router.get("/seller", requireAuth, async (req, res) => {
   try {

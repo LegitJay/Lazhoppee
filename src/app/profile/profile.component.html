@@ -25,7 +25,8 @@
       </div>
 
       <div class="profile-header-actions">
-        <button *ngIf="user.role === 'storeOwner'" type="button" class="edit-account-btn" (click)="toggleStoreEditMode()">
+        <button *ngIf="user.role === 'storeOwner'" type="button" class="edit-account-btn"
+          (click)="toggleStoreEditMode()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -37,7 +38,7 @@
     </section>
 
     <!-- Store contact details — toggled from the header button -->
-    <section class="store-details-panel" *ngIf="user.role === 'storeOwner' && !isStoreEditMode">
+    <section class="store-details-panel" [hidden]="isStoreEditMode" *ngIf="user.role === 'storeOwner'">
       <div class="info-grid">
         <div class="info-item">
           <span>Address</span>
@@ -58,12 +59,13 @@
       </div>
       <div class="store-map-wrapper">
         <h3>Location</h3>
-        <div id="store-map" #storeMap class="store-map-container public-map"></div>
+        <!-- View mode map -->
+        <div id="store-map" #storeMapView class="store-map-container public-map"></div>
       </div>
     </section>
 
     <!-- Store Edit Form -->
-    <section class="store-edit-panel" *ngIf="user.role === 'storeOwner' && isStoreEditMode">
+    <section class="store-edit-panel" [hidden]="!isStoreEditMode" *ngIf="user.role === 'storeOwner'">
       <form (ngSubmit)="saveStoreChanges()" class="edit-form">
         <div class="form-group">
           <label>Store Name</label>
@@ -87,7 +89,8 @@
         </div>
         <div class="form-group store-map-wrapper">
           <label>Click on the map to set your store's location</label>
-          <div id="store-map-edit" #storeMap class="store-map-container"></div>
+          <!-- Edit mode map -->
+          <div id="store-map-edit" #storeMapEdit class="store-map-container"></div>
         </div>
         <div class="form-actions">
           <button type="button" class="cancel-btn" (click)="toggleStoreEditMode()">Cancel</button>

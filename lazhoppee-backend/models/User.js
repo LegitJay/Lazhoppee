@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema(
     },
     // Account status for admin user management
     isActive: { type: Boolean, default: true },
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
   },

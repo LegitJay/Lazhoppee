@@ -494,26 +494,6 @@
 .badge-discount { left: 8px; background: #d6293a; color: #fff; }
 .badge-new { left: 8px; top: 32px; background: #2a5bcc; color: #fff; }
 
-.wishlist-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #0b1b3a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
-  z-index: 2;
-}
-.wishlist-btn:hover { transform: scale(1.1); }
-.wishlist-btn.active { color: #d6293a; }
-
 .product-body {
   padding: 12px;
   flex: 1;

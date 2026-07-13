@@ -30,9 +30,9 @@
       <!-- Line items -->
       <div *ngFor="let item of order.items" class="order-item">
         <ng-container *ngIf="isPopulatedProduct(item.product); else unresolvedProduct">
-          <img [src]="getImageUrl(item.product?.imageUrl)" alt="{{ item.product?.name }}">
+          <img [src]="getImageUrl(item.product.imageUrl)" alt="{{ item.product.name }}">
           <div class="item-info">
-            <h3>{{ item.product?.name }}</h3>
+            <h3>{{ item.product.name }}</h3>
             <p>Qty {{ item.quantity }}</p>
           </div>
           <span class="item-price">₱{{ item.price.toFixed(2) }}</span>
@@ -52,7 +52,7 @@
           <ng-container *ngIf="isPopulatedProduct(item.product)">
             <div class="review-section">
               <div class="review-section-inner">
-                <span class="review-prompt-text">How was {{ item.product?.name }}?</span>
+                <span class="review-prompt-text">How was {{ item.product.name }}?</span>
                 <button
                   class="leave-review-btn"
                   *ngIf="reviewingProductId !== item.product._id"

@@ -30,7 +30,6 @@ app.use("/messages", require("./routes/messages"));
 app.use("/orders", require("./routes/orders"));
 app.use("/profile", require("./routes/profile"));
 app.use("/admin", adminRoutes);
-app.use("/wishlist", require("./routes/wishlist"));
 app.use("/api/categories", require("./routes/categories"));
 app.use("/api/stores", require("./routes/stores"));
 app.use("/seller-orders", require("./routes/seller-orders"));

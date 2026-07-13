@@ -17,7 +17,8 @@ export class AppComponent {
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      const isAuthOrAdmin = event.urlAfterRedirects.startsWith('/auth') || event.urlAfterRedirects.startsWith('/admin');
+      const isAuthOrAdmin = event.urlAfterRedirects.startsWith('/auth') || event.urlAfterRedirects.startsWith('/admin')
+       || event.urlAfterRedirects.startsWith('/reset-password') || event.urlAfterRedirects.startsWith('/forgot-password');
       this.shouldShowCustomerHeader = !isAuthOrAdmin && !this.isCourier;
       this.shouldShowCourierHeader = !isAuthOrAdmin && this.isCourier;
     });

@@ -12,18 +12,15 @@ import { SharedModule } from './shared/shared.module';
 import { CartModule } from './cart/cart.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { OrderHistoryModule } from './order-history/order-history.module';
-import { AuthInterceptor } from './auth.interceptor';
+import { AuthInterceptor } from './auth/auth.interceptor';
 import { AddressModule } from './address/address.module';
-import { WishlistComponent } from './wishlist/wishlist.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
-import { NotificationComponent } from './notification/notification.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    WishlistComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +37,6 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     OrderHistoryModule,
     AddressModule,
     SellerDashboardComponent,
-    NotificationComponent,
     ResetPasswordComponent,
     ForgotPasswordComponent
   ],

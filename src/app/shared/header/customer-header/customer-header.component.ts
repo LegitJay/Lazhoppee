@@ -20,7 +20,6 @@ export class CustomerHeaderComponent implements OnInit {
 
   // ----- new header state -----
   notificationCount: number = 0;
-  wishlistCount: number = 0;
 
   isMobileMenuOpen = false;
   isProfileMenuOpen = false;

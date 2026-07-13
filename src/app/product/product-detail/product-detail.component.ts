@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartService } from '../services/cart.service';
-import { ProductService } from '../product/product.service';
-import { AuthService, AuthUser } from '../services/auth.service';
-import { Product } from '../models/product';
-import { MessageService } from '../services/message.service';
-import { CheckoutService } from '../services/checkout.service';
-import { WishlistService } from '../services/wishlist.service';
-import { ReviewService } from '../services/review.service';
-import { Review } from '../models/review';
-import { StoreService } from '../services/store.service';
+import { CartService } from '../../services/cart.service';
+import { ProductService } from '../product.service';
+import { AuthService, AuthUser } from '../../services/auth.service';
+import { Product } from '../../models/product';
+import { MessageService } from '../../services/message.service';
+import { CheckoutService } from '../../services/checkout.service';
+import { ReviewService } from '../../services/review.service';
+import { Review } from '../../models/review';
+import { StoreService } from '../../services/store.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -34,12 +33,17 @@ export class ProductDetailComponent implements OnInit {
     private authService: AuthService,
     private messageService: MessageService,
     private checkoutService: CheckoutService,
-    private wishlistService: WishlistService,
     private reviewService: ReviewService,
     private storeService: StoreService
   ) { }
 
   ngOnInit(): void {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' as ScrollBehavior
+    })
+
     const productId = this.route.snapshot.paramMap.get('id');
     if (productId) {
       this.loadProduct(productId);
@@ -133,15 +137,6 @@ export class ProductDetailComponent implements OnInit {
     this.router.navigate(['/checkout']);
   }
 
-  addToWishlist(): void {
-    if (!this.product) return;
-    const productId = this.product._id || this.product.id;
-    if (!productId) return;
-    this.wishlistService.addToWishlist(productId.toString()).subscribe({
-      next: () => { alert('Added to wishlist successfully!'); },
-      error: (err) => { alert(err.error.message || 'Failed to add to wishlist.'); }
-    });
-  }
 
   getImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';

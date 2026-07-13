@@ -278,28 +278,6 @@
   box-shadow: none;
 }
 
-.btn-icon-wishlist {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius-btn);
-  border: 1px solid var(--border);
-  background: white;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-icon-wishlist:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: #fff5f6;
-  transform: translateY(-2px);
-}
-
 /* Seller Module */
 .seller-module {
   display: flex;

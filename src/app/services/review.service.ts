@@ -23,4 +23,8 @@ export class ReviewService {
   getReviewsForSeller(): Observable<Review[]> {
     return this.http.get<Review[]>(`${this.baseUrl}/seller`);
   }
+
+  getRatingAverages(): Observable<Record<string, { avg: number; count: number }>> {
+  return this.http.get<Record<string, { avg: number; count: number }>>(`${this.baseUrl}/averages`);
+}
 }

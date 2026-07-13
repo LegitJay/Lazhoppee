@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
-import { AuthService, AuthUser } from '../services/auth.service';
-import { ProductService } from '../product/product.service';
-import { Product } from '../models/product';
-import { StoreService } from '../services/store.service';
+import { AuthService, AuthUser } from '../../services/auth.service';
+import { ProductService } from '../product.service';
+import { Product } from '../../models/product';
+import { StoreService } from '../../services/store.service';
 
 export interface Store {
   _id: string;

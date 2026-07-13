@@ -5,8 +5,8 @@ import { Product } from 'src/app/models/product';
 import { ProductService } from '../product.service';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
-import { WishlistService } from 'src/app/services/wishlist.service';
 import { CategoryService } from 'src/app/services/category.service';
+import { ReviewService } from '../../services/review.service';
 
 @Component({
   selector: 'app-product-list',
@@ -22,8 +22,8 @@ export class ProductListComponent implements OnInit {
   categories: string[] = [];
   selectedCategory: string = 'All';
   searchTerm: string = '';
+  private ratingMap: Record<string, { avg: number; count: number }> = {};
 
-  private wishlistIds = new Set<string>();
 
   currentYear = new Date().getFullYear();
 
@@ -47,10 +47,11 @@ export class ProductListComponent implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
-    private wishlistService: WishlistService,
     private categoryService: CategoryService,
+    private reviewService: ReviewService,
     private router: Router,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -63,11 +64,8 @@ export class ProductListComponent implements OnInit {
       this.applyFilters();
     });
 
-    if (this.authService.isLoggedIn()) {  // ← add this guard
-      this.loadWishlist();
-    }
-
     this.loadCategories();
+    this.loadRatings();
   }
 
   private loadCategories(): void {
@@ -84,20 +82,13 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  private loadWishlist(): void {
-    this.wishlistService.getWishlist().subscribe({
-      next: (wishlist) => {
-        const wishlistProductIds = wishlist
-          .map(item => item._id)
-          .filter((id): id is string => !!id);
-        this.wishlistIds = new Set<string>(wishlistProductIds);
-      },
-      error: (err) => {
-        // Silently fail if not logged in or other error
-        console.error('Could not load wishlist', err);
-      }
+  private loadRatings(): void {
+    this.reviewService.getRatingAverages().subscribe({
+      next: (map) => { this.ratingMap = map; },
+      error: (err) => console.error('Failed to load ratings', err)
     });
   }
+
 
   // ============================================================
   // EXISTING FUNCTIONALITY (unchanged behavior)
@@ -142,15 +133,6 @@ export class ProductListComponent implements OnInit {
     return '/' + imageUrl;
   }
 
-  // ============================================================
-  // NEW HELPER METHODS
-  // These read optional fields off `product` defensively (via `any`)
-  // so the UI works today even though your Product interface doesn't
-  // yet define them. Add real fields to your schema/model whenever
-  // you're ready and these will pick them up automatically — just
-  // remove the `?? fallback` once the field is guaranteed to exist.
-  // ============================================================
-
   trackByProductId(_index: number, product: Product): string {
     return product._id ?? '';
   }
@@ -172,7 +154,11 @@ export class ProductListComponent implements OnInit {
 
   /** Reads an optional `rating` field; falls back to a neutral 4.5. */
   getRating(product: Product): number {
-    return (product as any).rating ?? 4.5;
+    return this.ratingMap[product._id ?? '']?.avg ?? 0;
+  }
+
+  getRatingCount(product: Product): number {
+    return this.ratingMap[product._id ?? '']?.count ?? 0;
   }
 
   getStarString(rating: number): string {
@@ -184,7 +170,10 @@ export class ProductListComponent implements OnInit {
   getSoldLabel(product: Product): string {
     const sold = (product as any).soldCount ?? 0;
     if (sold >= 1000) return `${(sold / 1000).toFixed(1)}k sold`;
-    return `${sold} sold`;
+    if (sold > 0) return `${sold} sold`;
+    // Fall back to review count
+    const count = this.getRatingCount(product);
+    return count > 0 ? `${count} reviews` : 'No reviews yet';
   }
 
   /** Reads an optional `stock` field; falls back to "in stock" (999). */
@@ -230,38 +219,5 @@ export class ProductListComponent implements OnInit {
     const ageMs = Date.now() - new Date(createdAt).getTime();
     return ageMs < 14 * 24 * 60 * 60 * 1000; // 14 days
   }
-
-  isWishlisted(productId: string | undefined): boolean {
-    if (!productId) return false;
-    return this.wishlistIds.has(productId);
-  }
-
-  toggleWishlist(productId: string | undefined, event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!productId) return;
-
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth']);
-      return;
-    }
-
-    const isWishlisted = this.wishlistIds.has(productId);
-    const action = isWishlisted
-      ? this.wishlistService.removeFromWishlist(productId)
-      : this.wishlistService.addToWishlist(productId);
-
-    action.subscribe({
-      next: () => {
-        if (isWishlisted) {
-          this.wishlistIds.delete(productId);
-        } else {
-          this.wishlistIds.add(productId);
-        }
-      },
-      error: (err) => console.error('Failed to update wishlist', err)
-    });
-  }
-
 
 }
