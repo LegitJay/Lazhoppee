@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, BehaviorSubject } from 'rxjs';
+import { Observable, tap, BehaviorSubject, finalize } from 'rxjs';
 import { CartService } from './cart.service';
 
 export interface AuthUser {
@@ -66,6 +66,8 @@ export class AuthService {
   private userSubject = new BehaviorSubject<AuthUser | null>(this.getUser());
   public user$ = this.userSubject.asObservable();
 
+  private isLoggingOut = false;
+
   constructor(private http: HttpClient, private cartService: CartService) { }
 
   // ---------- Customer / storeOwner session (unchanged keys: token / user) ----------
@@ -99,10 +101,28 @@ export class AuthService {
   }
 
   logout(): void {
-    this.cartService.clearCart().subscribe({
-      next: () => console.log('Cart cleared from server'),
-      error: () => console.error('Failed to clear server-side cart, clearing locally.')
-    });
+    const user = this.getUser();
+
+    const logoutAndClear = () => {
+      this.clearLocalSession();
+    };
+
+    if (user && (user.role === 'customer' || user.role === 'storeOwner')) {
+      this.cartService.clearCart().subscribe({
+        error: () => {
+          console.warn('Failed to clear server-side cart, but logging out locally anyway.');
+          logoutAndClear();
+        },
+        complete: () => {
+          logoutAndClear();
+        }
+      });
+    } else {
+      logoutAndClear();
+    }
+  }
+
+  private clearLocalSession(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.userSubject.next(null);

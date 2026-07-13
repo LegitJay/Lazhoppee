@@ -12,7 +12,7 @@
         <form class="auth-form" (submit)="onLoginSubmit(); $event.preventDefault()" #loginForm="ngForm" novalidate>
           <p class="auth-eyebrow">Welcome back</p>
           <h1 class="auth-title">Log in</h1>
-          <p class="auth-error" *ngIf="errorMessage && mode === 'login'">{{ errorMessage }}</p>
+          <p class="auth-error" *ngIf="mode === 'login' && (error$ | async)">{{ error$ | async }}</p>
 
           <label class="auth-field">
             <span class="auth-label">Email</span>
@@ -37,7 +37,7 @@
           <!-- Routes to the separate forgot-password page -->
           <a class="auth-forgot" routerLink="/forgot-password">Forgot your password?</a>
 
-          <button type="submit" class="auth-submit" [disabled]="isSubmitting">
+          <button type="submit" class="auth-submit" [disabled]="(loading$ | async) ?? false">
             Log in
           </button>
 
@@ -55,7 +55,7 @@
         <form class="auth-form" (submit)="onRegisterSubmit(); $event.preventDefault()" #registerForm="ngForm" novalidate>
           <p class="auth-eyebrow">Join Krossover</p>
           <h1 class="auth-title">Create your account</h1>
-          <p class="auth-error" *ngIf="errorMessage && mode === 'register'">{{ errorMessage }}</p>
+          <p class="auth-error" *ngIf="mode === 'register' && registerErrorMessage">{{ registerErrorMessage }}</p>
 
           <label class="auth-field">
             <span class="auth-label">Display Name / Username</span>
@@ -89,7 +89,7 @@
               required placeholder="Type it again" autocomplete="new-password" />
           </label>
 
-          <button type="submit" class="auth-submit" [disabled]="isSubmitting">
+          <button type="submit" class="auth-submit" [disabled]="registerIsSubmitting">
             Create account
           </button>
 

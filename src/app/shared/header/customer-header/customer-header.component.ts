@@ -1,8 +1,10 @@
 import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { CartService } from '../../../services/cart.service';
 import { AuthService, AuthUser } from '../../../services/auth.service';
 import { MessageService } from '../../../services/message.service';
+import { logout } from '../../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-customer-header',
@@ -39,7 +41,8 @@ export class CustomerHeaderComponent implements OnInit {
     public authService: AuthService,
     private messageService: MessageService,
     private router: Router,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private store: Store
   ) { }
 
   ngOnInit(): void {
@@ -80,10 +83,7 @@ export class CustomerHeaderComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.cartService.reset();
-    this.unreadCount = 0;
-    this.router.navigate(['/auth']);
+    this.store.dispatch(logout());
   }
 
   // ----------------------------------------------------------------

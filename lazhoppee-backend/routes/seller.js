@@ -189,34 +189,33 @@ router.patch(
 );
 
 // PATCH /seller/applications/:id/reject — admin rejects application
-// PATCH /seller/applications/:id/approve
-router.patch("/applications/:id/approve", requireAuth, requireRole("admin"), async (req, res) => {
-  try {
-    const application = await SellerApplication.findById(req.params.id).populate("user");
-    if (!application) return res.status(404).json({ message: "Application not found." });
+router.patch(
+  "/applications/:id/reject",
+  requireAuth,
+  requireRole("admin"),
+  async (req, res) => {
+    try {
+      const application = await SellerApplication.findById(
+        req.params.id
+      ).populate("user");
+      if (!application)
+        return res.status(404).json({ message: "Application not found." });
 
-    application.status = "approved";
-    application.reviewedBy = req.user.id;
-    application.reviewedAt = new Date();
-    await application.save();
+      application.status = "rejected";
+      application.rejectionReason = req.body.reason || "No reason provided.";
+      application.reviewedBy = req.user.id;
+      application.reviewedAt = new Date();
+      await application.save();
 
-    // Copy store info from application into User.storeDetails
-    application.user.role = "storeOwner";
-    application.user.storeDetails = {
-      storeName: application.storeName,
-      storeDescription: application.storeDescription,
-      location: application.location,
-      storeAddress: '',
-      storeContact: '',
-      storeEmail: '',
-    };
-    await application.user.save();
+      application.user.role = "customer";
+      await application.user.save();
 
-    res.json({ message: "Application approved.", application });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+      res.json({ message: "Application rejected.", application });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
 
 // GET /seller/products — seller's own listings only
 router.get(

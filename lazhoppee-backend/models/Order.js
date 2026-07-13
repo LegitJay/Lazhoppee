@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "in_transit", "shipped", "completed", "cancelled", "confirmed"],
+      enum: ["pending", "processing", "in_transit", "shipped", "completed", "cancelled", "confirmed", "unsuccessful"],
       default: "pending",
     },
     courierId: {

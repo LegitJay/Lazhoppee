@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
@@ -17,11 +17,14 @@ import { AddressModule } from './address/address.module';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { authReducer, authReducerKey } from './store/auth/auth.reducer';
+import { AuthEffects } from './store/auth/auth.effects';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -38,7 +41,12 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     AddressModule,
     SellerDashboardComponent,
     ResetPasswordComponent,
-    ForgotPasswordComponent
+    ForgotPasswordComponent,
+    StoreModule.forRoot({}, {}),
+    StoreModule.forFeature(authReducerKey, authReducer),
+    EffectsModule.forRoot([]),
+    EffectsModule.forFeature([AuthEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
   providers: [
     {

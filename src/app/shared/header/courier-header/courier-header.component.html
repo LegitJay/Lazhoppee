@@ -9,7 +9,7 @@
       <a routerLink="/courier/dashboard">My Deliveries</a>
     </div>
     <div class="user-actions">
-      <a (click)="logout()">Logout</a>
+      <a href="#" (click)="$event.preventDefault(); logout()">Logout</a>
     </div>
   </div>
 </header>

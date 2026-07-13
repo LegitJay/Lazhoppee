@@ -42,11 +42,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
     storeEmail: ''
   };
 
-  // Map state management variables
+  // Map state
   private map: L.Map | null = null;
   private mapMarker: L.Marker | null = null;
   private currentMapContainer: HTMLElement | null = null;
-  
+
+  // FIX: MutationObserver removed — it was a workaround for [hidden] keeping the
+  // edit container in the DOM while invisible. Now that both panels use *ngIf,
+  // the ViewChild reactive setters fire exactly when the element enters the DOM
+  // with real dimensions, so no observer is needed.
+
   readonly defaultLat = 12.8797;
   readonly defaultLng = 121.7740;
   readonly defaultZoom = 12;
@@ -54,8 +59,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('avatarInput') avatarInput!: ElementRef<HTMLInputElement>;
 
   /**
-   * Reactive ViewChild setters capture elements instantly when rendered by *ngIf.
-   * This completely bypasses timing dependencies and arbitrary microtask delays.
+   * Reactive ViewChild setters capture the map container the instant *ngIf
+   * adds it to the DOM. At that point the element is visible and has real
+   * dimensions, so Leaflet can measure and render tiles correctly.
    */
   @ViewChild('storeMapView') set storeMapView(el: ElementRef<HTMLElement> | undefined) {
     if (el) {
@@ -114,15 +120,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------
 
   /**
-   * Builds or rebuilds the map state contextually.
-   * Only executes if both the target DOM container and application payload are ready.
+   * Builds or rebuilds the Leaflet map inside the currently active container.
+   * Only runs when both the DOM container and the application data are ready.
+   * Because both panels now use *ngIf (not [hidden]), the container always has
+   * real pixel dimensions when this method is called.
    */
   private buildMap(editMode: boolean): void {
     if (!this.currentMapContainer || !this.application) {
       return;
     }
 
-    // Always clear down prior visual states cleanly before binding to a new container
     this.cleanupMap();
 
     const lat = this.application?.location?.lat ?? this.defaultLat;
@@ -143,12 +150,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Forces Leaflet to recalculate geometries within its new layout frame instantly
-    this.map.invalidateSize();
+    // Forces Leaflet to recalculate geometries after the browser finishes painting
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 100);
   }
 
   /**
-   * Safely detaches listeners and tears down Leaflet instances to avoid memory leaks.
+   * Safely removes Leaflet event listeners and tears down the map instance
+   * to prevent memory leaks before mounting a new one.
    */
   private cleanupMap(): void {
     if (this.map) {
@@ -161,7 +171,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private addMapMarker(lat: number, lng: number): void {
     if (!this.map) return;
-    
+
     if (this.mapMarker) {
       this.mapMarker.setLatLng([lat, lng]);
     } else {
@@ -192,7 +202,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: (storeData) => {
           this.application = storeData;
           this.loadingApplication = false;
-          // Re-evaluate map rendering in case the view element mounted first
+          // Re-evaluate map in case the ViewChild setter fired before data arrived
           this.buildMap(this.isStoreEditMode);
         },
         error: (err: any) => {
@@ -322,17 +332,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
   toggleStoreEditMode(): void {
     this.isStoreEditMode = !this.isStoreEditMode;
 
+    // Nulling the container reference here triggers a clean teardown cycle
+    // before *ngIf swaps the structural panels in the DOM.
+    this.currentMapContainer = null;
+
     if (this.isStoreEditMode) {
       this.storeEditForm.storeName = this.application?.storeName || '';
       this.storeEditForm.storeDescription = this.application?.storeDescription || '';
       this.storeEditForm.storeAddress = this.application?.storeAddress || '';
       this.storeEditForm.storeContact = this.application?.storeContact || '';
       this.storeEditForm.storeEmail = this.application?.storeEmail || '';
+      // FIX: setupMapObserver() call removed — the MutationObserver was only needed
+      // because [hidden] kept the edit container in the DOM while invisible.
+      // With *ngIf, the #storeMapEdit ViewChild setter fires automatically
+      // the moment Angular stamps the edit panel into the DOM.
     }
-    
-    // Explicitly unsetting the element reference here triggers a clean teardown cycle
-    // before the *ngIf directive replaces structural layout panels.
-    this.currentMapContainer = null;
   }
 
   saveStoreChanges(): void {
@@ -420,7 +434,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     deleteObservable.subscribe({
       next: () => {
         localStorage.clear();
-        this.authService.logout();
+        this.authService['userSubject'].next(null);
         this.router.navigate(['/products']);
         this.notificationService.show('Account deleted successfully', 'success');
       },

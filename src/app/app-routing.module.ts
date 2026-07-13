@@ -26,6 +26,7 @@ const routes: Routes = [
   { path: 'products', component: ProductListComponent },
   { path: 'cart', component: CartListComponent },
   { path: 'auth', component: AuthComponent },
+  { path: 'admin/login', component: AuthComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },

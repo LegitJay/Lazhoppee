@@ -37,8 +37,11 @@
       </div>
     </section>
 
-    <!-- Store contact details — toggled from the header button -->
-    <section class="store-details-panel" [hidden]="isStoreEditMode" *ngIf="user.role === 'storeOwner'">
+    <!-- Store contact details — visible when NOT in edit mode -->
+    <!-- FIX: replaced [hidden]="isStoreEditMode" with *ngIf so the map container is fully
+         removed from the DOM when invisible. Leaflet measures the container's dimensions on
+         init; a display:none element has zero size and produces a blank tile grid. -->
+    <section class="store-details-panel" *ngIf="user.role === 'storeOwner' && !isStoreEditMode">
       <div class="info-grid">
         <div class="info-item">
           <span>Address</span>
@@ -64,8 +67,10 @@
       </div>
     </section>
 
-    <!-- Store Edit Form -->
-    <section class="store-edit-panel" [hidden]="!isStoreEditMode" *ngIf="user.role === 'storeOwner'">
+    <!-- Store Edit Form — visible only when in edit mode -->
+    <!-- FIX: replaced [hidden]="!isStoreEditMode" with *ngIf so the edit map container
+         is also fully absent from the DOM until needed, for the same Leaflet sizing reason. -->
+    <section class="store-edit-panel" *ngIf="user.role === 'storeOwner' && isStoreEditMode">
       <form (ngSubmit)="saveStoreChanges()" class="edit-form">
         <div class="form-group">
           <label>Store Name</label>
@@ -87,7 +92,7 @@
           <label>Contact Email</label>
           <input type="email" [(ngModel)]="storeEditForm.storeEmail" name="storeEmail">
         </div>
-        <div class="form-group store-map-wrapper">
+        <div id="store-map-edit-container" class="form-group store-map-wrapper">
           <label>Click on the map to set your store's location</label>
           <!-- Edit mode map -->
           <div id="store-map-edit" #storeMapEdit class="store-map-container"></div>
@@ -139,7 +144,6 @@
             </button>
           </div>
 
-          <!-- Update the customer edit form in your profile.component.html -->
           <form *ngIf="isEditMode" (ngSubmit)="saveAccountChanges()" class="edit-form">
             <div class="form-group">
               <label>Display Name / Username</label>
@@ -170,7 +174,6 @@
             </div>
           </div>
 
-          <!-- Account actions - ALWAYS visible for all users -->
           <div class="account-actions" *ngIf="!isEditMode">
           </div>
         </section>

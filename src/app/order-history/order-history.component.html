@@ -2,14 +2,17 @@
 
   <div class="page-header">
     <h1>My Orders</h1>
-    <span class="order-count" *ngIf="orders.length > 0">{{ orders.length }} order{{ orders.length !== 1 ? 's' : '' }}</span>
+    <span class="order-count" *ngIf="orders.length > 0">{{ orders.length }} order{{ orders.length !== 1 ? 's' : ''
+      }}</span>
   </div>
 
+  <!-- Add this button inside the <div class="order-tabs"> panel -->
   <div class="order-tabs">
     <button [class.active]="activeTab === 'toShip'" (click)="changeTab('toShip')">To Ship</button>
     <button [class.active]="activeTab === 'toReceive'" (click)="changeTab('toReceive')">To Receive</button>
     <button [class.active]="activeTab === 'toReview'" (click)="changeTab('toReview')">To Review</button>
     <button [class.active]="activeTab === 'completed'" (click)="changeTab('completed')">Completed</button>
+    <button [class.active]="activeTab === 'unsuccessful'" (click)="changeTab('unsuccessful')">Unsuccessful</button>
   </div>
 
   <div *ngIf="isLoading" class="loading-spinner"></div>
@@ -53,23 +56,17 @@
             <div class="review-section">
               <div class="review-section-inner">
                 <span class="review-prompt-text">How was {{ item.product.name }}?</span>
-                <button
-                  class="leave-review-btn"
-                  *ngIf="reviewingProductId !== item.product._id"
+                <button class="leave-review-btn" *ngIf="reviewingProductId !== item.product._id"
                   (click)="toggleReviewForm(item.product._id)">
                   Leave a review
                 </button>
-                <button
-                  class="cancel-review-btn"
-                  *ngIf="reviewingProductId === item.product._id"
+                <button class="cancel-review-btn" *ngIf="reviewingProductId === item.product._id"
                   (click)="toggleReviewForm(item.product._id)">
                   Cancel
                 </button>
               </div>
               <div class="review-form-wrapper" *ngIf="reviewingProductId === item.product._id">
-                <app-review-form
-                  [productId]="item.product._id"
-                  [orderId]="order._id!"
+                <app-review-form [productId]="item.product._id" [orderId]="order._id!"
                   (reviewSubmitted)="onReviewSubmitted()">
                 </app-review-form>
               </div>
@@ -91,6 +88,23 @@
             </div>
           </li>
         </ul>
+      </div>
+
+      <!-- Unsuccessful delivery failure banner context notification -->
+      <!-- Unsuccessful delivery failure banner context notification -->
+      <div *ngIf="order.status === 'unsuccessful'" class="delivery-failure-alert">
+        <div class="alert-header">
+          <span class="alert-icon">⚠️</span>
+          <strong>Delivery Attempt Unsuccessful</strong>
+        </div>
+        <p class="alert-details">
+          The courier was unable to complete the drop-off process.
+          <!-- Using safe array index navigation safely silences strict compiler flags -->
+          <span *ngIf="order.trackingHistory && order.trackingHistory.length > 0">
+            Reason provided: <em>"{{ order.trackingHistory?.[0]?.note || 'No additional notes provided by courier'
+              }}"</em>
+          </span>
+        </p>
       </div>
 
       <!-- Card footer -->

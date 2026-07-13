@@ -92,7 +92,7 @@ router.patch("/:id/status", requireAuth, requireRole("courier"), async (req, res
     if (status === 'delivered') {
       order.status = 'shipped';
     } else if (status === 'unsuccessful') {
-      order.status = 'cancelled';
+      order.status = 'unsuccessful';
     } else if (status === 'completed') {
       order.status = 'completed';
     } else {

@@ -301,6 +301,41 @@
   color: #ffffff;
 }
 
+/* c:\Angular Projects\Lazhoppee\src\app\order-history\order-history.component.css */
+
+.status-unsuccessful {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.delivery-failure-alert {
+  background: #fff5f5;
+  border-left: 4px solid #e53935;
+  padding: 14px 16px;
+  margin: 12px 0;
+  border-radius: 4px;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d32f2f;
+  margin-bottom: 4px;
+}
+
+.alert-details {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.alert-details em {
+  color: #111;
+  font-weight: 500;
+}
+
 .cancel-review-btn {
   font-size: 0.78rem;
   font-weight: 500;

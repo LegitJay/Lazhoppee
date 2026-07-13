@@ -1,10 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
 import { AuthService, AuthUser } from '../../services/auth.service';
 import { ProductService } from '../product.service';
 import { Product } from '../../models/product';
 import { StoreService } from '../../services/store.service';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 export interface Store {
   _id: string;
@@ -32,6 +39,14 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
   error = '';
 
   private map: L.Map | null = null;
+  private mapContainer: HTMLElement | null = null;
+
+  @ViewChild('storeMap') set storeMap(el: ElementRef<HTMLElement> | undefined) {
+    if (el) {
+      this.mapContainer = el.nativeElement;
+      this.initMap();
+    }
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -78,12 +93,7 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
     this.storeService.getStoreByOwnerId(this.sellerId!).subscribe({
       next: (storeData) => {
         this.store = storeData;
-
-        const lat = storeData?.location?.lat;
-        const lng = storeData?.location?.lng;
-        if (typeof lat === 'number' && typeof lng === 'number') {
-          setTimeout(() => this.initMap(lat, lng), 0);
-        }
+        this.initMap();
       },
       error: () => {
         this.store = null;
@@ -91,11 +101,15 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initMap(lat: number, lng: number): void {
-    const mapEl = document.getElementById('store-map');
-    if (!mapEl || this.map) return;
+  private initMap(): void {
+    if (!this.mapContainer || !this.store || this.map) return;
 
-    this.map = L.map('store-map', {
+    const lat = this.store.location?.lat;
+    const lng = this.store.location?.lng;
+
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+
+    this.map = L.map(this.mapContainer, {
       dragging: true,
       scrollWheelZoom: false,
     }).setView([lat, lng], 15);
@@ -107,7 +121,9 @@ export class StoreProfileComponent implements OnInit, OnDestroy {
 
     L.marker([lat, lng]).addTo(this.map);
 
-    setTimeout(() => this.map?.invalidateSize(), 0);
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 100);
   }
 
   private loadSellerProducts(): void {

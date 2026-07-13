@@ -14,6 +14,7 @@ export class OrderHistoryComponent implements OnInit {
   toReceiveOrders: Order[] = [];
   toReviewOrders: Order[] = [];
   completedOrders: Order[] = [];
+  unsuccessfulOrders: Order[] = [];
   
   isLoading = true;
   activeTab: string = 'toShip';
@@ -27,19 +28,21 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   fetchOrders(): void {
-    this.isLoading = true;
-    this.orderService.getOrders().subscribe({
-      next: (orders) => {
-        this.allOrders = orders;
-        this.toShipOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
-        this.toReceiveOrders = orders.filter(o => o.status === 'in_transit');
-        this.toReviewOrders = orders.filter(o => o.status === 'shipped');
-        this.completedOrders = orders.filter(o => o.status === 'completed');
-        this.isLoading = false;
-      },
-      error: () => this.isLoading = false
-    });
-  }
+  this.isLoading = true;
+  this.orderService.getOrders().subscribe({
+    next: (orders) => {
+      this.allOrders = orders;
+      this.toShipOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
+      this.toReceiveOrders = orders.filter(o => o.status === 'in_transit');
+      this.toReviewOrders = orders.filter(o => o.status === 'shipped');
+      this.completedOrders = orders.filter(o => o.status === 'completed');
+      // Capture courier-flagged failed status changes
+      this.unsuccessfulOrders = orders.filter(o => o.status === 'unsuccessful');
+      this.isLoading = false;
+    },
+    error: () => this.isLoading = false
+  });
+}
 
   onReviewSubmitted(): void {
     this.reviewingProductId = null;
@@ -67,20 +70,24 @@ export class OrderHistoryComponent implements OnInit {
     this.reviewingProductId = this.reviewingProductId === productId ? null : productId;
   }
 
+  
+
   get orders(): Order[] {
-    switch (this.activeTab) {
-      case 'toShip':
-        return this.toShipOrders;
-      case 'toReceive':
-        return this.toReceiveOrders;
-      case 'toReview':
-        return this.toReviewOrders;
-      case 'completed':
-        return this.completedOrders;
-      default:
-        return [];
-    }
+  switch (this.activeTab) {
+    case 'toShip':
+      return this.toShipOrders;
+    case 'toReceive':
+      return this.toReceiveOrders;
+    case 'toReview':
+      return this.toReviewOrders;
+    case 'completed':
+      return this.completedOrders;
+    case 'unsuccessful':
+      return this.unsuccessfulOrders;
+    default:
+      return [];
   }
+}
 
   /** Type guard: item.product is Product | string depending on whether the backend
    *  populated it for this request. The template must check this before reading
