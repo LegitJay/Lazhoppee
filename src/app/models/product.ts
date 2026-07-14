@@ -3,6 +3,7 @@ export interface Product {
   id?: number;         // seed products use this (numeric)
   productId?: string;  // what the cart returns after adding
   name: string;
+  size: string;
   price: number;
   imageUrl: string;
   category: string;

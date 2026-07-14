@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 export interface SellerProduct {
   _id: string;
   name: string;
+  size: string;
   price: number;
   imageUrl: string;
   category: string;

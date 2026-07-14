@@ -83,6 +83,9 @@ export class AuthComponent implements OnInit {
   }
 
   goBack(): void {
+    if (this.isAdminLoginMode) {
+      this.authService.logout(); // or this.authService.adminLogout();
+    }
     this.router.navigate(['/products']);
   }
 

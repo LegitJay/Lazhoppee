@@ -181,6 +181,7 @@
   justify-content: space-between;
   gap: 32px;
 }
+
 .hamburger {
   display: none;
   flex-direction: column;
@@ -228,7 +229,8 @@
 /* -- search -- */
 
 .search-wrap {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -239,19 +241,16 @@
   position: relative;
   display: flex;
   align-items: center;
-
   width: 100%;
   max-width: 720px;
-
   background: var(--color-gray-bg);
   border: 2px solid transparent;
   border-radius: var(--radius-pill);
   padding: 0 4px 0 16px;
-
   transition:
-    border-color .18s ease,
-    box-shadow .18s ease,
-    background .18s ease;
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
 
 .header-search.focused {
@@ -267,6 +266,7 @@
 
 .search-input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   color: var(--color-ink);
@@ -289,6 +289,7 @@
   cursor: pointer;
   border-radius: 50%;
   transition: color 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
 }
 
 .voice-btn:hover {
@@ -308,6 +309,8 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
   transition: background 0.15s ease, transform 0.12s ease;
 }
 
@@ -357,14 +360,11 @@
 .trending {
   width: 100%;
   max-width: 720px;
-
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
   gap: 8px;
   flex-wrap: wrap;
-
   margin-top: 8px;
 }
 
@@ -525,7 +525,6 @@
   font-size: 0.9rem;
   flex-shrink: 0;
   overflow: hidden;
-  /* Add this to clip the image */
 }
 
 .avatar-image {
@@ -620,6 +619,7 @@
   font-size: 0.85rem;
   padding: 10px 22px;
   border-radius: var(--radius-pill);
+  white-space: nowrap;
   transition: background 0.15s ease, transform 0.12s ease;
 }
 
@@ -645,6 +645,14 @@
   gap: 4px;
   padding: 0 24px;
   list-style: none;
+  /* Horizontal scroll instead of wrapping on mid-size screens */
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-list::-webkit-scrollbar {
+  display: none;
 }
 
 .main-nav-link {
@@ -656,6 +664,7 @@
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--color-charcoal-2);
+  white-space: nowrap;
   transition: color 0.15s ease;
 }
 
@@ -696,6 +705,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--color-primary);
+  flex-shrink: 0;
   animation: flash-pulse 1.6s ease-in-out infinite;
 }
 
@@ -716,39 +726,18 @@
 /* ---------------------------------------------------------------------- */
 
 @keyframes badge-pop {
-  from {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
 @keyframes dropdown-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
 @keyframes flash-pulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(214, 41, 58, 0.5);
-  }
-
-  50% {
-    box-shadow: 0 0 0 4px rgba(214, 41, 58, 0);
-  }
+  0%,  100% { box-shadow: 0 0 0 0   rgba(214, 41, 58, 0.5); }
+  50%        { box-shadow: 0 0 0 4px rgba(214, 41, 58, 0);   }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -762,21 +751,35 @@
   border-radius: 4px;
 }
 
-/* ---------------------------------------------------------------------- */
-/* RESPONSIVE                                                              */
-/* ---------------------------------------------------------------------- */
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
 
+/* --- Tablet landscape (≤ 1024px) --- */
 @media (max-width: 1024px) {
   .topbar-links {
     gap: 12px;
   }
 
+  /* Hide secondary topbar links — keep account + lang only */
   .topbar-link:not(.topbar-account) {
     display: none;
   }
+
+  .main-header-row {
+    gap: 20px;
+    padding: 14px 20px;
+  }
+
+  .brand-logo {
+    width: 110px;
+    height: 48px;
+  }
 }
 
+/* --- Tablet portrait (≤ 860px) --- */
 @media (max-width: 860px) {
+  /* Hide welcome text and trending chips to save vertical space */
   .topbar-welcome {
     display: none;
   }
@@ -785,25 +788,21 @@
     display: none;
   }
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #ddd;
+  /* Tighten nav so all links still fit before hamburger kicks in */
+  .main-nav-link {
+    padding: 12px 10px;
+    font-size: 0.82rem;
   }
 
-  .avatar-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .main-header-row {
+    gap: 14px;
+    padding: 12px 16px;
   }
 }
 
+/* --- Small tablet / large phone (≤ 720px) --- */
 @media (max-width: 720px) {
+  /* Show hamburger; hide desktop primary nav */
   .hamburger {
     display: flex;
   }
@@ -813,32 +812,53 @@
   }
 
   .main-header-row {
-    gap: 14px;
-    padding: 12px 16px;
+    gap: 10px;
+    padding: 11px 16px;
   }
 
+  /* Logo: icon-only (the SVG has a mark that works at small sizes) */
   .brand-logo {
     width: 46px;
     height: 40px;
   }
 
-  .header-actions .icon-btn:nth-child(1) {
-    display: none;
-    /* wishlist tucked into mobile menu on small screens */
-  }
-
+  /* Collapse search button to icon-only — the <span>Search</span> hides */
   .search-btn span {
     display: none;
   }
 
   .search-btn {
     padding: 10px;
+    min-width: 38px;
+    justify-content: center;
   }
 
+  /* Hide voice mic — redundant on mobile */
   .voice-btn {
     display: none;
   }
 
+  /* Messages icon also lives in mobile menu; hide it from header actions */
+  .header-actions a.icon-btn[routerLink="/messages"] {
+    display: none;
+  }
+
+  /* Actions gap tighter */
+  .header-actions {
+    gap: 2px;
+  }
+
+  /* Floating dropdowns go edge-to-edge on mobile */
+  .profile-dropdown,
+  .cart-preview,
+  .lang-dropdown {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+
+  /* Show mobile menu panel */
   .mobile-menu {
     display: block;
     background: var(--color-white);
@@ -864,11 +884,17 @@
 
   .mobile-search input {
     flex: 1;
+    min-width: 0;
     background: transparent;
     border: none;
     outline: none;
     padding: 10px 0;
-    font-size: 0.88rem;
+    font-size: 16px; /* exactly 16px prevents iOS Safari zoom */
+    color: var(--color-ink);
+  }
+
+  .mobile-search input::placeholder {
+    color: var(--color-muted);
   }
 
   .mobile-search button {
@@ -879,6 +905,8 @@
     padding: 9px 16px;
     font-size: 0.82rem;
     font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
   }
 
   .mobile-nav-list {
@@ -901,6 +929,17 @@
     padding: 12px 6px;
     border-bottom: 1px solid var(--color-border);
     cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .mobile-nav-list li:last-child a,
+  .mobile-nav-list li:last-child button {
+    border-bottom: none;
+  }
+
+  .mobile-nav-list li a:hover,
+  .mobile-nav-list li button:hover {
+    color: var(--color-primary);
   }
 
   .mobile-nav-list li a.active {
@@ -908,28 +947,146 @@
     font-weight: 600;
   }
 
-  .mobile-nav-list li a:last-child,
-  .mobile-nav-list li button {
-    border-bottom: none;
+  /* Logout button inside mobile nav inherits the crimson from .dropdown-logout */
+  .mobile-nav-list .dropdown-logout,
+  .mobile-nav-list button[type="button"] {
+    color: var(--color-primary);
+    font-weight: 600;
   }
 
   .mobile-divider {
     height: 8px;
   }
+}
 
-  .header-actions {
-    gap: 2px;
+/* --- Small phones (≤ 520px) --- */
+@media (max-width: 520px) {
+  /* Topbar: right-align; keep only lang selector */
+  .topbar-row {
+    padding: 6px 14px;
+    justify-content: flex-end;
+  }
+
+  /* Hide ALL topbar links including account link — mobile menu covers them */
+  .topbar-links {
+    gap: 10px;
+  }
+
+  .topbar-link {
+    display: none;
+  }
+
+  .topbar-divider {
+    display: none;
+  }
+
+  /* Keep only lang selector visible in topbar */
+  .lang-select {
+    display: flex;
+  }
+
+  .main-header-row {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  /* Give the search bar all the flex space it can get */
+  .search-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-search {
+    padding: 0 4px 0 10px;
+  }
+
+  /* Keep avatar but drop the chevron inside profile-btn */
+  .profile-btn .chevron {
+    display: none;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobile-menu {
+    padding: 14px 12px;
+  }
+
+  .mobile-nav-list li a,
+  .mobile-nav-list li button {
+    font-size: 0.88rem;
+    padding: 11px 6px;
   }
 
   .profile-dropdown,
   .cart-preview,
   .lang-dropdown {
-    position: fixed;
-    left: 16px;
-    right: 16px;
-    width: auto;
+    left: 10px;
+    right: 10px;
   }
 }
+
+/* --- Extra small phones (≤ 400px) --- */
+@media (max-width: 400px) {
+  .topbar-row {
+    padding: 5px 12px;
+  }
+
+  .main-header-row {
+    padding: 9px 12px;
+    gap: 6px;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 34px;
+  }
+
+  .search-btn {
+    padding: 8px;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .badge {
+    min-width: 15px;
+    height: 15px;
+    font-size: 0.58rem;
+  }
+
+  .mobile-menu {
+    padding: 12px 10px;
+  }
+
+  .mobile-search {
+    padding: 4px 4px 4px 12px;
+  }
+
+  .mobile-search button {
+    padding: 8px 12px;
+  }
+
+  .mobile-nav-list li a,
+  .mobile-nav-list li button {
+    font-size: 0.85rem;
+    padding: 10px 4px;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* REDUCED MOTION                                                          */
+/* ---------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   * {

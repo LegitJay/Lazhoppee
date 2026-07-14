@@ -81,12 +81,14 @@ tbody tr:hover {
 
 /* Modal — wrap in a min-height div instead of position:fixed */
 .modal-overlay {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  z-index: 1000;
 }
 
 .modal-content {

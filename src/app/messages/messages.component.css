@@ -9,16 +9,12 @@
   height: 100%;
   background: #F5F2EA;
   overflow: hidden;
+  position: relative;
 }
 
-.inbox-container {
-  display: flex;
-  height: 100%;
-  background: #F5F2EA;
-  overflow: hidden;
-}
-
-/* ---------- SIDEBAR ---------- */
+/* ==========================================================================
+   SIDEBAR
+   ========================================================================== */
 .conversation-list {
   width: 320px;
   background: #0B1B3A;
@@ -109,7 +105,7 @@
   flex-direction: column;
   overflow: hidden;
   gap: 2px;
-  min-width: 0;
+  min-width: 0; /* Crucial for text truncation */
 }
 
 .convo-top-row {
@@ -139,7 +135,7 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* ---------- SIDEBAR EMPTY STATE ---------- */
+/* Sidebar empty state */
 .empty-inbox {
   display: flex;
   flex-direction: column;
@@ -167,7 +163,9 @@
   line-height: 1.4;
 }
 
-/* ---------- CHAT PANEL ---------- */
+/* ==========================================================================
+   CHAT PANEL
+   ========================================================================== */
 .chat-panel {
   flex: 1;
   display: flex;
@@ -213,6 +211,9 @@
   font-size: 1.05rem;
   letter-spacing: 0.4px;
   color: #0B1B3A;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-messages {
@@ -247,7 +248,7 @@
   border-radius: 16px;
   background: #fff;
   align-self: flex-start;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   line-height: 1.4;
   font-size: 0.92rem;
   word-break: break-word;
@@ -285,6 +286,7 @@
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s ease;
+  min-width: 0; /* Prevents input from overflowing flex container */
 }
 
 .chat-input-row input:focus {
@@ -319,7 +321,7 @@
   cursor: not-allowed;
 }
 
-/* ---------- NO CONVERSATION SELECTED ---------- */
+/* Empty state */
 .empty-state {
   align-items: center;
   justify-content: center;
@@ -349,20 +351,71 @@
 }
 
 /* ==========================================================================
-   RESPONSIVE — MOBILE (list ⇄ chat swap)
+   RESPONSIVE BREAKPOINTS
    ========================================================================== */
 
-@media (max-width: 768px) {
-  .inbox-container {
-    position: relative;
+/* Tablets & Small Laptops (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .conversation-list {
+    width: 280px;
   }
 
+  .inbox-header {
+    padding: 18px 18px 12px;
+  }
+
+  .inbox-title {
+    font-size: 1.2rem;
+  }
+
+  .convo-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .convo-item {
+    gap: 10px;
+    padding: 9px;
+  }
+
+  .convo-name {
+    font-size: 0.85rem;
+  }
+
+  .convo-preview {
+    font-size: 0.75rem;
+  }
+
+  .chat-header {
+    padding: 12px 20px;
+  }
+
+  .chat-header-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .chat-header-name {
+    font-size: 1rem;
+  }
+
+  .chat-messages-inner,
+  .chat-input-row-inner {
+    max-width: 760px;
+    padding: 0 1.25rem;
+  }
+}
+
+/* Mobile (max-width: 768px) - Switch to slide-over layout */
+@media (max-width: 768px) {
   .conversation-list,
   .chat-panel {
     position: absolute;
     inset: 0;
     width: 100%;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s ease;
   }
 
   .conversation-list {
@@ -373,8 +426,7 @@
     z-index: 2;
   }
 
-  /* A real (non-empty-state) chat-panel means a conversation is open —
-     slide the list out from under it so the chat takes the full screen. */
+  /* Hide sidebar when a real chat is open */
   .inbox-container:has(.chat-panel:not(.empty-state)) .conversation-list {
     transform: translateX(-100%);
   }
@@ -383,20 +435,192 @@
     padding: 16px 16px 10px;
   }
 
+  .inbox-title {
+    font-size: 1.15rem;
+  }
+
+  .convo-list-scroll {
+    padding: 4px 8px 8px;
+  }
+
+  .convo-item {
+    padding: 10px;
+  }
+
+  .convo-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .convo-name {
+    font-size: 0.9rem;
+  }
+
+  .convo-preview {
+    font-size: 0.78rem;
+  }
+
   .chat-header {
     padding: 12px 16px;
+  }
+
+  .chat-header-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .chat-header-name {
+    font-size: 0.98rem;
+  }
+
+  .chat-messages {
+    padding: 1rem 0;
   }
 
   .chat-messages-inner,
   .chat-input-row-inner {
     max-width: 100%;
+    padding: 0 1rem;
   }
 
   .chat-bubble {
     max-width: 85%;
+    font-size: 0.9rem;
+    padding: 0.55rem 0.85rem;
   }
 
   .chat-input-row {
     padding: 0.8rem 1rem;
+  }
+
+  .chat-input-row input {
+    font-size: 0.88rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .chat-input-row button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .empty-state-title {
+    font-size: 1.15rem;
+  }
+
+  .empty-state-sub {
+    font-size: 0.82rem;
+    max-width: 280px;
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .inbox-header {
+    padding: 14px 14px 10px;
+  }
+
+  .inbox-title {
+    font-size: 1.05rem;
+  }
+
+  .inbox-count {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .convo-list-scroll {
+    padding: 2px 6px 6px;
+  }
+
+  .convo-item {
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: 8px;
+  }
+
+  .convo-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+  }
+
+  .convo-name {
+    font-size: 0.86rem;
+  }
+
+  .convo-preview {
+    font-size: 0.74rem;
+  }
+
+  .empty-inbox {
+    padding: 40px 18px 0;
+  }
+
+  .empty-inbox-icon {
+    font-size: 1.7rem;
+  }
+
+  .empty-inbox p {
+    font-size: 0.85rem;
+  }
+
+  .empty-inbox span {
+    font-size: 0.72rem;
+  }
+
+  .chat-header {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .chat-header-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .chat-header-name {
+    font-size: 0.92rem;
+  }
+
+  .chat-messages-inner,
+  .chat-input-row-inner {
+    padding: 0 0.75rem;
+  }
+
+  .chat-bubble {
+    max-width: 88%;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 14px;
+  }
+
+  .chat-input-row {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .chat-input-row input {
+    font-size: 0.85rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .chat-input-row button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+  }
+
+  .empty-state-title {
+    font-size: 1.05rem;
+  }
+
+  .empty-state-sub {
+    font-size: 0.78rem;
+    max-width: 240px;
   }
 }

@@ -263,12 +263,12 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, category, stock } = req.body;
+      const { name, size, price, category, stock } = req.body;
 
-      if (!name || !price) {
+      if (!name || !size || !price) {
         return res
           .status(400)
-          .json({ message: "Name and price are required." });
+          .json({ message: "Name,size, and price are required." });
       }
 
       const sellerId = req.user.id;
@@ -290,6 +290,7 @@ router.post(
 
       const product = await Product.create({
         name,
+        size,
         price: Number(price),
         category,
         stock: Number(stock) || 0,
@@ -322,8 +323,9 @@ router.patch(
       if (!product)
         return res.status(404).json({ message: "Product not found." });
 
-      const { name, price, category, stock } = req.body;
+      const { name, size, price, category, stock } = req.body;
       if (name) product.name = name;
+      if (size) product.size = size;
       if (price) product.price = Number(price);
       if (category) product.category = category;
       if (stock !== undefined) product.stock = Number(stock);

@@ -19,7 +19,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   selectedAddress: Address | null = null;
 
   subtotal = 0;
-  shippingFee = 50; // Placeholder
+  shippingFee = 0; // Placeholder
   totalPayment = 0;
 
   isProcessing = false;

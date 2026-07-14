@@ -41,7 +41,7 @@ export class SellerDashboardComponent implements OnInit {
 
   categories: Category[] = [];
 
-  form = { name: '', price: 0, category: '', stock: 0, description: '' };
+  form = { name: '', size: '', price: 0, category: '', stock: 0, description: '' };
 
   selectedFile: File | null = null;
   imagePreview: string | null = null;
@@ -83,7 +83,7 @@ export class SellerDashboardComponent implements OnInit {
 
   openAddForm(): void {
     this.editingProduct = null;
-    this.form = { name: '', price: 0, category: '', stock: 0, description: '' };
+    this.form = { name: '', size: '', price: 0, category: '', stock: 0, description: '' };
     this.resetImageState();
     this.showForm = true;
     this.errorMessage = '';
@@ -93,6 +93,7 @@ export class SellerDashboardComponent implements OnInit {
     this.editingProduct = product;
     this.form = {
       name: product.name,
+      size: product.size,
       price: product.price,
       category: product.category,
       stock: product.stock,
@@ -144,6 +145,7 @@ export class SellerDashboardComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('name', this.form.name);
+    formData.append('size', this.form.size);
     formData.append('price', String(this.form.price));
     formData.append('category', String(this.form.category));
     formData.append('stock', String(this.form.stock));

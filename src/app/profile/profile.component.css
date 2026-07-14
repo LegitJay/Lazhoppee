@@ -14,7 +14,6 @@
   --profile-bg: #f7f8fa;
 }
 
-
 * {
   box-sizing: border-box;
 }
@@ -36,7 +35,7 @@
 }
 
 /* ============================================
-   Profile Header — flat, no gradients or lift
+   Profile Header
    ============================================ */
 .profile-header {
   background: var(--profile-navy);
@@ -45,6 +44,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .profile-avatar-section {
@@ -125,12 +125,14 @@
   margin: 0;
   line-height: 1.15;
   text-transform: uppercase;
+  word-break: break-word;
 }
 
 .profile-email {
   font-size: 13px;
   color: rgba(245, 242, 234, 0.6);
   margin: 0;
+  word-break: break-all;
 }
 
 .profile-header-actions {
@@ -138,6 +140,7 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .details-toggle-btn,
@@ -161,7 +164,7 @@
 }
 
 /* ============================================
-   Store details panel — flat card below header
+   Store details panel
    ============================================ */
 .store-details-panel {
   background: var(--profile-card);
@@ -251,8 +254,7 @@
 }
 
 /* ============================================
-   Dashboard layout — main + sidebar grid,
-   fills the full available width, stacks on mobile
+   Dashboard layout
    ============================================ */
 .dashboard-layout {
   display: grid;
@@ -306,7 +308,7 @@
   letter-spacing: 0.03em;
 }
 
-/* Cards: info sections, dashboard, account, basic-info */
+/* Cards */
 .info-section,
 .basic-info,
 .dashboard-section,
@@ -356,6 +358,7 @@
   font-size: 14px;
   color: var(--profile-text);
   font-weight: 500;
+  word-break: break-word;
 }
 
 .section-header,
@@ -363,7 +366,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .section-header h2,
@@ -385,6 +390,7 @@
   font-weight: 500;
   font-size: 13px;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -437,9 +443,10 @@
   font-family: inherit;
   background: white;
   transition: border-color 0.15s ease;
+  /* prevent iOS zoom */
+  font-size: max(16px, 14px);
 }
 
-/* Fix: give the edit panel the same card treatment as the details panel */
 .store-edit-panel {
   background: var(--profile-card);
   border: 1px solid var(--profile-border);
@@ -461,6 +468,7 @@
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .cancel-btn {
@@ -496,7 +504,7 @@
   background: var(--profile-crimson-dark);
 }
 
-/* Become-a-seller card — sits in the sidebar, flat */
+/* Become-a-seller CTA */
 .seller-cta-card {
   background: var(--profile-navy);
   border: none;
@@ -538,16 +546,15 @@
 }
 
 /* Map */
-/* Guarantee Leaflet always sees real dimensions */
 .store-map-container {
   width: 100%;
   height: 320px;
-  min-height: 320px;   /* ← add this */
+  min-height: 320px;
   border-radius: 6px;
   border: 1px solid var(--profile-border);
   overflow: hidden;
   margin: 10px 0;
-  display: block;      /* ← add this, prevents flex/grid collapsing it to 0 */
+  display: block;
 }
 
 .store-map-wrapper {
@@ -580,20 +587,7 @@
   z-index: 1;
 }
 
-/* ============================================
-   Responsive — stacks to single column, full
-   width preserved at every breakpoint
-   ============================================ */
-@media (max-width: 1024px) {
-  .dashboard-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-section {
-    grid-template-columns: repeat(3, 1fr);
-  }
-} 
-
+/* Account danger zone */
 .account-actions {
   margin-top: 30px;
   padding-top: 20px;
@@ -614,6 +608,7 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .delete-account-btn:hover {
@@ -643,15 +638,244 @@
   gap: 10px;
 }
 
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* --- Tablet landscape (≤ 1024px) --- */
+@media (max-width: 1024px) {
+  /* Collapse sidebar into single column */
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sidebar moves below main content */
+  .dashboard-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-sidebar > * {
+    flex: 1 1 280px;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- Tablet portrait (≤ 768px) --- */
 @media (max-width: 768px) {
+  .profile-shell {
+    padding: 20px 16px 48px;
+  }
+
+  .profile-header {
+    padding: 20px 20px;
+    gap: 16px;
+  }
+
+  .profile-name {
+    font-size: 22px;
+  }
+
+  /* Stack header actions below info on tablet */
+  .profile-header-actions {
+    width: 100%;
+  }
+
+  .profile-header-actions .edit-account-btn,
+  .profile-header-actions .delete-account-btn {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .store-details-panel,
+  .store-edit-panel {
+    padding: 20px;
+  }
+
+  .info-section,
+  .basic-info,
+  .dashboard-section,
+  .account-card {
+    padding: 20px;
+  }
+
+  /* Stats: 3 cols still fit, just tighten padding */
+  .stat-card {
+    padding: 12px 8px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .store-map-container {
+    height: 260px;
+    min-height: 260px;
+  }
+
   .account-actions {
     flex-direction: column;
-    justify-content: stretch;
   }
 
   .logout-btn,
   .delete-account-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .dashboard-sidebar {
+    flex-direction: column;
+  }
+}
+
+/* --- Small phones (≤ 520px) --- */
+@media (max-width: 520px) {
+  .profile-shell {
+    padding: 14px 12px 40px;
+  }
+
+  .profile-header {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .profile-avatar {
+    width: 58px;
+    height: 58px;
+    font-size: 22px;
+  }
+
+  .profile-name {
+    font-size: 19px;
+  }
+
+  .profile-email {
+    font-size: 12px;
+  }
+
+  /* Buttons full-width */
+  .profile-header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .profile-header-actions .edit-account-btn,
+  .profile-header-actions .delete-account-btn,
+  .profile-header-actions .details-toggle-btn,
+  .profile-header-actions .logout-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Stats: 2 columns on small phones, 3 is too cramped */
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* info-grid: force single column so values don't squeeze */
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .store-details-panel,
+  .store-edit-panel,
+  .info-section,
+  .basic-info,
+  .account-card {
+    padding: 16px;
+  }
+
+  .seller-cta-card {
+    padding: 16px;
+  }
+
+  .cta-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .status-banner {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .banner-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .progress-bar {
+    width: 100%;
+  }
+
+  .store-map-container {
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .edit-account-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --- Extra small (≤ 400px) --- */
+@media (max-width: 400px) {
+  .profile-shell {
+    padding: 12px 10px 32px;
+  }
+
+  .profile-header {
+    padding: 14px 12px;
+  }
+
+  .profile-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .profile-name {
+    font-size: 17px;
+  }
+
+  /* Stats: single row, scroll if needed */
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .store-map-container {
+    height: 200px;
+    min-height: 200px;
   }
 }

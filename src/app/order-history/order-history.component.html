@@ -101,7 +101,7 @@
           The courier was unable to complete the drop-off process.
           <!-- Using safe array index navigation safely silences strict compiler flags -->
           <span *ngIf="order.trackingHistory && order.trackingHistory.length > 0">
-            Reason provided: <em>"{{ order.trackingHistory?.[0]?.note || 'No additional notes provided by courier'
+            Reason provided: <em>"{{ order.trackingHistory[0].note || 'No additional notes provided by courier'
               }}"</em>
           </span>
         </p>

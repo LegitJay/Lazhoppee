@@ -83,6 +83,9 @@ export class AuthService {
       .post<AuthResponse>(`${this.baseUrl}/login`, payload)
       .pipe(
         tap((res) => {
+          if (res.user.role === 'admin') {
+            this.setAdminSession(res);
+          }
           this.setSession(res);
           this.getMe().subscribe(); // Fetch full user profile after login
         })
